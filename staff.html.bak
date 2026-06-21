@@ -219,9 +219,6 @@ function loadRoleScript(role, callback) {
 
   var map = {
     'معلم': 'staff-teacher.js',
-    'مسمع_تعليمي': 'staff-teacher.js',
-    'مساعد_معلم': 'staff-teacher.js',
-    'مساعد_خارجي': 'staff-teacher.js',
     'مشرف_تعليمي': 'staff-edu.js',
     'مشرف_اداري': 'staff-admin.js',
     'مدير': 'staff-director.js'
@@ -242,9 +239,6 @@ function loadRoleScript(role, callback) {
 
     var expected = {
       'معلم': 'pgTeacherSt',
-      'مسمع_تعليمي': 'pgTeacherSt',
-      'مساعد_معلم': 'pgTeacherSt',
-      'مساعد_خارجي': 'pgTeacherSt',
       'مشرف_تعليمي': 'pgEduKpi',
       'مشرف_اداري': 'pgAdminKpi',
       'مدير': 'pgDirectorKpi'
@@ -300,7 +294,7 @@ function val(id){var e=document.getElementById(id);return e?e.value:'';}
 function q(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/\r?\n/g,' ');}
 function qj(o){return encodeURIComponent(JSON.stringify(o));}
 function fmtDate(d){if(!d)return'—';try{return new Date(d).toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'});}catch(e){return String(d).split('T')[0];}}
-function roleLabel(r){return{مشرف_النظام:'مشرف النظام',مشرف_اداري:'مشرف إداري',مشرف_تعليمي:'مشرف تعليمي',معلم:'معلم',مسمع_تعليمي:'مسمع تعليمي',مساعد_معلم:'مساعد معلم',مساعد_خارجي:'مساعد خارجي',مدير:'مدير',مسجل:'مسجل',مشاهد:'مشاهد'}[r]||r||'—';}
+function roleLabel(r){return{مشرف_اداري:'مشرف إداري',مشرف_تعليمي:'مشرف تعليمي',معلم:'معلم',مدير:'مدير'}[r]||r||'—';}
 function sBadge(s){var m={منتظم:'bp-ok','غير منتظم':'bp-wa',موقوف:'bp-er','في الانتظار':'bp-in',منسحب:'bp-gr'};return '<span class="bp '+(m[s]||'bp-gr')+'">'+(s||'—')+'</span>';}
 function kpiCard(label,val,icon,cls){return '<div class="kpi-card '+(cls||'')+'"><div class="klabel"><i class="fas '+icon+' fa-xs"></i> '+label+'</div><div class="kval">'+val+'</div><i class="fas '+icon+' bgico"></i></div>';}
 function sField(label,id,val2,type,disabled){return '<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">'+label+(disabled?' <span style="font-size:10px;color:#aaa">(ثابت)</span>':'')+'</label><input id="'+id+'" type="'+(type||'text')+'" class="swal2-input" value="'+(val2||'')+'" '+(disabled?'disabled':'')+' style="font-family:Tajawal;width:100%;margin:0;'+(disabled?'background:#f5f5f5;color:#aaa':'')+'"></div>';}
@@ -309,16 +303,6 @@ function buildMsg(tpl,vars){var t=tpl||'';Object.keys(vars).forEach(function(k){
 function hijri(){return new Date().toLocaleDateString('ar-SA-u-ca-islamic',{year:'numeric',month:'long',day:'numeric'});}
 function updateReqBadge(){var c=arr(D.reqNew).length+arr(D.reqEdits).length;var e=document.getElementById('nbReq');if(e)e.textContent=c||'';}
 function updateEduBadge(){var c=arr(D.eduWarnings).filter(function(x){return!String(x['تاريخ_الإغلاق']||'');}).length;var e=document.getElementById('nbEdu');if(e)e.textContent=c||'';}
-function hasPerm(page,action){
-  action=action||'can_view';
-  var u=D.user||{};
-  if(u.is_super_admin)return true;
-  var ps=arr(u.permissions);
-  var p=ps.find(function(x){return x.page_key===page;});
-  return !!(p&&p[action]);
-}
-function isTeacherLike(role){return ['معلم','مسمع_تعليمي','مساعد_معلم','مساعد_خارجي'].indexOf(role)>=0;}
-function pgSoon(title,desc){mc('<div class="empty" style="padding:80px 20px"><i class="fas fa-screwdriver-wrench"></i><h3>'+q(title||'قريبًا')+'</h3><p style="margin-top:8px;color:var(--ts)">'+q(desc||'سيتم تجهيز هذه الصفحة في المرحلة التالية.')+'</p></div>');}
 
 // ── localStorage cache 3 دقائق ──
 function saveCache(){try{var k='sc_'+(D.user&&D.user['الاسم']||'');localStorage.setItem(k,JSON.stringify({t:Date.now(),d:{circles:D.circles,statuses:D.statuses,templates:D.templates,procedures:D.procedures,thresholds:D.thresholds,setUsers:D.setUsers,setCircles:D.setCircles,setStates:D.setStates,teacherStudents:D.teacherStudents,teacherKpi:D.teacherKpi,eduKpi:D.eduKpi,eduWarnings:D.eduWarnings,eduStudents:D.eduStudents,eduStudentMap:D.eduStudentMap,eduProcs:D.eduProcs,students:D.students,studentsTotal:D.studentsTotal,studentsPages:D.studentsPages,reqNew:D.reqNew,reqWait:D.reqWait,reqEdits:D.reqEdits,adminEduW:D.adminEduW,adminAdmW:D.adminAdmW,kpi:D.kpi,dirData:D.dirData}}));}catch(e){}}
@@ -360,7 +344,7 @@ function closeSidebar(){document.getElementById('sidebarNav').classList.remove('
 async function prefetch(){
   var role=D.role, حلقة=D.user['الحلقة']||'';
   try{
-    if(isTeacherLike(role)){
+    if(role==='معلم'){
       var rs=await Promise.all([
         api('جلب_طلاب_الحلقة',{الحلقة:حلقة}),
         api('جلب_تقارير_معلم',{الحلقة:حلقة}),
@@ -478,7 +462,7 @@ if (!init || !init.نجاح) {
   throw new Error((init && init.خطأ) || 'فشل تحميل التهيئة');
 }
 
-if (isTeacherLike(D.role)) {
+if (D.role === 'معلم') {
   D.teacherStudents = init.طلاب || [];
   D.teacherKpi = init.تقارير || {};
 }
@@ -508,7 +492,6 @@ else if (D.role === 'مشرف_اداري') {
   D.procedures = init.اجراءات || [];
   D.eduReasons = init.أسباب_تعليمية || [];
   D.setUsers = init.عاملون || [];
-  D.appPages = init.صفحات || [];
   D.kpi = init.kpi || {};
 }
 else if (D.role === 'مدير') {
@@ -547,7 +530,6 @@ function _fetchAdminBackground(){
     api('جلب_ارشيف_انذارات_ادارية',{نوع_الانذار:'غياب'}),
     api('جلب_ارشيف_انذارات_ادارية',{نوع_الانذار:'غياب_بعذر'}),
     api('جلب_الطلاب',{حجم_الصفحة:999,الصفحة:1}),
-    api('جلب_صفحات_النظام',{}),
   ]).then(function(r2){
     D.adminAdmW=arr(r2[0].انذارات);
     D.thresholds=arr(r2[1].عتبات);
@@ -563,7 +545,6 @@ function _fetchAdminBackground(){
     D.admWarnData['غياب']      ={list:arr(r2[5].طلاب),arch:arr(r2[8].انذارات)};
     D.admWarnData['غياب_بعذر']={list:arr(r2[6].طلاب),arch:arr(r2[9].انذارات)};
     // بناء eduStudentMap للإنذارات التعليمية
-    D.appPages=arr(r2[11].صفحات);
     var allStudents=arr(r2[10].طلاب);
     if(allStudents.length){
       D.eduStudentMap=D.eduStudentMap||{};
@@ -588,46 +569,35 @@ function _fetchAdminBackground(){
 // ══ بناء الشريط الجانبي ══
 function buildSidebar(){
   var role=D.role,h='';
-  if(isTeacherLike(role)){
-    h='<div class="slabel">القائمة</div>';
-    if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
-    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
-    if(hasPerm('weekly_prep_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tWeeklyReport')"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>`;
-    if(hasPerm('student_paths')) h+=`<div class="nitem" onclick="nav('tPaths')"><i class="fas fa-route"></i> مسارات الطلاب</div>`;
-    if(hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`;
+  if(role==='معلم'){
+    h='<div class="slabel">القائمة</div>'
+     +'<div class="nitem" onclick="nav(\'tSt\')"><i class="fas fa-users"></i> طلاب الحلقة</div>'
+     +'<div class="nitem" onclick="nav(\'tKpi\')"><i class="fas fa-chart-pie"></i> التقارير</div>';
   } else if(role==='مشرف_تعليمي'){
     h='<div class="slabel">القائمة</div>'
-     +`<div class="nitem" onclick="nav('eKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`
-     +`<div class="nitem" onclick="nav('eW')"><i class="fas fa-triangle-exclamation"></i> الإنذارات <span class="nbadge" id="nbEdu"></span></div>`
-     +`<div class="nitem" onclick="nav('eSt')"><i class="fas fa-users"></i> الحلق والطلاب</div>`;
+     +'<div class="nitem" onclick="nav(\'eKpi\')"><i class="fas fa-chart-pie"></i> التقارير</div>'
+     +'<div class="nitem" onclick="nav(\'eW\')"><i class="fas fa-triangle-exclamation"></i> الإنذارات <span class="nbadge" id="nbEdu"></span></div>'
+     +'<div class="nitem" onclick="nav(\'eSt\')"><i class="fas fa-users"></i> الحلق والطلاب</div>';
   } else if(role==='مشرف_اداري'){
     var cnt=arr(D.reqNew).length+arr(D.reqEdits).length;
     h='<div class="slabel">الإدارة</div>'
-     +`<div class="nitem" onclick="nav('aKpi')"><i class="fas fa-chart-pie"></i> لوحة التقارير</div>`
-     +`<div class="nitem" onclick="nav('aSt')"><i class="fas fa-users"></i> إدارة الطلاب</div>`
-     +`<div class="nitem" onclick="nav('aReq')"><i class="fas fa-inbox"></i> الطلبات <span class="nbadge" id="nbReq">${cnt||''}</span></div>`
+     +'<div class="nitem" onclick="nav(\'aKpi\')"><i class="fas fa-chart-pie"></i> لوحة التقارير</div>'
+     +'<div class="nitem" onclick="nav(\'aSt\')"><i class="fas fa-users"></i> إدارة الطلاب</div>'
+     +'<div class="nitem" onclick="nav(\'aReq\')"><i class="fas fa-inbox"></i> الطلبات <span class="nbadge" id="nbReq">'+(cnt||'')+'</span></div>'
      +'<div class="slabel">الإنذارات</div>'
-     +`<div class="nitem" onclick="nav('aEduW')"><i class="fas fa-book-open"></i> الإنذارات التعليمية</div>`
-     +`<div class="nitem" onclick="nav('aAdmW')"><i class="fas fa-user-clock"></i> الإنذارات الإدارية</div>`
-     +`<div class="nitem" onclick="nav('aAllW')"><i class="fas fa-list-check"></i> جميع الإنذارات</div>`
+     +'<div class="nitem" onclick="nav(\'aEduW\')"><i class="fas fa-book-open"></i> الإنذارات التعليمية</div>'
+     +'<div class="nitem" onclick="nav(\'aAdmW\')"><i class="fas fa-user-clock"></i> الإنذارات الإدارية</div>'
+     +'<div class="nitem" onclick="nav(\'aAllW\')"><i class="fas fa-list-check"></i> جميع الإنذارات</div>'
      +'<div class="slabel">الإعدادات</div>'
-     +`<div class="nitem" onclick="nav('aTerms')"><i class="fas fa-calendar-days"></i> الفصول والبرامج</div>`
-     +`<div class="nitem" onclick="nav('settings')"><i class="fas fa-gear"></i> الإعدادات</div>`;
+     +'<div class="nitem" onclick="nav(\'settings\')"><i class="fas fa-gear"></i> الإعدادات</div>';
   } else if(role==='مدير'){
     h='<div class="slabel">الاطلاع</div>'
-     +`<div class="nitem" onclick="nav('dirKpi')"><i class="fas fa-chart-pie"></i> لوحة الإحصاءات</div>`;
+     +'<div class="nitem" onclick="nav(\'dirKpi\')"><i class="fas fa-chart-pie"></i> لوحة الإحصاءات</div>';
   }
-  document.getElementById('sidebarNav').innerHTML=h||'<div class="slabel">لا توجد صفحات متاحة</div>';
+  document.getElementById('sidebarNav').innerHTML=h;
 }
 function navFirst(){
-  if(isTeacherLike(D.role)){
-    if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
-    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) return nav('tPreparation');
-    if(hasPerm('weekly_prep_report')||hasPerm('reports')||D.role==='معلم') return nav('tWeeklyReport');
-    if(hasPerm('student_paths')) return nav('tPaths');
-    if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
-  }
-  var m={مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
+  var m={معلم:'tSt',مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
   nav(m[D.role]||'aKpi');
 }
   
@@ -648,19 +618,6 @@ function nav(page){
     case 'tKpi':
       if (typeof window.pgTeacherKpi === 'function') return window.pgTeacherKpi();
       return missingPageFunction('pgTeacherKpi');
-
-    case 'tAttendance':
-    case 'tPreparation':
-      if (typeof window.pgTeacherPreparation === 'function') return window.pgTeacherPreparation();
-      return missingPageFunction('pgTeacherPreparation');
-
-    case 'tWeeklyReport':
-      if (typeof window.pgTeacherWeeklyReport === 'function') return window.pgTeacherWeeklyReport();
-      return missingPageFunction('pgTeacherWeeklyReport');
-
-    case 'tPaths':
-      if (typeof window.pgTeacherStudentPaths === 'function') return window.pgTeacherStudentPaths();
-      return missingPageFunction('pgTeacherStudentPaths');
 
     case 'eKpi':
       if (typeof window.pgEduKpi === 'function') return window.pgEduKpi();
@@ -697,10 +654,6 @@ function nav(page){
     case 'aAllW':
       if (typeof window.pgAdminAllW === 'function') return window.pgAdminAllW();
       return missingPageFunction('pgAdminAllW');
-
-    case 'aTerms':
-      if (typeof window.pgLearningTerms === 'function') return window.pgLearningTerms();
-      return missingPageFunction('pgLearningTerms');
 
     case 'settings':
       if (typeof window.pgSettings === 'function') return window.pgSettings();
