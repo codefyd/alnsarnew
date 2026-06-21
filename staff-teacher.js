@@ -42,14 +42,13 @@ function pgTeacherKpi(){
 }
 
 // ══════════════════════════════════════════════════════
-// Phase 3C — التحضير اليومي الموحد
-// الحضور + إتمام الحفظ + محفوظ اليوم + المسارات + تقرير أسبوعي
+// Phase 3D — التحضير اليومي الموحد + فصل التقارير والمسارات في القائمة
 // ══════════════════════════════════════════════════════
 function todayISO(){return new Date().toISOString().slice(0,10);}
 function hesc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function attLabel(t){return {حاضر:'حاضر',غائب:'غائب','غائب_بعذر':'غائب بعذر',تأخر:'متأخر'}[t]||t||'—';}
+function attLabel(t){return {حاضر:'حاضر',غائب:'غائب','غائب_بعذر':'غائب بعذر',تأخر:'متأخر',متأخر:'متأخر'}[t]||t||'—';}
 function attBadge(t){
-  var cls={حاضر:'bp-ok',غائب:'bp-er','غائب_بعذر':'bp-wa','تأخر':'bp-in'}[t]||'bp-gr';
+  var cls={حاضر:'bp-ok',غائب:'bp-er','غائب_بعذر':'bp-wa',تأخر:'bp-in',متأخر:'bp-in'}[t]||'bp-gr';
   return '<span class="bp '+cls+'">'+attLabel(t)+'</span>';
 }
 function doneBadge(v){
@@ -61,15 +60,14 @@ function pathOptions(sel){
   var paths=['','سفرة','ذهبي','فضي','سفرة 10 أسطر','تلاوة'];
   return paths.map(function(p){return '<option value="'+hesc(p)+'" '+(p===sel?'selected':'')+'>'+(p||'— اختر المسار —')+'</option>';}).join('');
 }
+function teacherCircle(){return (D.user&&D.user['الحلقة'])||'';}
 
-async function pgTeacherPreparation(){return pgTeacherDailyUnified();}
-async function pgTeacherAttendance(){return pgTeacherDailyUnified();}
+async function pgTeacherAttendance(){return pgTeacherPreparation();}
 
-async function pgTeacherDailyUnified(){
-  var حلقة=D.user['الحلقة']||'';
+async function pgTeacherPreparation(){
   var d=D.dailyPrepDate||todayISO();
-  mc('<div class="stitle"><i class="fas fa-clipboard-check"></i> التحضير اليومي للطلاب</div>'
-    +'<div class="cc"><div class="chdr"><h3>حلقة: '+hesc(حلقة||'—')+'</h3>'
+  mc('<div class="stitle"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>'
+    +'<div class="cc"><div class="chdr"><h3>تحضير حضور الطالب اليومي</h3>'
     +'<div class="cacts">'
     +'<input class="fi" id="dailyPrepDate" type="date" value="'+d+'" onchange="loadDailyPrep()">'
     +'<button class="ob sm" onclick="loadDailyPrep()"><i class="fas fa-rotate"></i> تحديث</button>'
@@ -77,18 +75,9 @@ async function pgTeacherDailyUnified(){
     +'<button class="ob sm" onclick="saveDailyPrep()"><i class="fas fa-floppy-disk"></i> حفظ اليوم</button>'
     +'</div></div>'
     +'<div class="cbody" id="dailyTermBar"><div class="empty"><div class="spri"></div><h3>جارٍ تحميل الفترة…</h3></div></div>'
-    +'<div class="stabs" style="padding:0 16px;border-top:1px solid var(--bd)">'
-    +'<button class="stab active" onclick="swST(this,\'prepPanel\')"><i class="fas fa-clipboard-check"></i> تحضير اليوم</button>'
-    +'<button class="stab" onclick="swST(this,\'weeklyPanel\');loadWeeklyPrepReport()"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</button>'
-    +'<button class="stab" onclick="swST(this,\'pathsPanel\')"><i class="fas fa-route"></i> مسارات الطلاب</button>'
-    +'</div>'
-    +'<div class="spanel active" id="prepPanel">'
     +'<div class="cbody" id="dailySummary"></div>'
     +'<div style="overflow-x:auto"><table class="dt" id="dailyPrepTbl"><thead><tr><th>#</th><th>الطالب</th><th>المسار</th><th>الحضور</th><th>إتمام الحفظ</th><th>محفوظ اليوم</th><th>ملاحظة</th></tr></thead><tbody id="dailyPrepBody"></tbody></table></div>'
     +'<div class="cbody"><div class="pgbar"><span id="dailyPrepFoot">—</span><div class="pgbtns"><button class="pgbtn" onclick="saveDailyPrep()"><i class="fas fa-floppy-disk"></i> حفظ اليوم</button></div></div></div>'
-    +'</div>'
-    +'<div class="spanel" id="weeklyPanel"><div class="cbody" id="weeklyReportBody"><div class="empty"><i class="fas fa-table"></i><h3>اضغط التبويب لعرض التقرير الأسبوعي</h3></div></div></div>'
-    +'<div class="spanel" id="pathsPanel"><div class="cbody"><div class="pgbar"><span>حدد مسار كل طالب للاستفادة منه لاحقًا في التقارير والبرامج.</span><div class="pgbtns"><button class="pgbtn" onclick="saveStudentPaths()"><i class="fas fa-floppy-disk"></i> حفظ المسارات</button></div></div></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>#</th><th>الطالب</th><th>الصف</th><th>المسار</th><th>ملاحظة</th></tr></thead><tbody id="pathsBody"></tbody></table></div></div>'
     +'</div>');
   await loadDailyPrep();
 }
@@ -97,25 +86,28 @@ async function loadDailyPrep(){
   var d=val('dailyPrepDate')||todayISO();
   D.dailyPrepDate=d;
   spin(true,'جارٍ تحميل التحضير اليومي…');
-  var r=await api('جلب_تحضير_يومي_موحد',{الحلقة:D.user['الحلقة']||'',التاريخ:d});
+  var r=await api('جلب_تحضير_يومي_موحد',{الحلقة:teacherCircle(),التاريخ:d});
   spin(false);
   if(!r||!r.نجاح){
-    document.getElementById('dailyTermBar').innerHTML='<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>تعذر تحميل التحضير</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';
+    var e=document.getElementById('dailyTermBar')||document.getElementById('weeklyReportBody')||document.getElementById('pathsBody');
+    if(e)e.innerHTML='<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>تعذر تحميل البيانات</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';
     return;
   }
   D.dailyRows=arr(r.طلاب);
   D.dailyPerms=r.صلاحيات||{};
   D.dailyTerm=r.الفترة||{};
+  var title=document.querySelector('.stitle');
+  if(title && r['الحلقة']) title.innerHTML=title.innerHTML+' <span style="font-size:12px;color:var(--ts);font-weight:500">· حلقة: '+hesc(r['الحلقة'])+'</span>';
   renderTermBar(r.الفترة||{});
   renderDailySummary(r.ملخص||{});
   document.getElementById('dailyPrepBody').innerHTML=buildDailyPrepRows(D.dailyRows);
-  document.getElementById('pathsBody').innerHTML=buildPathRows(D.dailyRows);
   document.getElementById('dailyPrepFoot').textContent='عدد الطلاب: '+D.dailyRows.length+' · التاريخ: '+d;
   updateDailyCounts();
 }
 
 function renderTermBar(term){
-  document.getElementById('dailyTermBar').innerHTML='<div class="kpi-grid" style="margin-bottom:0">'
+  var e=document.getElementById('dailyTermBar'); if(!e)return;
+  e.innerHTML='<div class="kpi-grid" style="margin-bottom:0">'
     +kpiCard('الفترة الحالية',hesc(term['اسم_الفترة']||'—'),'fa-calendar-days','')
     +kpiCard('نوع الفترة',hesc(term['نوع_الفترة']||'—'),'fa-layer-group','')
     +kpiCard('من',hesc(term['تاريخ_البداية']||'—'),'fa-play','kpi-ok')
@@ -124,7 +116,8 @@ function renderTermBar(term){
 }
 
 function renderDailySummary(m){
-  document.getElementById('dailySummary').innerHTML='<div class="kpi-grid" style="margin-bottom:0">'
+  var e=document.getElementById('dailySummary'); if(!e)return;
+  e.innerHTML='<div class="kpi-grid" style="margin-bottom:0">'
     +kpiCard('إجمالي الطلاب',m['إجمالي']||0,'fa-users','')
     +kpiCard('مسجل اليوم',m['مسجل']||0,'fa-clipboard-check','kpi-ok')
     +kpiCard('لم يسجل',m['غير_مسجل']||0,'fa-hourglass-half','kpi-wa')
@@ -146,7 +139,7 @@ function doneButtons(v){
 }
 
 function buildDailyPrepRows(list){
-  if(!list.length)return'<tr><td colspan="7" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب في هذه الحلقة</td></tr>';
+  if(!list.length)return'<tr><td colspan="7" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب في هذه الحلقة، تأكد أن المستخدم مربوط بنفس اسم الحلقة في ملفه.</td></tr>';
   return list.map(function(s,i){
     var code=hesc(s['رقم_الطالب']||''), done=s['اتمام_الحفظ'];
     return '<tr class="dailyRow" data-code="'+code+'" data-name="'+hesc(s['اسم_الطالب']||'')+'" data-done="'+(done===true?'true':done===false?'false':'')+'">'
@@ -157,20 +150,6 @@ function buildDailyPrepRows(list){
       +'<td><div class="mini-wrap doneWrap">'+doneButtons(done)+'</div></td>'
       +'<td><div style="display:flex;gap:6px;min-width:220px"><input class="fi surahInput" value="'+hesc(s['السورة']||'')+'" placeholder="السورة" style="min-width:120px"><input class="fi ayahInput" value="'+hesc(s['رقم_الاية']||'')+'" placeholder="رقم الآية" style="width:90px"></div></td>'
       +'<td><input class="fi dailyNote" value="'+hesc(s['ملاحظة']||'')+'" placeholder="اختياري" style="min-width:160px"></td>'
-      +'</tr>';
-  }).join('');
-}
-
-function buildPathRows(list){
-  if(!list.length)return'<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب</td></tr>';
-  return list.map(function(s,i){
-    var code=hesc(s['رقم_الطالب']||'');
-    return '<tr class="pathRow" data-code="'+code+'">'
-      +'<td>'+(i+1)+'</td>'
-      +'<td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+code+'</div></td>'
-      +'<td>'+hesc(s['الصف_الدراسي']||s['المرحلة_الدراسية']||'—')+'</td>'
-      +'<td><select class="fi pathSelect" style="min-width:170px">'+pathOptions(s['المسار']||'')+'</select></td>'
-      +'<td><input class="fi pathNote" placeholder="ملاحظة اختيارية" style="min-width:180px"></td>'
       +'</tr>';
   }).join('');
 }
@@ -201,15 +180,8 @@ function setAllAttendance(type){
   });
   updateDailyCounts();
 }
-function getRowAttendance(row){
-  var b=row.querySelector('.mini-att.active');
-  return (b&&b.dataset.type)||'حاضر';
-}
-function getRowDone(row){
-  if(row.dataset.done==='true')return true;
-  if(row.dataset.done==='false')return false;
-  return null;
-}
+function getRowAttendance(row){var b=row.querySelector('.mini-att.active');return (b&&b.dataset.type)||'حاضر';}
+function getRowDone(row){if(row.dataset.done==='true')return true;if(row.dataset.done==='false')return false;return null;}
 function readDailyItems(){
   var out=[];
   document.querySelectorAll('#dailyPrepBody .dailyRow').forEach(function(r){
@@ -243,35 +215,31 @@ async function saveDailyPrep(){
   var res=await Swal.fire({icon:'question',title:'حفظ تحضير اليوم؟',text:'سيتم حفظ حضور وتحضير '+items.length+' طالب ليوم '+d,showCancelButton:true,confirmButtonText:'حفظ',cancelButtonText:'إلغاء',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});
   if(!res.isConfirmed)return;
   spin(true,'جارٍ حفظ التحضير اليومي…');
-  var r=await api('حفظ_تحضير_يومي_موحد',{الحلقة:D.user['الحلقة']||'',التاريخ:d,طلاب:items});
+  var r=await api('حفظ_تحضير_يومي_موحد',{الحلقة:teacherCircle(),التاريخ:d,طلاب:items});
   spin(false);
   if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}
   Swal.fire({icon:'success',title:'تم الحفظ',text:'تم حفظ '+(r['تم_الحفظ']||0)+' سجل',timer:1800,timerProgressBar:true,showConfirmButton:false,customClass:{popup:'swal-rtl'}});
   await loadDailyPrep();
 }
 
-async function saveStudentPaths(){
-  var items=[];
-  document.querySelectorAll('#pathsBody .pathRow').forEach(function(r){
-    var p=(r.querySelector('.pathSelect')||{}).value||'';
-    if(p)items.push({رقم_الطالب:r.dataset.code||'',المسار:p,ملاحظة:(r.querySelector('.pathNote')||{}).value||''});
-  });
-  if(!items.length){Swal.fire({icon:'info',title:'لم تحدد أي مسار',confirmButtonColor:'#1a3c5e'});return;}
-  spin(true,'جارٍ حفظ المسارات…');
-  var r=await api('حفظ_مسارات_الطلاب',{الحلقة:D.user['الحلقة']||'',term_id:D.dailyTerm&&D.dailyTerm.id,طلاب:items});
-  spin(false);
-  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر حفظ المسارات',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}
-  Swal.fire({icon:'success',title:'تم حفظ المسارات',text:'تم حفظ '+(r['تم_الحفظ']||0)+' مسار',timer:1800,timerProgressBar:true,showConfirmButton:false,customClass:{popup:'swal-rtl'}});
-  await loadDailyPrep();
+async function pgTeacherWeeklyReport(){
+  var d=D.weeklyReportDate||todayISO();
+  mc('<div class="stitle"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>'
+    +'<div class="cc"><div class="chdr"><h3>تقرير الحضور وإتمام الحفظ</h3><div class="cacts">'
+    +'<input class="fi" id="weeklyReportDate" type="date" value="'+d+'">'
+    +'<button class="ob sm" onclick="loadWeeklyPrepReport()"><i class="fas fa-rotate"></i> تحديث</button>'
+    +'</div></div><div class="cbody" id="weeklyReportBody"><div class="empty"><div class="spri"></div><h3>جارٍ تجهيز التقرير الأسبوعي…</h3></div></div></div>');
+  await loadWeeklyPrepReport();
 }
 
 async function loadWeeklyPrepReport(){
-  var d=val('dailyPrepDate')||todayISO();
+  var d=val('weeklyReportDate')||D.weeklyReportDate||todayISO();
+  D.weeklyReportDate=d;
   var to=new Date(d), from=new Date(d); from.setDate(to.getDate()-6);
   var fromISO=from.toISOString().slice(0,10), toISO=to.toISOString().slice(0,10);
   var body=document.getElementById('weeklyReportBody');
   if(body)body.innerHTML='<div class="empty"><div class="spri"></div><h3>جارٍ تجهيز التقرير الأسبوعي…</h3></div>';
-  var r=await api('جلب_تقرير_تحضير_اسبوعي',{الحلقة:D.user['الحلقة']||'',من:fromISO,إلى:toISO});
+  var r=await api('جلب_تقرير_تحضير_اسبوعي',{الحلقة:teacherCircle(),من:fromISO,إلى:toISO});
   if(!r||!r.نجاح){body.innerHTML='<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>تعذر تحميل التقرير</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';return;}
   var days=arr(r['الأيام']);
   var head='<tr><th>الطالب</th>'+days.map(function(d){return '<th style="min-width:115px">'+new Date(d).toLocaleDateString('ar-SA',{weekday:'short',day:'numeric',month:'numeric'})+'</th>';}).join('')+'</tr>';
@@ -283,10 +251,60 @@ async function loadWeeklyPrepReport(){
     }).join('');
     return '<tr><td><strong>'+hesc(s['اسم_الطالب']||'')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td>'+cells+'</tr>';
   }).join('');
-  body.innerHTML='<div class="pgbar" style="margin-bottom:10px"><span>تقرير من '+fromISO+' إلى '+toISO+'</span><div class="pgbtns"><button class="pgbtn" onclick="loadWeeklyPrepReport()"><i class="fas fa-rotate"></i> تحديث</button></div></div><div style="overflow:auto"><table class="dt"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>';
+  body.innerHTML='<div class="pgbar" style="margin-bottom:10px"><span>حلقة: '+hesc(r['الحلقة']||teacherCircle()||'—')+' · من '+fromISO+' إلى '+toISO+'</span><div class="pgbtns"><button class="pgbtn" onclick="loadWeeklyPrepReport()"><i class="fas fa-rotate"></i> تحديث</button></div></div><div style="overflow:auto"><table class="dt"><thead>'+head+'</thead><tbody>'+(rows||'<tr><td colspan="'+(days.length+1)+'" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب</td></tr>')+'</tbody></table></div>';
 }
 
-// CSS صغير للأزرار داخل الجدول
+async function pgTeacherStudentPaths(){
+  mc('<div class="stitle"><i class="fas fa-route"></i> مسارات الطلاب</div>'
+    +'<div class="cc"><div class="chdr"><h3>تحديد مسار كل طالب</h3><div class="cacts">'
+    +'<button class="ob sm" onclick="loadStudentPathsPage()"><i class="fas fa-rotate"></i> تحديث</button>'
+    +'<button class="ob sm" onclick="saveStudentPaths()"><i class="fas fa-floppy-disk"></i> حفظ المسارات</button>'
+    +'</div></div>'
+    +'<div class="cbody"><div class="pgbar"><span id="pathsInfo">جارٍ تحميل الطلاب…</span><div class="pgbtns"><button class="pgbtn" onclick="saveStudentPaths()"><i class="fas fa-floppy-disk"></i> حفظ المسارات</button></div></div></div>'
+    +'<div style="overflow-x:auto"><table class="dt"><thead><tr><th>#</th><th>الطالب</th><th>الصف</th><th>المسار</th><th>ملاحظة</th></tr></thead><tbody id="pathsBody"><tr><td colspan="5" style="text-align:center;padding:18px"><div class="spri" style="margin:auto"></div></td></tr></tbody></table></div></div>');
+  await loadStudentPathsPage();
+}
+
+async function loadStudentPathsPage(){
+  var r=await api('جلب_تحضير_يومي_موحد',{الحلقة:teacherCircle(),التاريخ:todayISO()});
+  if(!r||!r.نجاح){
+    document.getElementById('pathsBody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--er)">'+hesc((r&&r.خطأ)||'تعذر تحميل الطلاب')+'</td></tr>';
+    return;
+  }
+  D.dailyRows=arr(r.طلاب);D.dailyTerm=r.الفترة||{};
+  document.getElementById('pathsBody').innerHTML=buildPathRows(D.dailyRows);
+  document.getElementById('pathsInfo').textContent='حلقة: '+(r['الحلقة']||teacherCircle()||'—')+' · عدد الطلاب: '+D.dailyRows.length+' · الفترة: '+((r.الفترة||{})['اسم_الفترة']||'—');
+}
+
+function buildPathRows(list){
+  if(!list.length)return'<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب في هذه الحلقة</td></tr>';
+  return list.map(function(s,i){
+    var code=hesc(s['رقم_الطالب']||'');
+    return '<tr class="pathRow" data-code="'+code+'">'
+      +'<td>'+(i+1)+'</td>'
+      +'<td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+code+'</div></td>'
+      +'<td>'+hesc(s['الصف_الدراسي']||s['المرحلة_الدراسية']||'—')+'</td>'
+      +'<td><select class="fi pathSelect" style="min-width:170px">'+pathOptions(s['المسار']||'')+'</select></td>'
+      +'<td><input class="fi pathNote" placeholder="ملاحظة اختيارية" style="min-width:180px"></td>'
+      +'</tr>';
+  }).join('');
+}
+
+async function saveStudentPaths(){
+  var items=[];
+  document.querySelectorAll('#pathsBody .pathRow').forEach(function(r){
+    var p=(r.querySelector('.pathSelect')||{}).value||'';
+    if(p)items.push({رقم_الطالب:r.dataset.code||'',المسار:p,ملاحظة:(r.querySelector('.pathNote')||{}).value||''});
+  });
+  if(!items.length){Swal.fire({icon:'info',title:'لم تحدد أي مسار',confirmButtonColor:'#1a3c5e'});return;}
+  spin(true,'جارٍ حفظ المسارات…');
+  var r=await api('حفظ_مسارات_الطلاب',{الحلقة:teacherCircle(),term_id:D.dailyTerm&&D.dailyTerm.id,طلاب:items});
+  spin(false);
+  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر حفظ المسارات',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}
+  Swal.fire({icon:'success',title:'تم حفظ المسارات',text:'تم حفظ '+(r['تم_الحفظ']||0)+' مسار',timer:1800,timerProgressBar:true,showConfirmButton:false,customClass:{popup:'swal-rtl'}});
+  await loadStudentPathsPage();
+}
+
 (function(){
   if(document.getElementById('dailyPrepMiniCss'))return;
   var st=document.createElement('style');st.id='dailyPrepMiniCss';

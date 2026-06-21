@@ -591,7 +591,9 @@ function buildSidebar(){
   if(isTeacherLike(role)){
     h='<div class="slabel">القائمة</div>';
     if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
-    if(hasPerm('teacher_attendance')||hasPerm('teacher_preparation')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
+    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
+    if(hasPerm('weekly_prep_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tWeeklyReport')"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>`;
+    if(hasPerm('student_paths')) h+=`<div class="nitem" onclick="nav('tPaths')"><i class="fas fa-route"></i> مسارات الطلاب</div>`;
     if(hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`;
   } else if(role==='مشرف_تعليمي'){
     h='<div class="slabel">القائمة</div>'
@@ -619,7 +621,9 @@ function buildSidebar(){
 function navFirst(){
   if(isTeacherLike(D.role)){
     if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
-    if(hasPerm('teacher_attendance')||hasPerm('teacher_preparation')) return nav('tPreparation');
+    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) return nav('tPreparation');
+    if(hasPerm('weekly_prep_report')||hasPerm('reports')||D.role==='معلم') return nav('tWeeklyReport');
+    if(hasPerm('student_paths')) return nav('tPaths');
     if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
   }
   var m={مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
@@ -645,12 +649,17 @@ function nav(page){
       return missingPageFunction('pgTeacherKpi');
 
     case 'tAttendance':
-      if (typeof window.pgTeacherAttendance === 'function') return window.pgTeacherAttendance();
-      return missingPageFunction('pgTeacherAttendance');
-
     case 'tPreparation':
       if (typeof window.pgTeacherPreparation === 'function') return window.pgTeacherPreparation();
       return missingPageFunction('pgTeacherPreparation');
+
+    case 'tWeeklyReport':
+      if (typeof window.pgTeacherWeeklyReport === 'function') return window.pgTeacherWeeklyReport();
+      return missingPageFunction('pgTeacherWeeklyReport');
+
+    case 'tPaths':
+      if (typeof window.pgTeacherStudentPaths === 'function') return window.pgTeacherStudentPaths();
+      return missingPageFunction('pgTeacherStudentPaths');
 
     case 'eKpi':
       if (typeof window.pgEduKpi === 'function') return window.pgEduKpi();
