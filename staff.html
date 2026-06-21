@@ -591,8 +591,7 @@ function buildSidebar(){
   if(isTeacherLike(role)){
     h='<div class="slabel">القائمة</div>';
     if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
-    if(hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tAttendance')"><i class="fas fa-calendar-check"></i> تحضير الحضور</div>`;
-    if(hasPerm('teacher_preparation')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-book-open"></i> التحضير اليومي</div>`;
+    if(hasPerm('teacher_attendance')||hasPerm('teacher_preparation')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
     if(hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`;
   } else if(role==='مشرف_تعليمي'){
     h='<div class="slabel">القائمة</div>'
@@ -620,8 +619,7 @@ function buildSidebar(){
 function navFirst(){
   if(isTeacherLike(D.role)){
     if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
-    if(hasPerm('teacher_attendance')) return nav('tAttendance');
-    if(hasPerm('teacher_preparation')) return nav('tPreparation');
+    if(hasPerm('teacher_attendance')||hasPerm('teacher_preparation')) return nav('tPreparation');
     if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
   }
   var m={مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
