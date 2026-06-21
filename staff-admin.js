@@ -407,13 +407,22 @@ function applyAllWF(){var c=val('awfC'),st=val('awfS'),q2=val('awfQ');var l=Obje
 
 function pgSettings(){
   var tpls=arr(D.templates),thr=arr(D.thresholds),procs=arr(D.procedures);
-  var users=arr(D.setUsers),circles=arr(D.setCircles),states=arr(D.setStates);
+  var users=arr(D.setUsers),circles=arr(D.setCircles),states=arr(D.setStates),pages=arr(D.appPages);
   var tplH=tpls.map(function(t){return'<div class="cc mb-3" style="border:1px solid var(--bd)"><div class="chdr" style="padding:10px 15px"><h3 style="font-size:13px">'+q(t['عنوان_القالب']||t['نوع_القالب'])+'</h3><div class="cacts"><button class="ob sm" onclick="editTpl(\''+qj(t)+'\')"><i class="fas fa-pen"></i> تعديل</button></div></div><div style="padding:10px 15px;font-size:12.5px;color:var(--ts);white-space:pre-line;line-height:1.6;background:#f8f6f0">'+q(t['نص_القالب']||'')+'</div></div>';}).join('');
   var thrH=['تأخر','غياب','غياب_بعذر'].map(function(نوع){var l=thr.filter(function(e){return e['نوع_المخالفة']===نوع;});var rows=l.map(function(e){return'<tr><td>'+e['رقم_العتبة']+'</td><td><strong>'+e['عدد_المخالفات_للاستحقاق']+'</strong></td><td>'+(e['الإجراء_الافتراضي']||'—')+'</td><td><button class="ob sm" onclick="editThresh(\''+qj(e)+'\')"><i class="fas fa-pen"></i></button></td></tr>';}).join('');return'<h3 style="font-size:13px;font-weight:700;color:var(--p);margin:14px 0 8px">عتبات '+نوع+'</h3><div style="overflow-x:auto;margin-bottom:10px"><table class="dt"><thead><tr><th>العتبة</th><th>المخالفات</th><th>الإجراء</th><th>تعديل</th></tr></thead><tbody>'+rows+'</tbody></table></div><button class="ob sm" onclick="addThresh(\''+نوع+'\')"><i class="fas fa-plus"></i> إضافة</button>';}).join('<hr style="margin:14px 0;border-color:var(--bd)">');
   var procH=['تعليمي','تأخر','غياب','غياب_بعذر'].map(function(نوع){
     var displayName={'تعليمي':'إجراءات متابعة التعليمي','تأخر':'إجراءات التأخر','غياب':'إجراءات الغياب','غياب_بعذر':'إجراءات الغياب بعذر'}[نوع]||نوع;
     var l=procs.filter(function(e){return e['نوع_الاجراء']===نوع;});var pills=l.map(function(p){return'<span class="bp bp-in" style="padding:5px 12px;font-size:12.5px">'+q(p['اسم_الاجراء'])+'<button onclick="delProc(\''+q(p['اسم_الاجراء'])+'\')" style="background:none;border:none;color:var(--er);cursor:pointer;font-size:10px;margin-right:4px">×</button></span>';}).join('');return'<h3 style="font-size:13px;font-weight:700;color:var(--p);margin:14px 0 8px">'+displayName+'</h3><div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px">'+pills+'</div><button class="ob sm" onclick="addProc(\''+نوع+'\')"><i class="fas fa-plus"></i> إضافة</button>';}).join('<hr style="margin:14px 0;border-color:var(--bd)">');
-  var userRows=users.map(function(u){return'<tr><td><strong>'+q(u['الاسم']||'—')+'</strong></td><td>'+roleLabel(u['الوظيفة'])+'</td><td>'+(u['الحلقة']||'—')+'</td><td>'+(u['رقم_الجوال']||'—')+'</td><td>'+(u['نشط']==='نعم'?'<span class="bp bp-ok">نشط</span>':'<span class="bp bp-gr">معطّل</span>')+'</td><td><button class="ob sm" onclick="editUser(\''+qj(u)+'\')"><i class="fas fa-pen"></i></button> <button class="erb sm" onclick="deactUser(\''+q(u['الاسم'])+'\')"><i class="fas fa-ban"></i></button></td></tr>';}).join('');
+  var userRows=users.map(function(u){
+    var pCount=arr(u['صلاحيات']).filter(function(p){return p.can_view;}).length;
+    return '<tr><td><strong>'+q(u['الاسم']||'—')+'</strong><div style="font-size:11px;color:var(--ts);direction:ltr;text-align:right">'+q(u['البريد']||'—')+'</div></td>'
+      +'<td>'+roleLabel(u['الوظيفة'])+'</td><td>'+(u['الحلقة']||'—')+'</td><td>'+(u['رقم_الجوال']||'—')+'</td>'
+      +'<td>'+(u['نشط']==='نعم'?'<span class="bp bp-ok">نشط</span>':'<span class="bp bp-gr">معطّل</span>')+'</td>'
+      +'<td><span class="bp bp-in">'+pCount+' صفحة</span></td>'
+      +'<td><button class="ob sm" onclick="editUser(\''+qj(u)+'\')"><i class="fas fa-pen"></i></button> '
+      +'<button class="ob sm" onclick="editUserPerms(\''+qj(u)+'\')"><i class="fas fa-key"></i></button> '
+      +'<button class="erb sm" onclick="deactUser(\''+q(u['الاسم'])+'\')"><i class="fas fa-ban"></i></button></td></tr>';
+  }).join('');
   var circleC=circles.map(function(h){return'<div style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:8px"><i class="fas fa-mosque" style="color:var(--pl)"></i><span style="font-weight:700">'+q(h['اسم_الحلقة']||'—')+'</span><span style="font-size:11.5px;color:var(--ts)">'+q(h['المعلم']||'')+'</span><button onclick="delCircle(\''+q(h['اسم_الحلقة'])+'\')" style="background:none;border:none;color:var(--er);cursor:pointer"><i class="fas fa-times"></i></button></div>';}).join('');
   var stateC=states.map(function(s){return'<div style="background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:8px"><span style="width:11px;height:11px;border-radius:50%;background:'+(s['اللون']||'#888')+';display:inline-block"></span><span style="font-weight:700">'+q(s['اسم_الحالة'])+'</span><button onclick="delState(\''+q(s['اسم_الحالة'])+'\')" style="background:none;border:none;color:var(--er);cursor:pointer"><i class="fas fa-times"></i></button></div>';}).join('');
   mc('<div class="stitle"><i class="fas fa-gear"></i> الإعدادات</div>'
@@ -429,7 +438,7 @@ function pgSettings(){
     +'<div class="spanel active cbody" id="stTpl"><p style="font-size:12px;color:var(--ts);margin-bottom:14px">المتغيرات: <code>#اسم_الطالب</code> <code>#اسم_ولي_الطالب</code> <code>#السبب</code> <code>#تاريخ</code> <code>#رقم_العتبة</code> <code>#عدد_الغيابات</code></p>'+tplH+'</div>'
     +'<div class="spanel cbody" id="stThr">'+thrH+'</div>'
     +'<div class="spanel cbody" id="stProc">'+procH+'</div>'
-    +'<div class="spanel cbody" id="stUsers"><div class="mb-3"><button class="pb sm" onclick="addUser()"><i class="fas fa-user-plus"></i> إضافة مستخدم</button></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>الاسم</th><th>الوظيفة</th><th>الحلقة</th><th>الجوال</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>'+userRows+'</tbody></table></div></div>'
+    +'<div class="spanel cbody" id="stUsers"><div class="mb-3"><button class="pb sm" onclick="addUser()"><i class="fas fa-user-plus"></i> إضافة مستخدم</button></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>الاسم</th><th>الوظيفة</th><th>الحلقة</th><th>الجوال</th><th>الحالة</th><th>الصلاحيات</th><th>إجراء</th></tr></thead><tbody>'+userRows+'</tbody></table></div></div>'
     +'<div class="spanel cbody" id="stCircles"><div class="mb-3"><button class="pb sm" onclick="addCircle()"><i class="fas fa-plus"></i> إضافة حلقة</button></div><div style="display:flex;flex-wrap:wrap;gap:10px">'+circleC+'</div></div>'
     +'<div class="spanel cbody" id="stStates"><div class="mb-3"><button class="pb sm" onclick="addState()"><i class="fas fa-plus"></i> إضافة حالة</button></div><div style="display:flex;flex-wrap:wrap;gap:10px">'+stateC+'</div></div>'
     +'<div class="spanel cbody" id="stEduR">'+buildEduReasonsPanel()+'</div>'
@@ -438,10 +447,10 @@ function pgSettings(){
 
 async function reloadSettings(){
   spin(true,'جارٍ التحميل…');
-  var rs=await Promise.all([api('جلب_قوالب_الرسائل',{}),api('جلب_عتبات_الانذارات',{}),api('جلب_الاجراءات',{}),api('جلب_العاملين',{}),api('جلب_الحلق',{}),api('جلب_حالات_الطالب',{})]);
+  var rs=await Promise.all([api('جلب_قوالب_الرسائل',{}),api('جلب_عتبات_الانذارات',{}),api('جلب_الاجراءات',{}),api('جلب_العاملين',{}),api('جلب_الحلق',{}),api('جلب_حالات_الطالب',{}),api('جلب_صفحات_النظام',{})]);
   spin(false);
   D.templates=arr(rs[0].قوالب);D.thresholds=arr(rs[1].عتبات);D.procedures=arr(rs[2].إجراءات);
-  D.setUsers=arr(rs[3].عاملون);D.setCircles=arr(rs[4].حلق);D.setStates=arr(rs[5].حالات);
+  D.setUsers=arr(rs[3].عاملون);D.setCircles=arr(rs[4].حلق);D.setStates=arr(rs[5].حالات);D.appPages=arr(rs[6].صفحات);
   saveCache();pgSettings();
 }
 
@@ -455,11 +464,37 @@ async function addProc(نوع){var res=await Swal.fire({title:'إضافة إجر
 
 async function delProc(name){var r=await Swal.fire({title:'حذف الإجراء؟',text:name,showCancelButton:true,confirmButtonColor:'#c0392b',confirmButtonText:'حذف',cancelButtonText:'إلغاء',customClass:{popup:'swal-rtl'}});if(!r.isConfirmed)return;spin(true);await api('حذف_إجراء',{اسم_الاجراء:name});spin(false);await reloadSettings();}
 
-async function addUser(){
-  var co=arr(D.setCircles).map(function(h){return'<option>'+q(h['اسم_الحلقة'])+'</option>';}).join('');
-  var res=await Swal.fire({title:'إضافة مستخدم',width:'500px',html:'<div style="direction:rtl;display:grid;gap:10px;text-align:right">'+sField('الاسم','nu_n','','text',false)+'<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الوظيفة</label><select id="nu_r" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0"><option value="معلم">معلم</option><option value="مشرف_تعليمي">مشرف تعليمي</option><option value="مشرف_اداري">مشرف إداري</option><option value="مدير">مدير</option></select></div><div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الحلقة</label><select id="nu_c" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0"><option value="">—</option>'+co+'</select></div>'+sField('رمز الدخول','nu_k','','text',false)+sField('رقم الجوال','nu_p','','text',false)+'</div>',confirmButtonText:'إضافة',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){var n=val('nu_n'),k=val('nu_k');if(!n||!k)return Swal.showValidationMessage('الاسم والرمز مطلوبان');return{الاسم:n,الوظيفة:val('nu_r'),الحلقة:val('nu_c'),رمز_الدخول:k,رقم_الجوال:val('nu_p')};}}); if(!res.isConfirmed||!res.value)return;spin(true);await api('إضافة_عامل',res.value);spin(false);await reloadSettings();}
+function roleOptions(selected){
+  var roles=[['معلم','معلم'],['مسمع_تعليمي','مسمع تعليمي'],['مساعد_معلم','مساعد معلم'],['مساعد_خارجي','مساعد خارجي'],['مشرف_تعليمي','مشرف تعليمي'],['مشرف_اداري','مشرف إداري'],['مدير','مدير']];
+  return roles.map(function(r){return '<option value="'+r[0]+'" '+(selected===r[0]?'selected':'')+'>'+r[1]+'</option>';}).join('');
+}
+function circleOptions(selected){return arr(D.setCircles).map(function(h){var n=h['اسم_الحلقة'];return'<option value="'+q(n)+'" '+(selected===n?'selected':'')+'>'+q(n)+'</option>';}).join('');}
 
-async function editUser(s){var u=JSON.parse(decodeURIComponent(s));var res=await Swal.fire({title:'تعديل: '+q(u['الاسم']),html:'<div style="direction:rtl;display:grid;gap:10px;text-align:right">'+sField('رمز الدخول الجديد','eu_k','','text',false)+sField('رقم الجوال','eu_p',u['رقم_الجوال']||'','text',false)+'</div>',confirmButtonText:'حفظ',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){return{رمز_الدخول:val('eu_k')||undefined,رقم_الجوال:val('eu_p')};}}); if(!res.isConfirmed||!res.value)return;spin(true);await api('تعديل_عامل',Object.assign({الاسم_القديم:u['الاسم']},res.value));spin(false);await reloadSettings();}
+async function addUser(){
+  var res=await Swal.fire({title:'إضافة مستخدم',width:'560px',html:'<div style="direction:rtl;display:grid;gap:10px;text-align:right">'
+    +sField('البريد الموجود في Supabase Auth','nu_email','','email',false)+sField('الاسم','nu_n','','text',false)
+    +'<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الوظيفة</label><select id="nu_r" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0">'+roleOptions('معلم')+'</select></div>'
+    +'<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الحلقة</label><select id="nu_c" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0"><option value="">—</option>'+circleOptions('')+'</select></div>'+sField('رقم الجوال','nu_p','','text',false)
+    +'<div style="font-size:12px;color:var(--ts);line-height:1.6;background:#fafaf8;border:1px solid var(--bd);border-radius:10px;padding:10px">أنشئ المستخدم أولًا من Supabase Authentication، ثم اربطه هنا بالبريد.</div></div>',confirmButtonText:'إضافة/ربط',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){var email=val('nu_email'),n=val('nu_n');if(!email||!n)return Swal.showValidationMessage('البريد والاسم مطلوبان');return{البريد:email,الاسم:n,الوظيفة:val('nu_r'),الحلقة:val('nu_c'),رقم_الجوال:val('nu_p')};}});
+  if(!res.isConfirmed||!res.value)return;spin(true,'جارٍ الربط…');var r=await api('إضافة_عامل',res.value);spin(false);if(!r.نجاح){Swal.fire({icon:'error',title:'تعذر الإضافة',text:r.خطأ||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}await reloadSettings();
+}
+
+async function editUser(s){
+  var u=JSON.parse(decodeURIComponent(s));
+  var res=await Swal.fire({title:'تعديل: '+q(u['الاسم']),width:'560px',html:'<div style="direction:rtl;display:grid;gap:10px;text-align:right">'
+    +sField('الاسم','eu_n',u['الاسم']||'','text',false)
+    +'<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الوظيفة</label><select id="eu_r" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0">'+roleOptions(u['الوظيفة'])+'</select></div>'
+    +'<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الحلقة</label><select id="eu_c" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0"><option value="">—</option>'+circleOptions(u['الحلقة'])+'</select></div>'+sField('رقم الجوال','eu_p',u['رقم_الجوال']||'','text',false)
+    +'<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">الحالة</label><select id="eu_active" class="swal2-select" style="font-family:Tajawal;width:100%;margin:0"><option value="نعم" '+(u['نشط']==='نعم'?'selected':'')+'>نشط</option><option value="لا" '+(u['نشط']!=='نعم'?'selected':'')+'>معطّل</option></select></div></div>',confirmButtonText:'حفظ',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){return{معرف:u['معرف'],البريد:u['البريد'],الاسم:val('eu_n'),الوظيفة:val('eu_r'),الحلقة:val('eu_c'),رقم_الجوال:val('eu_p'),نشط:val('eu_active')};}});
+  if(!res.isConfirmed||!res.value)return;spin(true,'جارٍ الحفظ…');var r=await api('تعديل_عامل',res.value);spin(false);if(!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:r.خطأ||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}await reloadSettings();
+}
+
+async function editUserPerms(s){
+  var u=JSON.parse(decodeURIComponent(s)),perms=arr(u['صلاحيات']),map={};perms.forEach(function(p){map[p.page_key]=p;});
+  var rows=arr(D.appPages).map(function(pg){var p=map[pg.page_key]||{};return '<tr><td><strong>'+q(pg.page_title)+'</strong><div style="font-size:11px;color:var(--ts)">'+q(pg.page_group||'')+'</div></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_view" '+(p.can_view?'checked':'')+'></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_create" '+(p.can_create?'checked':'')+'></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_update" '+(p.can_update?'checked':'')+'></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_delete" '+(p.can_delete?'checked':'')+'></td></tr>';}).join('');
+  var res=await Swal.fire({title:'صلاحيات: '+q(u['الاسم']),width:'760px',html:'<div style="direction:rtl;text-align:right;max-height:60vh;overflow:auto"><table class="dt"><thead><tr><th>الصفحة</th><th>عرض</th><th>إضافة</th><th>تعديل</th><th>حذف</th></tr></thead><tbody>'+rows+'</tbody></table></div>',confirmButtonText:'حفظ الصلاحيات',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){var out={};document.querySelectorAll('.permv').forEach(function(ch){var pg=ch.dataset.page,act=ch.dataset.act;if(!out[pg])out[pg]={page_key:pg,can_view:false,can_create:false,can_update:false,can_delete:false};out[pg][act]=ch.checked;});return Object.keys(out).map(function(k){return out[k];});}});
+  if(!res.isConfirmed)return;spin(true,'جارٍ حفظ الصلاحيات…');var r=await api('حفظ_صلاحيات_عامل',{معرف:u['معرف'],صلاحيات:res.value});spin(false);if(!r.نجاح){Swal.fire({icon:'error',title:'تعذر حفظ الصلاحيات',text:r.خطأ||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}await reloadSettings();
+}
 
 async function deactUser(name){var r=await Swal.fire({title:'تعطيل حساب؟',text:name,showCancelButton:true,confirmButtonColor:'#c0392b',confirmButtonText:'تعطيل',cancelButtonText:'إلغاء',customClass:{popup:'swal-rtl'}});if(!r.isConfirmed)return;spin(true);await api('حذف_عامل',{الاسم:name});spin(false);await reloadSettings();}
 

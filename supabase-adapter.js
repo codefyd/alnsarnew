@@ -80,6 +80,10 @@
     return role || 'مشاهد';
   }
 
+  function isTeacherLike(role) {
+    return ['معلم','مسمع_تعليمي','مساعد_معلم','مساعد_خارجي'].indexOf(role) >= 0;
+  }
+
   function profileToLegacyUser(profile) {
     const uiRole = normalizeRoleForOldUI(profile.job_title);
     return {
@@ -182,7 +186,7 @@
     if (typeof window.spin === 'function') window.spin(false);
     if (!init || !init.نجاح) throw new Error((init && init.خطأ) || 'فشل تحميل التهيئة');
 
-    if (window.D.role === 'معلم') {
+    if (isTeacherLike(window.D.role)) {
       window.D.teacherStudents = init.طلاب || [];
       window.D.teacherKpi = init.تقارير || {};
     } else if (window.D.role === 'مشرف_تعليمي') {
@@ -210,6 +214,7 @@
       window.D.procedures = init.اجراءات || [];
       window.D.eduReasons = init.أسباب_تعليمية || [];
       window.D.setUsers = init.عاملون || [];
+      window.D.appPages = init.صفحات || [];
       window.D.kpi = init.kpi || {};
     } else if (window.D.role === 'مدير') {
       window.D.dirData = {
