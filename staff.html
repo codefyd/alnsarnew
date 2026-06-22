@@ -228,33 +228,29 @@ function _uniqueScripts(list){
   return out;
 }
 function scriptsForUser(role){
-  var list=[];
-  function needAny(keys){return keys.some(function(k){return hasPerm(k);});}
+  var baseMap={
+    'معلم':'staff-teacher.js',
+    'مسمع_تعليمي':'staff-teacher.js',
+    'مساعد_معلم':'staff-teacher.js',
+    'مساعد_خارجي':'staff-teacher.js',
+    'مشرف_تعليمي':'staff-edu.js',
+    'مشرف_اداري':'staff-admin.js',
+    'مدير':'staff-director.js'
+  };
+  var list=[baseMap[role]];
 
-  // تحميل الملفات حسب صلاحيات الصفحات وليس حسب الدور.
-  if(needAny(['teacher_students','teacher_preparation','teacher_attendance','weekly_prep_report','student_period_report','student_paths','rabt_assessments','student_tests','hizb_presentations','reports'])){
-    list.push('staff-teacher.js');
-  }
-  if(needAny(['educational_supervision','supervision_edu','edu_assessment_reports','edu_weekly_rabt_report','edu_week_details'])){
-    list.push('staff-edu.js');
-  }
-  if(needAny(['dashboard','students','registration_requests','edit_requests','educational_warnings','administrative_warnings','learning_terms','settings','users','circles','templates','thresholds','educational_assessment_settings'])){
-    list.push('staff-admin.js');
-  }
+  // تحميل الملفات حسب الصلاحيات الفعلية، وليس حسب الدور فقط.
+  // هذا يسمح بإعطاء صفحات الربط/الاختبارات/عرض الحزب أو الإعدادات لأي مستخدم.
+  var teacherKeys=['teacher_students','teacher_attendance','teacher_preparation','weekly_prep_report','student_period_report','student_paths','rabt_assessments','student_tests','hizb_presentations','reports'];
+  var eduKeys=['supervision_edu','educational_supervision','educational_warnings','edu_assessment_reports','edu_weekly_rabt_report','edu_week_details','students','reports'];
+  var adminKeys=['dashboard','students','registration_requests','edit_requests','educational_warnings','administrative_warnings','learning_terms','settings','users','circles','templates','thresholds','educational_assessment_settings','reports'];
+  var directorKeys=['director_dashboard'];
 
-  // احتياط: إن لم توجد صلاحيات كافية، نحمّل ملف الدور الأساسي فقط حتى لا تتعطل الصفحة الأولى للمستخدمين القدامى.
-  if(!list.length){
-    var map={
-      'معلم':'staff-teacher.js',
-      'مسمع_تعليمي':'staff-teacher.js',
-      'مساعد_معلم':'staff-teacher.js',
-      'مساعد_خارجي':'staff-teacher.js',
-      'مشرف_تعليمي':'staff-edu.js',
-      'مشرف_اداري':'staff-admin.js',
-      'مدير':'staff-director.js'
-    };
-    if(map[role]) list.push(map[role]);
-  }
+  if(teacherKeys.some(function(k){return hasPerm(k);})){list.push('staff-teacher.js');}
+  if(eduKeys.some(function(k){return hasPerm(k);})){list.push('staff-edu.js');}
+  if(adminKeys.some(function(k){return hasPerm(k);})){list.push('staff-admin.js');}
+  if(directorKeys.some(function(k){return hasPerm(k);})){list.push('staff-director.js');}
+
   return _uniqueScripts(list);
 }
 function loadRoleScript(role, callback){
@@ -594,81 +590,115 @@ function _fetchAdminBackground(){
 }
 
 
-// ══ بناء الشريط الجانبي ══
-function _reportNav(){
-  if(hasPerm('edu_assessment_reports')||hasPerm('edu_weekly_rabt_report')||hasPerm('edu_week_details')||hasPerm('educational_supervision')||hasPerm('supervision_edu')) return 'eKpi';
-  if(hasPerm('teacher_students')||hasPerm('teacher_preparation')||hasPerm('teacher_attendance')||hasPerm('weekly_prep_report')||hasPerm('student_period_report')||hasPerm('student_paths')||hasPerm('rabt_assessments')||hasPerm('student_tests')||hasPerm('hizb_presentations')) return 'tKpi';
-  return 'aKpi';
+// ══ بناء الشريط الجانبي — حسب الصلاحيات فقط ══
+function anyPerm(keys, action){
+  keys=Array.isArray(keys)?keys:[keys];
+  return keys.some(function(k){return hasPerm(k, action||'can_view');});
 }
-function _eduWarningNav(){
-  return (hasPerm('educational_supervision')||hasPerm('supervision_edu')||D.role==='مشرف_تعليمي') ? 'eW' : 'aEduW';
+function pagePermKeys(page){
+  var map={
+    tSt:['teacher_students'],
+    tKpi:['reports'],
+    tPreparation:['teacher_preparation','teacher_attendance'],
+    tWeeklyReport:['weekly_prep_report'],
+    tStudentReport:['student_period_report'],
+    tPaths:['student_paths'],
+    tRabt:['rabt_assessments'],
+    tTests:['student_tests'],
+    tHizb:['hizb_presentations'],
+
+    eKpi:['reports','dashboard'],
+    eW:['educational_warnings'],
+    eSt:['students'],
+    eSupervision:['supervision_edu','educational_supervision'],
+    eAssessmentReport:['edu_assessment_reports'],
+    eRabtWeekReport:['edu_weekly_rabt_report'],
+    eWeekDetails:['edu_week_details'],
+
+    aKpi:['dashboard'],
+    aSt:['students'],
+    aReq:['registration_requests','edit_requests'],
+    aEduW:['educational_warnings'],
+    aAdmW:['administrative_warnings'],
+    aAllW:['educational_warnings','administrative_warnings'],
+    aTerms:['learning_terms'],
+    settings:['settings','users','circles','templates','thresholds','educational_assessment_settings'],
+
+    dirKpi:['director_dashboard','dashboard']
+  };
+  return map[page]||[];
 }
-function _navItem(pageKey, navPage, icon, label, badgeId){
-  if(!hasPerm(pageKey)) return '';
-  var badge = badgeId ? ' <span class="nbadge" id="'+badgeId+'"></span>' : '';
-  return '<div class="nitem" onclick="nav(\''+navPage+'\')"><i class="fas '+icon+'"></i> '+label+badge+'</div>';
+function canOpenPage(page){return anyPerm(pagePermKeys(page));}
+function _navForStudents(){
+  if(isTeacherLike(D.role) && hasPerm('teacher_students')) return 'tSt';
+  if(D.role==='مشرف_تعليمي' && hasPerm('students')) return 'eSt';
+  return 'aSt';
 }
+function _navForReports(){
+  if(D.role==='مدير' && (hasPerm('director_dashboard')||hasPerm('dashboard'))) return 'dirKpi';
+  if(isTeacherLike(D.role) && hasPerm('reports')) return 'tKpi';
+  if(D.role==='مشرف_تعليمي' && hasPerm('reports')) return 'eKpi';
+  return hasPerm('dashboard') ? 'aKpi' : 'tKpi';
+}
+function _navForEduWarnings(){return D.role==='مشرف_تعليمي' ? 'eW' : 'aEduW';}
+function _menuItem(page,label,icon,badge){return '<div class="nitem" onclick="nav(\''+page+'\')"><i class="fas '+icon+'"></i> '+label+(badge||'')+'</div>';}
+function _section(title, body){return body?('<div class="slabel">'+title+'</div>'+body):'';}
+
 function buildSidebar(){
-  var h='';
-  function section(title, body){ if(body) h+='<div class="slabel">'+title+'</div>'+body; }
+  var h='', cnt=arr(D.reqNew).length+arr(D.reqEdits).length;
+  var عام='', طلاب='', تعليمي='', انذارات='', ادارة='', اعدادات='';
 
-  var العام='';
-  if(hasPerm('dashboard')) العام += '<div class="nitem" onclick="nav(\'aKpi\')"><i class="fas fa-chart-pie"></i> لوحة التقارير</div>';
-  if(hasPerm('reports')) العام += '<div class="nitem" onclick="nav(\''+_reportNav()+'\')"><i class="fas fa-chart-pie"></i> التقارير</div>';
-  section('عام', العام);
+  if(hasPerm('dashboard')||hasPerm('reports')||hasPerm('director_dashboard')) عام += _menuItem(_navForReports(),'لوحة التقارير','fa-chart-pie');
 
-  var teacher='';
-  teacher += _navItem('teacher_students','tSt','fa-users','طلاب الحلقة');
-  if(hasPerm('teacher_preparation') || hasPerm('teacher_attendance')) teacher += '<div class="nitem" onclick="nav(\'tPreparation\')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>';
-  teacher += _navItem('weekly_prep_report','tWeeklyReport','fa-table','تقرير الطلاب الأسبوعي');
-  teacher += _navItem('student_period_report','tStudentReport','fa-chart-column','تقرير الطلاب');
-  teacher += _navItem('student_paths','tPaths','fa-route','مسارات الطلاب');
-  teacher += _navItem('rabt_assessments','tRabt','fa-link','عرض الربط');
-  teacher += _navItem('student_tests','tTests','fa-clipboard-list','الاختبارات');
-  teacher += _navItem('hizb_presentations','tHizb','fa-book-quran','عرض الحزب');
-  section('التعليم والمتابعة', teacher);
+  if(hasPerm('students')) طلاب += _menuItem(_navForStudents(),'إدارة الطلاب / الحلق','fa-users');
+  if(hasPerm('teacher_students')) طلاب += _menuItem('tSt','طلاب الحلقة','fa-users');
+  if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) طلاب += _menuItem('tPreparation','التحضير اليومي','fa-clipboard-check');
+  if(hasPerm('weekly_prep_report')) طلاب += _menuItem('tWeeklyReport','تقرير الطلاب الأسبوعي','fa-table');
+  if(hasPerm('student_period_report')) طلاب += _menuItem('tStudentReport','تقرير الطلاب','fa-chart-column');
+  if(hasPerm('student_paths')) طلاب += _menuItem('tPaths','مسارات الطلاب','fa-route');
 
-  var edu='';
-  if(hasPerm('educational_supervision') || hasPerm('supervision_edu')) edu += '<div class="nitem" onclick="nav(\'eSupervision\')"><i class="fas fa-user-graduate"></i> الإشراف التعليمي</div>';
-  edu += _navItem('edu_assessment_reports','eAssessmentReport','fa-chart-line','تقرير التقييم التعليمي');
-  edu += _navItem('edu_weekly_rabt_report','eRabtWeekReport','fa-table-list','تقرير الربط الأسبوعي');
-  edu += _navItem('edu_week_details','eWeekDetails','fa-magnifying-glass-chart','تفاصيل أسابيع الربط');
-  section('الإشراف التعليمي', edu);
+  if(hasPerm('rabt_assessments')) تعليمي += _menuItem('tRabt','عرض الربط','fa-link');
+  if(hasPerm('student_tests')) تعليمي += _menuItem('tTests','الاختبارات','fa-clipboard-list');
+  if(hasPerm('hizb_presentations')) تعليمي += _menuItem('tHizb','عرض الحزب','fa-book-quran');
+  if(hasPerm('supervision_edu')||hasPerm('educational_supervision')) تعليمي += _menuItem('eSupervision','الإشراف التعليمي','fa-user-graduate');
+  if(hasPerm('edu_assessment_reports')) تعليمي += _menuItem('eAssessmentReport','تقرير التقييم التعليمي','fa-chart-line');
+  if(hasPerm('edu_weekly_rabt_report')) تعليمي += _menuItem('eRabtWeekReport','تقرير الربط الأسبوعي','fa-table-list');
+  if(hasPerm('edu_week_details')) تعليمي += _menuItem('eWeekDetails','تفاصيل أسابيع الربط','fa-magnifying-glass-chart');
 
-  var admin='';
-  admin += _navItem('students','aSt','fa-users','إدارة الطلاب');
-  if(hasPerm('registration_requests') || hasPerm('edit_requests')) admin += '<div class="nitem" onclick="nav(\'aReq\')"><i class="fas fa-inbox"></i> الطلبات <span class="nbadge" id="nbReq"></span></div>';
-  if(hasPerm('educational_warnings')) admin += '<div class="nitem" onclick="nav(\''+_eduWarningNav()+'\')"><i class="fas fa-book-open"></i> الإنذارات التعليمية <span class="nbadge" id="nbEdu"></span></div>';
-  admin += _navItem('administrative_warnings','aAdmW','fa-user-clock','الإنذارات الإدارية');
-  if(hasPerm('educational_warnings') || hasPerm('administrative_warnings')) admin += '<div class="nitem" onclick="nav(\'aAllW\')"><i class="fas fa-list-check"></i> جميع الإنذارات</div>';
-  section('الإدارة والإنذارات', admin);
+  if(hasPerm('educational_warnings')) انذارات += _menuItem(_navForEduWarnings(),'الإنذارات التعليمية','fa-book-open',' <span class="nbadge" id="nbEdu"></span>');
+  if(hasPerm('administrative_warnings')) انذارات += _menuItem('aAdmW','الإنذارات الإدارية','fa-user-clock');
+  if(hasPerm('educational_warnings')||hasPerm('administrative_warnings')) انذارات += _menuItem('aAllW','جميع الإنذارات','fa-list-check');
 
-  var settings='';
-  settings += _navItem('learning_terms','aTerms','fa-calendar-days','الفصول والبرامج');
-  if(hasPerm('settings') || hasPerm('users') || hasPerm('circles') || hasPerm('templates') || hasPerm('thresholds') || hasPerm('educational_assessment_settings')) settings += '<div class="nitem" onclick="nav(\'settings\')"><i class="fas fa-gear"></i> الإعدادات</div>';
-  section('الإعدادات', settings);
+  if(hasPerm('registration_requests')||hasPerm('edit_requests')) ادارة += _menuItem('aReq','الطلبات','fa-inbox',' <span class="nbadge" id="nbReq">'+(cnt||'')+'</span>');
+  if(hasPerm('learning_terms')) ادارة += _menuItem('aTerms','الفصول والبرامج','fa-calendar-days');
 
-  var director='';
-  if(hasPerm('director_dashboard')) director += '<div class="nitem" onclick="nav(\'dirKpi\')"><i class="fas fa-chart-pie"></i> لوحة الإحصاءات</div>';
-  section('الاطلاع', director);
+  if(hasPerm('settings')||hasPerm('users')||hasPerm('circles')||hasPerm('templates')||hasPerm('thresholds')||hasPerm('educational_assessment_settings')) اعدادات += _menuItem('settings','الإعدادات','fa-gear');
+
+  h += _section('عام', عام);
+  h += _section('الطلاب', طلاب);
+  h += _section('التقييم التعليمي', تعليمي);
+  h += _section('الإنذارات', انذارات);
+  h += _section('الإدارة', ادارة);
+  h += _section('الإعدادات', اعدادات);
 
   document.getElementById('sidebarNav').innerHTML=h||'<div class="slabel">لا توجد صفحات متاحة</div>';
+  updateReqBadge(); updateEduBadge();
 }
 function navFirst(){
-  var candidates=[
-    ['dashboard','aKpi'],['reports',_reportNav()],
-    ['teacher_students','tSt'],['teacher_preparation','tPreparation'],['teacher_attendance','tPreparation'],['weekly_prep_report','tWeeklyReport'],['student_period_report','tStudentReport'],['student_paths','tPaths'],['rabt_assessments','tRabt'],['student_tests','tTests'],['hizb_presentations','tHizb'],
-    ['educational_supervision','eSupervision'],['supervision_edu','eSupervision'],['edu_assessment_reports','eAssessmentReport'],['edu_weekly_rabt_report','eRabtWeekReport'],['edu_week_details','eWeekDetails'],
-    ['students','aSt'],['registration_requests','aReq'],['edit_requests','aReq'],['educational_warnings',_eduWarningNav()],['administrative_warnings','aAdmW'],
-    ['learning_terms','aTerms'],['settings','settings'],['users','settings'],['circles','settings'],['templates','settings'],['thresholds','settings'],['educational_assessment_settings','settings'],
-    ['director_dashboard','dirKpi']
-  ];
-  for(var i=0;i<candidates.length;i++){ if(hasPerm(candidates[i][0])) return nav(candidates[i][1]); }
-  mc('<div class="empty" style="padding:80px 20px"><i class="fas fa-lock"></i><h3>لا توجد صلاحيات مفعلة</h3><p>اطلب من المشرف الإداري تفعيل الصفحات المناسبة لك.</p></div>');
+  var order=['aKpi','dirKpi','eKpi','tKpi','tSt','aSt','eSt','tPreparation','tWeeklyReport','tStudentReport','tPaths','tRabt','tTests','tHizb','eSupervision','eAssessmentReport','eRabtWeekReport','eWeekDetails','aReq','eW','aEduW','aAdmW','aAllW','aTerms','settings'];
+  for(var i=0;i<order.length;i++){
+    if(canOpenPage(order[i])) return nav(order[i]);
+  }
+  mc('<div class="empty" style="padding:80px 20px"><i class="fas fa-lock"></i><h3>لا توجد صفحات متاحة</h3><p style="margin-top:8px;color:var(--ts)">لم تُمنح لهذا المستخدم صلاحية عرض أي صفحة.</p></div>');
 }
-
+  
 function nav(page){
   closeSidebar();
+
+  if(!canOpenPage(page)){
+    mc('<div class="empty" style="padding:80px 20px"><i class="fas fa-lock"></i><h3>لا تملك صلاحية الوصول</h3><p style="margin-top:8px;color:var(--ts)">هذه الصفحة لا تظهر إلا بصلاحية عرض صريحة.</p></div>');
+    return;
+  }
 
   document.querySelectorAll('.nitem').forEach(function(n){
     n.classList.toggle('active', n.getAttribute('onclick') === "nav('" + page + "')");
