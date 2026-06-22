@@ -592,6 +592,9 @@ function buildSidebar(){
     h='<div class="slabel">القائمة</div>';
     if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
     if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
+    if(hasPerm('rabt_assessments')||role==='معلم'||role==='مسمع_تعليمي') h+=`<div class="nitem" onclick="nav('tRabt')"><i class="fas fa-link"></i> عرض الربط</div>`;
+    if(hasPerm('student_tests')||role==='معلم'||role==='مسمع_تعليمي') h+=`<div class="nitem" onclick="nav('tTests')"><i class="fas fa-clipboard-list"></i> الاختبارات</div>`;
+    if(hasPerm('hizb_presentations')||role==='معلم'||role==='مسمع_تعليمي') h+=`<div class="nitem" onclick="nav('tHizb')"><i class="fas fa-book-quran"></i> عرض الحزب</div>`;
     if(hasPerm('weekly_prep_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tWeeklyReport')"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>`;
     if(hasPerm('student_period_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tStudentReport')"><i class="fas fa-chart-column"></i> تقرير الطلاب</div>`;
     if(hasPerm('student_paths')) h+=`<div class="nitem" onclick="nav('tPaths')"><i class="fas fa-route"></i> مسارات الطلاب</div>`;
@@ -599,6 +602,10 @@ function buildSidebar(){
   } else if(role==='مشرف_تعليمي'){
     h='<div class="slabel">القائمة</div>'
      +`<div class="nitem" onclick="nav('eKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`
+     +`<div class="nitem" onclick="nav('eSupervision')"><i class="fas fa-user-graduate"></i> الإشراف التعليمي</div>`
+     +`<div class="nitem" onclick="nav('eAssessReport')"><i class="fas fa-chart-line"></i> تقرير التقييم التعليمي</div>`
+     +`<div class="nitem" onclick="nav('eRabtWeek')"><i class="fas fa-table-list"></i> تقرير الربط الأسبوعي</div>`
+     +`<div class="nitem" onclick="nav('eWeekDetails')"><i class="fas fa-magnifying-glass-chart"></i> تفاصيل أسابيع الربط</div>`
      +`<div class="nitem" onclick="nav('eW')"><i class="fas fa-triangle-exclamation"></i> الإنذارات <span class="nbadge" id="nbEdu"></span></div>`
      +`<div class="nitem" onclick="nav('eSt')"><i class="fas fa-users"></i> الحلق والطلاب</div>`;
   } else if(role==='مشرف_اداري'){
@@ -624,6 +631,7 @@ function navFirst(){
   if(isTeacherLike(D.role)){
     if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
     if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) return nav('tPreparation');
+    if(hasPerm('rabt_assessments')||D.role==='مسمع_تعليمي') return nav('tRabt');
     if(hasPerm('weekly_prep_report')||hasPerm('reports')||D.role==='معلم') return nav('tWeeklyReport');
     if(hasPerm('student_period_report')||hasPerm('reports')||D.role==='معلم') return nav('tStudentReport');
     if(hasPerm('student_paths')) return nav('tPaths');
@@ -656,6 +664,18 @@ function nav(page){
       if (typeof window.pgTeacherPreparation === 'function') return window.pgTeacherPreparation();
       return missingPageFunction('pgTeacherPreparation');
 
+    case 'tRabt':
+      if (typeof window.pgTeacherRabt === 'function') return window.pgTeacherRabt();
+      return missingPageFunction('pgTeacherRabt');
+
+    case 'tTests':
+      if (typeof window.pgTeacherTests === 'function') return window.pgTeacherTests();
+      return missingPageFunction('pgTeacherTests');
+
+    case 'tHizb':
+      if (typeof window.pgTeacherHizb === 'function') return window.pgTeacherHizb();
+      return missingPageFunction('pgTeacherHizb');
+
     case 'tWeeklyReport':
       if (typeof window.pgTeacherWeeklyReport === 'function') return window.pgTeacherWeeklyReport();
       return missingPageFunction('pgTeacherWeeklyReport');
@@ -679,6 +699,22 @@ function nav(page){
     case 'eSt':
       if (typeof window.pgEduSt === 'function') return window.pgEduSt();
       return missingPageFunction('pgEduSt');
+
+    case 'eSupervision':
+      if (typeof window.pgEduSupervision === 'function') return window.pgEduSupervision();
+      return missingPageFunction('pgEduSupervision');
+
+    case 'eAssessReport':
+      if (typeof window.pgEduAssessmentReport === 'function') return window.pgEduAssessmentReport();
+      return missingPageFunction('pgEduAssessmentReport');
+
+    case 'eRabtWeek':
+      if (typeof window.pgEduRabtWeekReport === 'function') return window.pgEduRabtWeekReport();
+      return missingPageFunction('pgEduRabtWeekReport');
+
+    case 'eWeekDetails':
+      if (typeof window.pgEduWeekDetails === 'function') return window.pgEduWeekDetails();
+      return missingPageFunction('pgEduWeekDetails');
 
     case 'aKpi':
       if (typeof window.pgAdminKpi === 'function') return window.pgAdminKpi();

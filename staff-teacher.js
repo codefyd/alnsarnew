@@ -396,3 +396,89 @@ function exportStudentPeriodReportCsv(){
   var b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='student_period_report_'+Date.now()+'.csv';a.click();
 }
+
+// =====================================================================
+// Phase 4D — إدخال التقييمات التعليمية: الربط / الاختبارات / عرض الحزب
+// =====================================================================
+function scoreBadge(score, pass){
+  if(score===null||score===undefined||score==='') return '<span class="bp bp-gr">—</span>';
+  var cls = pass===false ? 'bp-er' : 'bp-ok';
+  return '<span class="bp '+cls+'">'+hesc(score)+'/10</span>';
+}
+function currentWeekNo(){
+  var d=new Date();
+  var onejan=new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7);
+}
+
+function pgTeacherRabt(){
+  var w=D.rabtWeek||currentWeekNo();
+  var d=D.rabtDate||todayISO();
+  mc('<div class="stitle"><i class="fas fa-link"></i> عرض الربط</div>'
+    +'<div class="cc"><div class="chdr"><h3>إدخال درجات عرض الربط الأسبوعي</h3><div class="cacts">'
+    +'<input id="rabtWeek" class="fi" type="number" min="1" max="60" value="'+w+'" style="width:105px" title="رقم الأسبوع">'
+    +'<input id="rabtDate" class="fi" type="date" value="'+d+'">'
+    +'<button class="ob sm" onclick="loadTeacherRabt()"><i class="fas fa-rotate"></i> تحديث</button>'
+    +'<button class="pb sm" onclick="saveTeacherRabt()"><i class="fas fa-floppy-disk"></i> حفظ الدرجات</button>'
+    +'</div></div>'
+    +'<div class="cbody" id="rabtInfo"><div class="empty"><div class="spri" style="margin:0 auto 10px"></div><p>جارٍ التحميل…</p></div></div>'
+    +'<div style="overflow:auto"><table class="dt"><thead><tr><th>#</th><th>الطالب</th><th>الدرجة من 10</th><th>الحالة</th><th>ملاحظة</th></tr></thead><tbody id="rabtBody"></tbody></table></div>'
+    +'</div>');
+  loadTeacherRabt();
+}
+async function loadTeacherRabt(){
+  D.rabtWeek=Number(val('rabtWeek')||currentWeekNo());D.rabtDate=val('rabtDate')||todayISO();
+  var info=document.getElementById('rabtInfo'), body=document.getElementById('rabtBody');
+  if(info)info.innerHTML='<div class="empty"><div class="spri" style="margin:0 auto 10px"></div><p>جارٍ تحميل الطلاب…</p></div>';
+  var r=await api('جلب_عرض_الربط',{الحلقة:teacherCircle(),الأسبوع:D.rabtWeek,التاريخ:D.rabtDate});
+  if(!r||!r.نجاح){if(info)info.innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'')+'</p></div>';return;}
+  var set=r['الإعدادات']||{}, pass=Number(set['اقل_درجة_الربط']||7);
+  var enabled=r['مفعل_للحلقة'];
+  if(info)info.innerHTML='<div class="pgbar"><span>الفترة: <strong>'+hesc((r['الفترة']||{})['اسم_الفترة']||'—')+'</strong> · الأسبوع '+hesc(r['الأسبوع'])+' · أقل درجة للنجاح: <strong>'+pass+'</strong> · الحلقة: '+(enabled?'<span class="bp bp-ok">مفعلة للربط</span>':'<span class="bp bp-wa">غير مفعلة للربط</span>')+'</span></div>';
+  var rows=arr(r['طلاب']).map(function(s,i){
+    var score=s['الدرجة'];var passed=score===''||score==null?null:Number(score)>=pass;
+    return '<tr class="rabtRow" data-code="'+hesc(s['رقم_الطالب']||'')+'"><td>'+(i+1)+'</td><td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td>'
+      +'<td><input class="fi rabtScore" type="number" min="0" max="10" step="0.25" value="'+hesc(score==null?'':score)+'" style="width:100px" oninput="updateRabtRowStatus(this,'+pass+')"></td>'
+      +'<td class="rabtStatus">'+scoreBadge(score,passed)+'</td>'
+      +'<td><input class="fi rabtNote" value="'+hesc(s['ملاحظات']||'')+'" placeholder="اختياري" style="min-width:150px"></td></tr>';
+  }).join('');
+  body.innerHTML=rows||'<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب</td></tr>';
+}
+function updateRabtRowStatus(inp,pass){var tr=inp.closest('tr');var v=inp.value;if(!tr)return;tr.querySelector('.rabtStatus').innerHTML=scoreBadge(v,v===''?null:Number(v)>=pass);}
+async function saveTeacherRabt(){
+  var items=[];document.querySelectorAll('.rabtRow').forEach(function(tr){var score=tr.querySelector('.rabtScore').value;if(score==='')return;items.push({رقم_الطالب:tr.dataset.code,الدرجة:score,ملاحظات:tr.querySelector('.rabtNote').value});});
+  spin(true,'جارٍ حفظ عرض الربط…');var r=await api('حفظ_عرض_الربط',{الحلقة:teacherCircle(),الأسبوع:Number(val('rabtWeek')||currentWeekNo()),التاريخ:val('rabtDate')||todayISO(),طلاب:items});spin(false);
+  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e'});return;}
+  Swal.fire({icon:'success',title:'تم حفظ الدرجات',text:'تم حفظ '+(r['تم_الحفظ']||0)+' سجل',timer:1700,showConfirmButton:false});loadTeacherRabt();
+}
+
+function pgTeacherTests(){
+  var d=D.testDate||todayISO();
+  mc('<div class="stitle"><i class="fas fa-clipboard-list"></i> اختبارات الطلاب</div>'
+    +'<div class="cc"><div class="chdr"><h3>إدخال درجات الاختبارات</h3><div class="cacts">'
+    +'<input id="testNo" class="fi" type="number" min="1" value="'+(D.testNo||1)+'" style="width:110px" title="رقم الاختبار">'
+    +'<input id="testDate" class="fi" type="date" value="'+d+'">'
+    +'<button class="ob sm" onclick="loadTeacherTests()"><i class="fas fa-rotate"></i> تحديث</button>'
+    +'<button class="pb sm" onclick="saveTeacherTests()"><i class="fas fa-floppy-disk"></i> حفظ الاختبار</button>'
+    +'</div></div><div class="cbody" id="testInfo"></div><div style="overflow:auto"><table class="dt"><thead><tr><th>#</th><th>الطالب</th><th>الدرجة من 10</th><th>الحالة</th><th>ملاحظة</th></tr></thead><tbody id="testBody"></tbody></table></div></div>');
+  loadTeacherTests();
+}
+async function loadTeacherTests(){
+  D.testNo=Number(val('testNo')||1);D.testDate=val('testDate')||todayISO();
+  var r=await api('جلب_اختبارات_الطلاب',{الحلقة:teacherCircle(),رقم_الاختبار:D.testNo,التاريخ:D.testDate});
+  if(!r||!r.نجاح){document.getElementById('testInfo').innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'')+'</p></div>';return;}
+  var set=r['الإعدادات']||{}, pass=Number(set['اقل_درجة_الاختبار']||7), count=set['عدد_الاختبارات']||3;
+  document.getElementById('testInfo').innerHTML='<div class="pgbar"><span>الفترة: <strong>'+hesc((r['الفترة']||{})['اسم_الفترة']||'—')+'</strong> · الاختبار '+hesc(r['رقم_الاختبار'])+' من '+hesc(count)+' · أقل درجة للنجاح: <strong>'+pass+'</strong></span></div>';
+  document.getElementById('testBody').innerHTML=arr(r['طلاب']).map(function(s,i){var score=s['الدرجة'];var passed=score===''||score==null?null:Number(score)>=pass;return '<tr class="testRow" data-code="'+hesc(s['رقم_الطالب']||'')+'"><td>'+(i+1)+'</td><td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td><td><input class="fi testScore" type="number" min="0" max="10" step="0.25" value="'+hesc(score==null?'':score)+'" style="width:100px" oninput="updateTestRowStatus(this,'+pass+')"></td><td class="testStatus">'+scoreBadge(score,passed)+'</td><td><input class="fi testNote" value="'+hesc(s['ملاحظات']||'')+'" placeholder="اختياري" style="min-width:150px"></td></tr>';}).join('')||'<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب</td></tr>';
+}
+function updateTestRowStatus(inp,pass){var tr=inp.closest('tr');var v=inp.value;if(!tr)return;tr.querySelector('.testStatus').innerHTML=scoreBadge(v,v===''?null:Number(v)>=pass);}
+async function saveTeacherTests(){var items=[];document.querySelectorAll('.testRow').forEach(function(tr){var score=tr.querySelector('.testScore').value;if(score==='')return;items.push({رقم_الطالب:tr.dataset.code,الدرجة:score,ملاحظات:tr.querySelector('.testNote').value});});spin(true,'جارٍ حفظ الاختبار…');var r=await api('حفظ_اختبارات_الطلاب',{الحلقة:teacherCircle(),رقم_الاختبار:Number(val('testNo')||1),التاريخ:val('testDate')||todayISO(),طلاب:items});spin(false);if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e'});return;}Swal.fire({icon:'success',title:'تم حفظ الاختبار',text:'تم حفظ '+(r['تم_الحفظ']||0)+' سجل',timer:1700,showConfirmButton:false});loadTeacherTests();}
+
+function pgTeacherHizb(){
+  mc('<div class="stitle"><i class="fas fa-book-quran"></i> عرض الحزب</div>'
+    +'<div class="cc"><div class="chdr"><h3>إضافة عرض حزب</h3><div class="cacts"><button class="pb sm" onclick="openHizbPresentationForm()"><i class="fas fa-plus"></i> إضافة عرض</button><button class="ob sm" onclick="loadTeacherHizb()"><i class="fas fa-rotate"></i> تحديث</button></div></div><div class="cbody" id="hizbInfo"></div><div style="overflow:auto"><table class="dt"><thead><tr><th>التاريخ</th><th>الطالب</th><th>رقم الحزب</th><th>الدرجة</th><th>ملاحظات</th><th>إجراء</th></tr></thead><tbody id="hizbBody"></tbody></table></div></div>');
+  loadTeacherHizb();
+}
+async function loadTeacherHizb(){var r=await api('جلب_عرض_الحزب',{الحلقة:teacherCircle(),التاريخ:todayISO()});D.hizbData=r;if(!r||!r.نجاح){document.getElementById('hizbInfo').innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'')+'</p></div>';return;}document.getElementById('hizbInfo').innerHTML='<div class="pgbar"><span>الفترة: <strong>'+hesc((r['الفترة']||{})['اسم_الفترة']||'—')+'</strong> · عدد عروض الحزب: '+arr(r['عروض']).length+'</span></div>';document.getElementById('hizbBody').innerHTML=arr(r['عروض']).map(function(x){return '<tr><td>'+hesc(String(x['تاريخ_العرض']||'').slice(0,10))+'</td><td><strong>'+hesc(x['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(x['رقم_الطالب']||'')+'</div></td><td><span class="bp bp-in">'+hesc(x['رقم_الحزب']||'')+'</span></td><td>'+scoreBadge(x['الدرجة'],true)+'</td><td>'+hesc(x['ملاحظات']||'')+'</td><td><button class="erb sm" onclick="deleteHizbPresentation(\''+hesc(x['معرف'])+'\')"><i class="fas fa-trash"></i></button></td></tr>';}).join('')||'<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--ts)">لا توجد عروض حزب</td></tr>';}
+async function openHizbPresentationForm(){var students=arr((D.hizbData||{})['طلاب']);if(!students.length){await loadTeacherHizb();students=arr((D.hizbData||{})['طلاب']);}var opts=students.map(function(s){return '<option value="'+hesc(s['رقم_الطالب'])+'">'+hesc(s['اسم_الطالب'])+' — '+hesc(s['رقم_الطالب'])+'</option>';}).join('');var res=await Swal.fire({title:'إضافة عرض حزب',html:'<div style="direction:rtl;text-align:right;display:grid;gap:10px"><div><label style="font-size:12px;font-weight:700">الطالب</label><select id="hzStudent" class="swal2-select" style="font-family:Tajawal;width:100%;margin:4px 0 0">'+opts+'</select></div><div><label style="font-size:12px;font-weight:700">رقم الحزب</label><input id="hzNo" type="number" min="1" class="swal2-input" style="font-family:Tajawal;width:100%;margin:4px 0 0"></div><div><label style="font-size:12px;font-weight:700">الدرجة</label><input id="hzScore" type="number" min="0" max="10" step="0.25" class="swal2-input" style="font-family:Tajawal;width:100%;margin:4px 0 0"></div><div><label style="font-size:12px;font-weight:700">التاريخ</label><input id="hzDate" type="date" value="'+todayISO()+'" class="swal2-input" style="font-family:Tajawal;width:100%;margin:4px 0 0"></div><textarea id="hzNote" class="swal2-textarea" placeholder="ملاحظة اختيارية" style="font-family:Tajawal;direction:rtl;height:80px;width:100%;margin:0"></textarea></div>',showCancelButton:true,confirmButtonText:'حفظ',cancelButtonText:'إلغاء',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){if(!val('hzStudent')||!val('hzNo'))return Swal.showValidationMessage('الطالب ورقم الحزب مطلوبان');return{رقم_الطالب:val('hzStudent'),رقم_الحزب:val('hzNo'),الدرجة:val('hzScore'),تاريخ_العرض:val('hzDate'),ملاحظات:val('hzNote')};}});if(!res.isConfirmed)return;spin(true,'جارٍ حفظ عرض الحزب…');var r=await api('حفظ_عرض_الحزب',res.value);spin(false);if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e'});return;}Swal.fire({icon:'success',title:'تم حفظ عرض الحزب',timer:1500,showConfirmButton:false});loadTeacherHizb();}
+async function deleteHizbPresentation(id){var res=await Swal.fire({icon:'warning',title:'حذف عرض الحزب؟',showCancelButton:true,confirmButtonText:'حذف',cancelButtonText:'إلغاء',confirmButtonColor:'#c0392b',customClass:{popup:'swal-rtl'}});if(!res.isConfirmed)return;spin(true,'جارٍ الحذف…');var r=await api('حذف_عرض_الحزب',{معرف:id});spin(false);if(r&&r.نجاح){Swal.fire({icon:'success',title:'تم الحذف',timer:1200,showConfirmButton:false});loadTeacherHizb();}else Swal.fire({icon:'error',title:'تعذر الحذف',text:(r&&r.خطأ)||'خطأ غير معروف'});}

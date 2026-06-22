@@ -257,6 +257,8 @@ function buildAEWCards(list,procs){
      +'</div><div class="wacts">'
      +'<select class="fi sm" id="ap_'+q(a['رقم_الانذار'])+'" style="font-size:11.5px"><option value="">تحديث</option>'+opts+'<option value="__done__">✓ اكتمل</option></select>'
      +'<button class="pb sm" onclick="saveEduWProc(\''+q(a['رقم_الانذار'])+'\')"><i class="fas fa-save"></i> حفظ</button>'
+     +'<button class="ob sm" onclick="editEduWarning(\''+q(a['رقم_الانذار'])+'\')"><i class="fas fa-pen"></i> تعديل</button>'
+     +'<button class="ob sm" onclick="deleteEduWarning(\''+q(a['رقم_الانذار'])+'\')"><i class="fas fa-trash"></i> حذف</button>'
      +btnS+btnP
      +'</div></div>';
   }).join('');
@@ -267,10 +269,14 @@ function buildAEWAllTbl(list){
   var rows=list.map(function(a){
     var waS=a['رقم_جوال_الطالب']?'<a href="#" onclick="whatsapp(\''+q(a['رقم_جوال_الطالب'])+'\');return false" style="color:var(--ok)"><i class="fab fa-whatsapp me-1"></i>'+q(a['رقم_جوال_الطالب'])+'</a>':'—';
     var waP=a['رقم_جوال_ولي_الامر']?'<a href="#" onclick="whatsapp(\''+q(a['رقم_جوال_ولي_الامر'])+'\');return false" style="color:var(--ok)"><i class="fab fa-whatsapp me-1"></i>'+q(a['رقم_جوال_ولي_الامر'])+'</a>':'—';
-    var badge=String(a['تاريخ_الإغلاق']||'')?'<span class="bp bp-ok">مكتمل</span>':'<span class="bp bp-er">مفتوح</span>';
-    return'<tr><td><strong>'+q(a['اسم_الطالب']||'—')+'</strong></td><td>'+q(a['الحلقة']||'—')+'</td><td>'+waS+'</td><td>'+waP+'</td><td>'+q(a['سبب_الانذار']||'—')+'</td><td>'+q(a['حالة_الإجراء']||'—')+'</td><td>'+badge+'</td></tr>';
+    var closed=String(a['تاريخ_الإغلاق']||'');
+    var badge=closed?'<span class="bp bp-ok">مكتمل</span>':'<span class="bp bp-er">مفتوح</span>';
+    var acts='<button class="ob sm" onclick="editEduWarning(\''+q(a['رقم_الانذار'])+'\')"><i class="fas fa-pen"></i></button>'
+      +(closed?'<button class="ob sm" onclick="reopenEduWarning(\''+q(a['رقم_الانذار'])+'\')"><i class="fas fa-rotate-left"></i></button>':'')
+      +'<button class="ob sm" onclick="deleteEduWarning(\''+q(a['رقم_الانذار'])+'\')"><i class="fas fa-trash"></i></button>';
+    return'<tr id="aewr_'+q(a['رقم_الانذار'])+'"><td><strong>'+q(a['اسم_الطالب']||'—')+'</strong></td><td>'+q(a['الحلقة']||'—')+'</td><td>'+waS+'</td><td>'+waP+'</td><td>'+q(a['سبب_الانذار']||'—')+'</td><td>'+q(a['حالة_الإجراء']||'—')+'</td><td>'+badge+'</td><td><div class="cacts">'+acts+'</div></td></tr>';
   }).join('');
-  return'<table class="dt"><thead><tr><th>الطالب</th><th>الحلقة</th><th>جوال الطالب</th><th>جوال و.الأمر</th><th>السبب</th><th>الإجراء</th><th>الحالة</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  return'<table class="dt"><thead><tr><th>الطالب</th><th>الحلقة</th><th>جوال الطالب</th><th>جوال و.الأمر</th><th>السبب</th><th>الإجراء</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
 function filterAEW(c,q2){
@@ -298,6 +304,84 @@ function admEduWa(phone,sName,reason,isStudent){
   var tpl=(D.templates||[]).find(function(t){return isStudent?t['نوع_القالب']==='انذار_تعليمي_للطالب':t['نوع_القالب']==='انذار_تعليمي_لولي_الامر';});
   var msg=buildMsg(tpl?tpl['نص_القالب']:'',{اسم_الطالب:sName,السبب:reason,تاريخ:hijri()});
   whatsapp(phone,msg);
+}
+
+
+function getEduWarningById(id){
+  var all=arr(D.adminEduW).concat(arr(D.eduWarnings));
+  return all.find(function(x){return String(x['رقم_الانذار'])===String(id);})||{};
+}
+function eduReasonOptions(selected){
+  var reasons=[];
+  arr(D.eduReasons).forEach(function(x){reasons.push(typeof x==='string'?x:x['اسم_الاجراء']);});
+  arr(D.procedures).forEach(function(p){if(p['نوع_الاجراء']==='سبب_تعليمي'&&p['نشط']!=='لا')reasons.push(p['اسم_الاجراء']);});
+  reasons=Array.from(new Set(reasons.filter(Boolean)));
+  return '<option value="">-- اختر --</option>'+reasons.map(function(r){return'<option '+(r===selected?'selected':'')+'>'+q(r)+'</option>';}).join('');
+}
+function eduActionOptions(selected){
+  var acts=[];
+  arr(D.eduProcs).forEach(function(x){acts.push(typeof x==='string'?x:x['اسم_الاجراء']);});
+  arr(D.procedures).forEach(function(p){if(p['نوع_الاجراء']==='تعليمي'&&p['نشط']!=='لا')acts.push(p['اسم_الاجراء']);});
+  acts=Array.from(new Set(acts.filter(Boolean)));
+  return '<option value="">-- بدون تغيير --</option>'+acts.map(function(r){return'<option '+(r===selected?'selected':'')+'>'+q(r)+'</option>';}).join('');
+}
+async function editEduWarning(id){
+  var a=getEduWarningById(id);
+  var res=await Swal.fire({
+    title:'تعديل الإنذار التعليمي',
+    width:'620px',
+    html:'<div style="direction:rtl;text-align:right;display:grid;gap:10px">'
+      +'<div style="font-size:13px;color:var(--ts)">الطالب: <strong>'+q(a['اسم_الطالب']||'—')+'</strong> · رقم الإنذار: <strong>'+q(id)+'</strong></div>'
+      +'<div><label style="font-size:12px;font-weight:700">سبب الإنذار</label><select id="edw_reason" class="swal2-select" style="font-family:Tajawal;width:100%;margin:4px 0 0">'+eduReasonOptions(a['سبب_الانذار'])+'</select></div>'
+      +'<div><label style="font-size:12px;font-weight:700">الإجراء</label><select id="edw_action" class="swal2-select" style="font-family:Tajawal;width:100%;margin:4px 0 0">'+eduActionOptions(a['حالة_الإجراء'])+'</select></div>'
+      +'<div><label style="font-size:12px;font-weight:700">اسم المشرف</label><input id="edw_sup" class="swal2-input" style="font-family:Tajawal;width:100%;margin:4px 0 0" value="'+q(a['اسم_المشرف']||'')+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:700">تاريخ الإصدار</label><input id="edw_date" type="date" class="swal2-input" style="font-family:Tajawal;width:100%;margin:4px 0 0" value="'+String(a['تاريخ_الإصدار']||'').slice(0,10)+'"></div>'
+      +'<div><label style="font-size:12px;font-weight:700">ملاحظات</label><textarea id="edw_notes" class="swal2-textarea" style="font-family:Tajawal;direction:rtl;height:90px;width:100%;margin:4px 0 0">'+q(a['ملاحظات']||'')+'</textarea></div>'
+      +'</div>',
+    showCancelButton:true,
+    confirmButtonText:'حفظ التعديل',
+    cancelButtonText:'إلغاء',
+    confirmButtonColor:'#1a3c5e',
+    customClass:{popup:'swal-rtl'},
+    preConfirm:function(){
+      var reason=val('edw_reason');
+      if(!reason)return Swal.showValidationMessage('اختر سبب الإنذار');
+      return {سبب_الانذار:reason,حالة_الإجراء:val('edw_action'),اسم_المشرف:val('edw_sup'),تاريخ_الإصدار:val('edw_date'),ملاحظات:val('edw_notes')};
+    }
+  });
+  if(!res.isConfirmed)return;
+  spin(true,'جارٍ تعديل الإنذار…');
+  var r=await api('تعديل_انذار_تعليمي',Object.assign({رقم_الانذار:id},res.value));
+  spin(false);
+  if(r.نجاح){
+    ['adminEduW','eduWarnings'].forEach(function(k){D[k]=arr(D[k]).map(function(x){return String(x['رقم_الانذار'])===String(id)?Object.assign({},x,res.value):x;});});
+    Swal.fire({icon:'success',title:'تم التعديل',timer:1400,showConfirmButton:false});
+    if(typeof pgAdminEduW==='function' && arr(D.adminEduW).length) pgAdminEduW();
+  }else Swal.fire({icon:'error',title:'خطأ',text:r.خطأ||'تعذر تعديل الإنذار',confirmButtonColor:'#1a3c5e'});
+}
+async function deleteEduWarning(id){
+  var res=await Swal.fire({icon:'warning',title:'حذف الإنذار؟',text:'سيتم حذف الإنذار نهائيًا من السجل.',showCancelButton:true,confirmButtonText:'حذف',cancelButtonText:'إلغاء',confirmButtonColor:'#c0392b',customClass:{popup:'swal-rtl'}});
+  if(!res.isConfirmed)return;
+  spin(true,'جارٍ الحذف…');var r=await api('حذف_انذار_تعليمي',{رقم_الانذار:id});spin(false);
+  if(r.نجاح){
+    D.adminEduW=arr(D.adminEduW).filter(function(x){return String(x['رقم_الانذار'])!==String(id);});
+    D.eduWarnings=arr(D.eduWarnings).filter(function(x){return String(x['رقم_الانذار'])!==String(id);});
+    var el=document.getElementById('awc_'+id);if(el)el.remove();
+    var row=document.getElementById('aewr_'+id);if(row)row.remove();
+    updateEduBadge();
+    Swal.fire({icon:'success',title:'تم الحذف',timer:1300,showConfirmButton:false});
+  }else Swal.fire({icon:'error',title:'خطأ',text:r.خطأ||'تعذر الحذف',confirmButtonColor:'#1a3c5e'});
+}
+async function reopenEduWarning(id){
+  var res=await Swal.fire({icon:'question',title:'التراجع عن إغلاق الإنذار؟',text:'سيعود الإنذار إلى قائمة المتابعة المفتوحة.',showCancelButton:true,confirmButtonText:'تراجع عن الإغلاق',cancelButtonText:'إلغاء',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});
+  if(!res.isConfirmed)return;
+  spin(true,'جارٍ إعادة فتح الإنذار…');var r=await api('إعادة_فتح_انذار_تعليمي',{رقم_الانذار:id});spin(false);
+  if(r.نجاح){
+    ['adminEduW','eduWarnings'].forEach(function(k){D[k]=arr(D[k]).map(function(x){return String(x['رقم_الانذار'])===String(id)?Object.assign({},x,{'تاريخ_الإغلاق':'','حالة_الإجراء':'بانتظار الإدارة'}):x;});});
+    updateEduBadge();
+    Swal.fire({icon:'success',title:'تمت إعادة فتح الإنذار',timer:1400,showConfirmButton:false});
+    if(typeof pgAdminEduW==='function' && arr(D.adminEduW).length) pgAdminEduW();
+  }else Swal.fire({icon:'error',title:'خطأ',text:r.خطأ||'تعذر إعادة الفتح',confirmButtonColor:'#1a3c5e'});
 }
 
 async function pgAdminAdmW(){
@@ -449,6 +533,7 @@ function pgSettings(){
     +'<button class="stab" onclick="swST(this,\'stCircles\')"><i class="fas fa-mosque"></i> الحلق</button>'
     +'<button class="stab" onclick="swST(this,\'stStates\')"><i class="fas fa-circle-dot"></i> الحالات</button>'
     +'<button class="stab" onclick="swST(this,\'stEduR\')"><i class="fas fa-triangle-exclamation"></i> أسباب الإنذارات التعليمية</button>'
+    +'<button class="stab" onclick="swST(this,\'stEduAssess\')"><i class="fas fa-sliders"></i> إعدادات التقييم التعليمي</button>'
     +'</div>'
     +'<div class="spanel active cbody" id="stTpl"><p style="font-size:12px;color:var(--ts);margin-bottom:14px">المتغيرات: <code>#اسم_الطالب</code> <code>#اسم_ولي_الطالب</code> <code>#السبب</code> <code>#تاريخ</code> <code>#رقم_العتبة</code> <code>#عدد_الغيابات</code></p>'+tplH+'</div>'
     +'<div class="spanel cbody" id="stThr">'+thrH+'</div>'
@@ -457,15 +542,16 @@ function pgSettings(){
     +'<div class="spanel cbody" id="stCircles"><div class="mb-3"><button class="pb sm" onclick="addCircle()"><i class="fas fa-plus"></i> إضافة حلقة</button></div><div style="display:flex;flex-wrap:wrap;gap:10px">'+circleC+'</div></div>'
     +'<div class="spanel cbody" id="stStates"><div class="mb-3"><button class="pb sm" onclick="addState()"><i class="fas fa-plus"></i> إضافة حالة</button></div><div style="display:flex;flex-wrap:wrap;gap:10px">'+stateC+'</div></div>'
     +'<div class="spanel cbody" id="stEduR">'+buildEduReasonsPanel()+'</div>'
+    +'<div class="spanel cbody" id="stEduAssess">'+buildEduAssessmentSettingsPanel()+'</div>'
     +'</div>');
 }
 
 async function reloadSettings(){
   spin(true,'جارٍ التحميل…');
-  var rs=await Promise.all([api('جلب_قوالب_الرسائل',{}),api('جلب_عتبات_الانذارات',{}),api('جلب_الاجراءات',{}),api('جلب_العاملين',{}),api('جلب_الحلق',{}),api('جلب_حالات_الطالب',{}),api('جلب_صفحات_النظام',{})]);
+  var rs=await Promise.all([api('جلب_قوالب_الرسائل',{}),api('جلب_عتبات_الانذارات',{}),api('جلب_الاجراءات',{}),api('جلب_العاملين',{}),api('جلب_الحلق',{}),api('جلب_حالات_الطالب',{}),api('جلب_صفحات_النظام',{}),api('جلب_اعدادات_التقييم_التعليمي',{})]);
   spin(false);
   D.templates=arr(rs[0].قوالب);D.thresholds=arr(rs[1].عتبات);D.procedures=arr(rs[2].إجراءات);
-  D.setUsers=arr(rs[3].عاملون);D.setCircles=arr(rs[4].حلق);D.setStates=arr(rs[5].حالات);D.appPages=arr(rs[6].صفحات);
+  D.setUsers=arr(rs[3].عاملون);D.setCircles=arr(rs[4].حلق);D.setStates=arr(rs[5].حالات);D.appPages=arr(rs[6].صفحات);D.eduAssessSettings=(rs[7]&&rs[7].إعدادات)||D.eduAssessSettings||{};
   saveCache();pgSettings();
 }
 
@@ -726,4 +812,33 @@ async function deleteLearningTerm(id){
   spin(true,'جارٍ الحذف…');var r=await api('حذف_فترة_تعلم',{id:id});spin(false);
   if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحذف',text:(r&&r.خطأ)||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}
   await loadLearningTerms();
+}
+
+
+// =====================================================================
+// Phase 4D — إعدادات التقييم التعليمي في صفحة المشرف الإداري
+// =====================================================================
+function buildEduAssessmentSettingsPanel(){
+  var st=D.eduAssessSettings||{};
+  var enabled={};arr(st['حلق_الربط']).forEach(function(x){enabled[x['اسم_الحلقة']]=!!x['مفعل'];});
+  var circles=arr(D.setCircles).map(function(c){var n=c['اسم_الحلقة'];return '<label style="display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 10px"><input type="checkbox" class="eduRabtCircle" value="'+q(n)+'" '+(enabled[n]?'checked':'')+'> <span>'+q(n)+'</span></label>';}).join('');
+  return '<div style="display:grid;gap:14px;max-width:780px">'
+    +'<div class="kpi-grid" style="margin-bottom:0">'
+    +'<div class="kpi-card"><div class="klabel">أقل درجة للنجاح في الربط</div><input id="eduRabtPass" type="number" min="0" max="10" step="0.25" class="fi" value="'+q(st['اقل_درجة_الربط']||7)+'"></div>'
+    +'<div class="kpi-card"><div class="klabel">أقل درجة للنجاح في الاختبار</div><input id="eduTestPass" type="number" min="0" max="10" step="0.25" class="fi" value="'+q(st['اقل_درجة_الاختبار']||7)+'"></div>'
+    +'<div class="kpi-card"><div class="klabel">عدد الاختبارات الافتراضي بالفترة</div><input id="eduTestCount" type="number" min="1" max="20" class="fi" value="'+q(st['عدد_الاختبارات']||3)+'"></div>'
+    +'</div>'
+    +'<div class="cc" style="margin:0"><div class="chdr"><h3>الحلق المطلوب عليها عرض الربط</h3></div><div class="cbody"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">'+circles+'</div><p style="font-size:12px;color:var(--ts);margin-top:10px">إذا لم تُفعّل حلقة هنا فلن تعتبر ضمن تنبيهات الربط، لكن يمكن إدخال درجات لها عند الحاجة.</p></div></div>'
+    +'<div><button class="pb sm" onclick="saveEduAssessmentSettings()"><i class="fas fa-floppy-disk"></i> حفظ إعدادات التقييم التعليمي</button></div>'
+    +'</div>';
+}
+async function saveEduAssessmentSettings(){
+  var circles=[];document.querySelectorAll('.eduRabtCircle:checked').forEach(function(c){circles.push(c.value);});
+  spin(true,'جارٍ حفظ إعدادات التقييم…');
+  var r=await api('حفظ_اعدادات_التقييم_التعليمي',{اقل_درجة_الربط:val('eduRabtPass'),اقل_درجة_الاختبار:val('eduTestPass'),عدد_الاختبارات:val('eduTestCount'),حلق_الربط:circles});
+  spin(false);
+  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e'});return;}
+  D.eduAssessSettings=r['إعدادات']||{};
+  Swal.fire({icon:'success',title:'تم حفظ إعدادات التقييم',timer:1600,showConfirmButton:false});
+  await reloadSettings();
 }
