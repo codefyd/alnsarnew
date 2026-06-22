@@ -311,3 +311,88 @@ async function saveStudentPaths(){
   st.textContent='.mini-wrap{display:flex;gap:4px;flex-wrap:wrap;min-width:190px}.mini-att,.mini-done{border:1px solid var(--bd);background:#fff;color:var(--ts);border-radius:8px;padding:5px 8px;font-family:Tajawal;font-size:11.5px;font-weight:700;cursor:pointer}.mini-att.active,.mini-done.active{background:var(--p);border-color:var(--p);color:#fff}.mini-done.active[data-done="true"]{background:var(--ok);border-color:var(--ok)}.mini-done.active[data-done="false"]{background:var(--er);border-color:var(--er)}';
   document.head.appendChild(st);
 })();
+
+// ══════════════════════════════════════════════════════
+// Phase 3F — تقرير الطلاب للفترة النشطة
+// ══════════════════════════════════════════════════════
+async function pgTeacherStudentPeriodReport(){
+  var dTo=todayISO();
+  mc('<div class="stitle"><i class="fas fa-chart-column"></i> تقرير الطلاب</div>'
+    +'<div class="cc"><div class="chdr"><h3>ملخص الطلاب حسب الفترة النشطة</h3><div class="cacts">'
+    +'<input class="fi" id="periodReportFrom" type="date" title="من">'
+    +'<input class="fi" id="periodReportTo" type="date" value="'+dTo+'" title="إلى">'
+    +'<button class="ob sm" onclick="loadStudentPeriodReport()"><i class="fas fa-rotate"></i> تحديث</button>'
+    +'<button class="ob sm" onclick="exportStudentPeriodReportCsv()"><i class="fas fa-file-csv"></i> CSV</button>'
+    +'</div></div>'
+    +'<div class="cbody" id="periodReportSummary"><div class="empty"><div class="spri"></div><h3>جارٍ تحميل التقرير…</h3></div></div>'
+    +'<div style="overflow:auto"><table class="dt" id="periodReportTbl"><thead><tr>'
+    +'<th>#</th><th>الطالب</th><th>المسار</th><th>أيام التحضير</th><th>حضور</th><th>تأخر</th><th>غياب</th><th>غياب بعذر</th><th>أتم</th><th>لم يتم</th><th>آخر محفوظ</th><th>النسب</th>'
+    +'</tr></thead><tbody id="periodReportBody"><tr><td colspan="12" style="text-align:center;padding:18px"><div class="spri" style="margin:auto"></div></td></tr></tbody></table></div>'
+    +'</div>');
+  await loadStudentPeriodReport();
+}
+
+async function loadStudentPeriodReport(){
+  var body=document.getElementById('periodReportBody');
+  var sum=document.getElementById('periodReportSummary');
+  if(body)body.innerHTML='<tr><td colspan="12" style="text-align:center;padding:18px"><div class="spri" style="margin:auto"></div></td></tr>';
+  if(sum)sum.innerHTML='<div class="empty"><div class="spri"></div><h3>جارٍ تحميل التقرير…</h3></div>';
+  var from=val('periodReportFrom'), to=val('periodReportTo')||todayISO();
+  var data={الحلقة:teacherCircle(),إلى:to};
+  if(from)data['من']=from;
+  var r=await api('جلب_تقرير_طلاب_الفترة',data);
+  if(!r||!r.نجاح){
+    if(sum)sum.innerHTML='<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>تعذر تحميل التقرير</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';
+    if(body)body.innerHTML='<tr><td colspan="12" style="text-align:center;padding:18px;color:var(--er)">تعذر تحميل التقرير</td></tr>';
+    return;
+  }
+  D.studentPeriodReport=r;
+  renderStudentPeriodSummary(r);
+  renderStudentPeriodRows(arr(r.طلاب));
+}
+
+function renderStudentPeriodSummary(r){
+  var m=r.ملخص||{}, term=r.الفترة||{};
+  var e=document.getElementById('periodReportSummary'); if(!e)return;
+  e.innerHTML='<div class="pgbar" style="margin-bottom:12px"><span>الفترة: <strong>'+hesc(term['اسم_الفترة']||'—')+'</strong> · الحلقة: '+hesc(r['الحلقة']||teacherCircle()||'—')+' · من '+hesc(r['من']||'—')+' إلى '+hesc(r['إلى']||'—')+'</span></div>'
+    +'<div class="kpi-grid" style="margin-bottom:0">'
+    +kpiCard('عدد الطلاب',m['عدد_الطلاب']||0,'fa-users','')
+    +kpiCard('أيام لها تحضير',m['أيام_لها_تحضير']||0,'fa-calendar-check','kpi-ok')
+    +kpiCard('حضور',m['حضور']||0,'fa-user-check','kpi-ok')
+    +kpiCard('تأخر',m['تأخر']||0,'fa-clock','kpi-wa')
+    +kpiCard('غياب',m['غياب']||0,'fa-user-xmark','kpi-er')
+    +kpiCard('أتم الحفظ',m['أتم_الحفظ']||0,'fa-check','kpi-ok')
+    +'</div>';
+}
+
+function renderStudentPeriodRows(list){
+  var body=document.getElementById('periodReportBody'); if(!body)return;
+  if(!list.length){body.innerHTML='<tr><td colspan="12" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات طلاب</td></tr>';return;}
+  body.innerHTML=list.map(function(s,i){
+    var last=(s['آخر_سورة']||'') ? (hesc(s['آخر_سورة'])+' '+hesc(s['آخر_آية']||'')) : '—';
+    var attPct=Number(s['نسبة_الحضور']||0), donePct=Number(s['نسبة_اتمام_الحفظ']||0);
+    return '<tr>'
+      +'<td>'+(i+1)+'</td>'
+      +'<td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+' · '+hesc(s['الصف_الدراسي']||'')+'</div></td>'
+      +'<td><span class="bp bp-in">'+hesc(s['المسار']||'—')+'</span></td>'
+      +'<td><strong>'+hesc(s['أيام_التحضير']||0)+'</strong></td>'
+      +'<td><span class="bp bp-ok">'+hesc(s['حضور']||0)+'</span></td>'
+      +'<td><span class="bp bp-wa">'+hesc(s['تأخر']||0)+'</span></td>'
+      +'<td><span class="bp bp-er">'+hesc(s['غياب']||0)+'</span></td>'
+      +'<td><span class="bp bp-in">'+hesc(s['غياب_بعذر']||0)+'</span></td>'
+      +'<td><span class="bp bp-ok">'+hesc(s['أتم_الحفظ']||0)+'</span></td>'
+      +'<td><span class="bp bp-er">'+hesc(s['لم_يتم_الحفظ']||0)+'</span></td>'
+      +'<td>'+last+'</td>'
+      +'<td><div style="font-size:11px;color:var(--ts)">حضور: <strong>'+attPct+'%</strong></div><div style="font-size:11px;color:var(--ts)">إتمام: <strong>'+donePct+'%</strong></div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function exportStudentPeriodReportCsv(){
+  var r=D.studentPeriodReport||{}, rows=arr(r.طلاب);
+  if(!rows.length){Swal.fire({icon:'info',title:'لا توجد بيانات للتصدير',confirmButtonColor:'#1a3c5e'});return;}
+  var cols=['رقم_الطالب','اسم_الطالب','الحلقة','المسار','أيام_التحضير','حضور','تأخر','غياب','غياب_بعذر','أتم_الحفظ','لم_يتم_الحفظ','آخر_سورة','آخر_آية','نسبة_الحضور','نسبة_اتمام_الحفظ'];
+  var csv=cols.join(',')+'\n'+rows.map(function(x){return cols.map(function(c){return '"'+String(x[c]==null?'':x[c]).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='student_period_report_'+Date.now()+'.csv';a.click();
+}

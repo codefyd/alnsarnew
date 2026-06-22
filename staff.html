@@ -173,7 +173,7 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
     <div class="llogo"><i class="fas fa-book-open-reader"></i></div>
     <h2>بوابة العاملين</h2>
     <p>مجمع حلق جامع النصار<br>أدخل رمز الدخول الخاص بك</p>
-    <input class="linput" type="password" id="loginCode" placeholder="● ● ● ●" maxlength="100" onkeydown="if(event.key==='Enter')doLogin()">
+    <input class="linput" type="password" id="loginCode" placeholder="● ● ● ●" maxlength="10" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="lbtn" id="loginBtn" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> دخول</button>
     <div class="lerr" id="loginErr"><i class="fas fa-circle-xmark me-1"></i>رمز الدخول غير صحيح</div>
     <div class="llinks">
@@ -593,6 +593,7 @@ function buildSidebar(){
     if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
     if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
     if(hasPerm('weekly_prep_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tWeeklyReport')"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>`;
+    if(hasPerm('student_period_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tStudentReport')"><i class="fas fa-chart-column"></i> تقرير الطلاب</div>`;
     if(hasPerm('student_paths')) h+=`<div class="nitem" onclick="nav('tPaths')"><i class="fas fa-route"></i> مسارات الطلاب</div>`;
     if(hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`;
   } else if(role==='مشرف_تعليمي'){
@@ -624,6 +625,7 @@ function navFirst(){
     if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
     if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) return nav('tPreparation');
     if(hasPerm('weekly_prep_report')||hasPerm('reports')||D.role==='معلم') return nav('tWeeklyReport');
+    if(hasPerm('student_period_report')||hasPerm('reports')||D.role==='معلم') return nav('tStudentReport');
     if(hasPerm('student_paths')) return nav('tPaths');
     if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
   }
@@ -657,6 +659,10 @@ function nav(page){
     case 'tWeeklyReport':
       if (typeof window.pgTeacherWeeklyReport === 'function') return window.pgTeacherWeeklyReport();
       return missingPageFunction('pgTeacherWeeklyReport');
+
+    case 'tStudentReport':
+      if (typeof window.pgTeacherStudentPeriodReport === 'function') return window.pgTeacherStudentPeriodReport();
+      return missingPageFunction('pgTeacherStudentPeriodReport');
 
     case 'tPaths':
       if (typeof window.pgTeacherStudentPaths === 'function') return window.pgTeacherStudentPaths();
