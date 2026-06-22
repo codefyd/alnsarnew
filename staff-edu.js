@@ -1,6 +1,14 @@
 // مجمع تحفيظ القرآن الكريم — منظومة الإدارة الرقمية
 // يُحمَّل هذا الملف من staff.html
 
+// Helper: رقم الأسبوع الحالي لتقارير الربط
+// كان معرفًا في staff-teacher.js فقط، والمشرف التعليمي لا يحمل هذا الملف.
+function currentWeekNo(){
+  var d = new Date();
+  var onejan = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+}
+
 function pgEduKpi(){
   var t=D.eduKpi;
   mc('<div class="stitle"><i class="fas fa-chart-pie"></i> لوحة المشرف التعليمي</div><div class="kpi-grid">'
