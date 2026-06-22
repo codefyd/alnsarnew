@@ -622,7 +622,7 @@ async function editUserPerms(s){
   });
   html+='</div>';
   var res=await Swal.fire({title:'صلاحيات: '+q(u['الاسم']),width:'900px',html:html,confirmButtonText:'حفظ الصلاحيات',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},didOpen:function(){document.querySelectorAll('.permGroupAll').forEach(function(x){syncPermGroup(x.dataset.group);});},preConfirm:function(){var out={};document.querySelectorAll('.permv').forEach(function(ch){var pg=ch.dataset.page,act=ch.dataset.act;if(!out[pg])out[pg]={page_key:pg,can_view:false,can_create:false,can_update:false,can_delete:false};out[pg][act]=ch.checked;});return Object.keys(out).map(function(k){return out[k];});}});
-  if(!res.isConfirmed)return;spin(true,'جارٍ حفظ الصلاحيات…');var r=await api('حفظ_صلاحيات_عامل',{معرف:u['معرف'],صلاحيات:res.value});spin(false);if(!r.نجاح){Swal.fire({icon:'error',title:'تعذر حفظ الصلاحيات',text:r.خطأ||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}await reloadSettings();
+  if(!res.isConfirmed)return;spin(true,'جارٍ حفظ الصلاحيات…');var r=await api('حفظ_صلاحيات_عامل',{معرف:u['معرف'],صلاحيات:res.value});spin(false);if(!r.نجاح){Swal.fire({icon:'error',title:'تعذر حفظ الصلاحيات',text:r.خطأ||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}if(D.user&&u['معرف']===D.user.id){var me=await api('جلب_ملفي',{});if(me&&me.id){D.user.permissions=arr(me.permissions);D.user.is_super_admin=!!me.is_super_admin;if(typeof buildSidebar==='function')buildSidebar();}}await reloadSettings();
 }
 function togglePermRow(cb){
   var pg=cb.dataset.page;
