@@ -274,3 +274,104 @@ function pgEduWeekDetails(){
   loadEduWeekDetails();
 }
 async function loadEduWeekDetails(){D.eduWeekDetails=Number(val('eduWeekDetails')||currentWeekNo());var r=await api('جلب_تفاصيل_اسابيع_الربط',{الأسبوع:D.eduWeekDetails});if(!r||!r.نجاح){document.getElementById('weekFailedBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--er);padding:18px">'+hesc((r&&r.خطأ)||'تعذر التحميل')+'</td></tr>';return;}document.getElementById('weekFailedBody').innerHTML=arr(r['الراسبون']).map(function(x,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(x['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(x['رقم_الطالب']||'')+'</div></td><td>'+hesc(x['الحلقة']||'—')+'</td><td>'+scoreBadge(x['الدرجة'],false)+'</td><td>'+hesc(String(x['تاريخ_العرض']||'').slice(0,10))+'</td></tr>';}).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--ts);padding:18px">لا يوجد راسبون في هذا الأسبوع</td></tr>';document.getElementById('weekAllBody').innerHTML=arr(r['تفاصيل']).map(function(x,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(x['اسم_الطالب']||'—')+'</strong></td><td>'+hesc(x['الحلقة']||'—')+'</td><td>'+hesc(x['الدرجة']||'')+'</td><td>'+(x['مجتاز']?'<span class="bp bp-ok">مجتاز</span>':'<span class="bp bp-er">راسب</span>')+'</td><td>'+hesc(String(x['تاريخ_العرض']||'').slice(0,10))+'</td></tr>';}).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--ts);padding:18px">لا توجد تفاصيل</td></tr>';}
+
+
+// =====================================================================
+// Phase 4E — تقارير تعليمية محسّنة حسب الفترة والأسابيع
+// =====================================================================
+(function(){
+  function _pct(v){ if(v===null||v===undefined||v==='') return '<span class="bp bp-gr">—</span>'; var n=Number(v)||0; var cls=n>=80?'bp-ok':(n>=60?'bp-wa':'bp-er'); return '<span class="bp '+cls+'">'+hesc(n)+'%</span>'; }
+  function _num(v){ return hesc(v===null||v===undefined||v===''?'—':v); }
+  function _score(v, ok){ if(v===null||v===undefined||v==='') return '<span class="bp bp-gr">—</span>'; return '<span class="bp '+(ok===false?'bp-er':'bp-in')+'">'+hesc(v)+'</span>'; }
+  function _weekDefault(){ return D.eduRabtWeek || D.eduWeekDetails || currentWeekNo(); }
+  function _termName(r){ return hesc(((r||{})['الفترة']||{})['اسم_الفترة'] || '—'); }
+  function _weekRange(r){ var w=(r||{})['بيانات_الأسبوع']||{}; return hesc((w['بداية_الأسبوع']||'')+' إلى '+(w['نهاية_الأسبوع']||'')); }
+
+  window.pgEduRabtWeekReport = function(){
+    var w=_weekDefault();
+    mc('<div class="stitle"><i class="fas fa-table-list"></i> التقرير الأسبوعي التعليمي</div>'
+      +'<div class="cc" style="direction:rtl"><div class="chdr"><h3>تقرير الأسبوع داخل الفترة</h3><div class="cacts">'
+      +'<input id="eduRabtWeek" class="fi" type="number" min="1" max="80" value="'+w+'" style="width:120px">'
+      +'<button class="ob sm" onclick="loadEduRabtWeekReport()"><i class="fas fa-rotate"></i> عرض</button>'
+      +'</div></div>'
+      +'<div class="cbody" id="rabtWeekSummary"><div class="empty"><div class="spri" style="margin:0 auto 10px"></div><p>جارٍ التحميل…</p></div></div>'
+      +'<div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr>'
+      +'<th>#</th><th>اسم الحلقة</th><th>عدد الحلقة</th><th>أيام التحضير</th><th>نسبة إتمام الحفظ</th><th>المختبرون بالربط</th><th>المجتازون</th><th>الراسبون</th><th>نسبة اجتياز الربط</th><th>اختبارات الأسبوع</th><th>عروض الحزب</th>'
+      +'</tr></thead><tbody id="rabtWeekBody"></tbody></table></div></div>');
+    loadEduRabtWeekReport();
+  };
+
+  window.loadEduRabtWeekReport = async function(){
+    D.eduRabtWeek=Number(val('eduRabtWeek')||_weekDefault());
+    var r=await api('جلب_تقرير_الحلقات_اسبوعي_للربط',{الأسبوع:D.eduRabtWeek});
+    D.eduRabtWeekReport=r;
+    if(!r||!r.نجاح){document.getElementById('rabtWeekSummary').innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'')+'</p></div>';return;}
+    var m=r['ملخص']||{};
+    document.getElementById('rabtWeekSummary').innerHTML='<div class="kpi-grid">'
+      +kpiCard('الفترة',_termName(r),'fa-calendar-days','')
+      +kpiCard('الأسبوع',r['الأسبوع']||D.eduRabtWeek,'fa-calendar-week','')
+      +kpiCard('مدى الأسبوع',_weekRange(r),'fa-arrows-left-right','')
+      +kpiCard('المختبرون بالربط',m['المختبرين_بالربط']||0,'fa-users','')
+      +kpiCard('المجتازون',m['مجتازي_الربط']||0,'fa-check','kpi-ok')
+      +kpiCard('الراسبون',m['راسبي_الربط']||0,'fa-xmark','kpi-er')
+      +kpiCard('نسبة الربط',((m['نسبة_اجتياز_الربط']??0)+'%'),'fa-percent','kpi-ac')
+      +kpiCard('نسبة إتمام الحفظ',((m['نسبة_إتمام_الحفظ']??0)+'%'),'fa-book-open','kpi-ok')
+      +'</div>';
+    document.getElementById('rabtWeekBody').innerHTML=arr(r['حلق']).map(function(x,i){return '<tr>'
+      +'<td>'+(i+1)+'</td><td><strong>'+hesc(x['اسم_الحلقة']||'—')+'</strong></td><td>'+_num(x['عدد_الحلقة'])+'</td>'
+      +'<td>'+_num(x['أيام_التحضير'])+'</td><td>'+_pct(x['نسبة_إتمام_الحفظ'])+'</td>'
+      +'<td>'+_num(x['المختبرين_بالربط'])+'</td><td><span class="bp bp-ok">'+_num(x['المجتازين'])+'</span></td><td><span class="bp bp-er">'+_num(x['الراسبين'])+'</span></td>'
+      +'<td>'+_pct(x['نسبة_الاجتياز'])+'</td><td>'+_num(x['اختبارات_الأسبوع'])+'</td><td>'+_num(x['عروض_الحزب'])+'</td></tr>';}).join('')||'<tr><td colspan="11" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات</td></tr>';
+  };
+
+  window.pgEduAssessmentReport = function(){
+    mc('<div class="stitle"><i class="fas fa-chart-line"></i> التقرير الفصلي التعليمي</div>'
+      +'<div class="cc"><div class="chdr"><h3>تقرير كامل للفترة النشطة</h3><div class="cacts"><button class="ob sm" onclick="loadEduAssessmentReport()"><i class="fas fa-rotate"></i> تحديث</button><button class="ob sm" onclick="exportEduAssessmentCSV()"><i class="fas fa-file-csv"></i> CSV</button></div></div>'
+      +'<div class="cbody" id="eduAssessSummary"><div class="empty"><div class="spri" style="margin:0 auto 10px"></div><p>جارٍ التحميل…</p></div></div>'
+      +'<div class="stabs"><button class="stab active" onclick="swST(this,\'eduAssessCircles\')"><i class="fas fa-mosque"></i> ملخص الحلق</button><button class="stab" onclick="swST(this,\'eduAssessStudents\')"><i class="fas fa-users"></i> تفاصيل الطلاب</button><button class="stab" onclick="swST(this,\'eduAssessWeeks\')"><i class="fas fa-calendar-week"></i> الأسابيع</button></div>'
+      +'<div class="spanel active" id="eduAssessCircles"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>#</th><th>الحلقة</th><th>الطلاب</th><th>نسبة الحضور</th><th>نسبة إتمام الحفظ</th><th>الربط</th><th>نسبة الربط</th><th>الاختبارات</th><th>نسبة الاختبارات</th><th>عروض الحزب</th><th>آخر حزب</th></tr></thead><tbody id="eduAssessCircleBody"></tbody></table></div></div>'
+      +'<div class="spanel" id="eduAssessStudents"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>#</th><th>الطالب</th><th>الحلقة</th><th>المسار</th><th>الحضور</th><th>إتمام الحفظ</th><th>آخر محفوظ</th><th>الربط</th><th>اختبارات</th><th>إكمال الاختبارات</th><th>عرض الحزب</th></tr></thead><tbody id="eduAssessStudentBody"></tbody></table></div></div>'
+      +'<div class="spanel" id="eduAssessWeeks"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>الأسبوع</th><th>الربط مختبرون</th><th>مجتازون</th><th>راسبون</th><th>نسبة الربط</th><th>أتم الحفظ</th><th>لم يتم</th><th>نسبة الإتمام</th></tr></thead><tbody id="eduAssessWeeksBody"></tbody></table></div></div>'
+      +'</div>');
+    loadEduAssessmentReport();
+  };
+
+  window.loadEduAssessmentReport = async function(){
+    var r=await api('جلب_تقرير_تعليمي_شامل',{});D.eduAssessReport=r;
+    if(!r||!r.نجاح){document.getElementById('eduAssessSummary').innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'')+'</p></div>';return;}
+    var m=r['ملخص']||{}, circles=arr(r['حلق']), students=arr(r['طلاب']), weeks=arr(r['أسابيع']);
+    document.getElementById('eduAssessSummary').innerHTML='<div class="kpi-grid">'
+      +kpiCard('الفترة',_termName(r),'fa-calendar-days','')
+      +kpiCard('إجمالي الطلاب',m['إجمالي_الطلاب']||0,'fa-users','')
+      +kpiCard('نسبة إتمام الحفظ',((m['نسبة_إتمام_الحفظ']??0)+'%'),'fa-book-open','kpi-ok')
+      +kpiCard('نسبة اجتياز الربط',((m['نسبة_اجتياز_الربط']??0)+'%'),'fa-link','kpi-ac')
+      +kpiCard('متوسط الربط',m['متوسط_درجة_الربط']||'—','fa-star','')
+      +kpiCard('متوسط الاختبارات',m['متوسط_درجة_الاختبارات']||'—','fa-clipboard-check','')
+      +kpiCard('عروض الحزب',m['عروض_الحزب']||0,'fa-book-quran','')+'</div>';
+    document.getElementById('eduAssessCircleBody').innerHTML=circles.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(x['اسم_الحلقة']||'—')+'</strong></td><td>'+_num(x['عدد_الطلاب'])+'</td><td>'+_pct(x['نسبة_الحضور'])+'</td><td>'+_pct(x['نسبة_إتمام_الحفظ'])+'</td><td>'+_num(x['الربط_عدد'])+' <span style="color:var(--ok)">/ '+_num(x['الربط_مجتاز'])+'</span> <span style="color:var(--er)">/ '+_num(x['الربط_راسب'])+'</span></td><td>'+_pct(x['نسبة_اجتياز_الربط'])+'</td><td>'+_num(x['الاختبارات_عدد'])+'</td><td>'+_pct(x['نسبة_اجتياز_الاختبارات'])+'</td><td>'+_num(x['عروض_الحزب'])+'</td><td>'+_num(x['آخر_حزب'])+'</td></tr>';}).join('')||'<tr><td colspan="11" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات</td></tr>';
+    document.getElementById('eduAssessStudentBody').innerHTML=students.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td><td>'+hesc(s['الحلقة']||'—')+'</td><td>'+hesc(s['المسار']||'—')+'</td><td>'+_pct(s['نسبة_الحضور'])+'</td><td>'+_pct(s['نسبة_إتمام_الحفظ'])+'</td><td>'+hesc((s['آخر_سورة']||'—')+(s['آخر_آية']?' - '+s['آخر_آية']:''))+'</td><td>'+_num(s['الربط_عدد'])+' / راسب '+_num(s['الربط_راسب'])+'</td><td>'+_num(s['الاختبارات_عدد'])+' / راسب '+_num(s['الاختبارات_راسب'])+'</td><td>'+_pct(s['نسبة_إكمال_الاختبارات'])+'</td><td>'+_num(s['عروض_الحزب'])+' / آخر '+_num(s['آخر_حزب'])+'</td></tr>';}).join('')||'<tr><td colspan="11" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات</td></tr>';
+    document.getElementById('eduAssessWeeksBody').innerHTML=weeks.map(function(w){return '<tr><td><strong>الأسبوع '+_num(w['رقم_الأسبوع'])+'</strong></td><td>'+_num(w['الربط_مختبرون'])+'</td><td><span class="bp bp-ok">'+_num(w['الربط_مجتازون'])+'</span></td><td><span class="bp bp-er">'+_num(w['الربط_راسبون'])+'</span></td><td>'+_pct(w['نسبة_اجتياز_الربط'])+'</td><td>'+_num(w['أتم_الحفظ'])+'</td><td>'+_num(w['لم_يتم_الحفظ'])+'</td><td>'+_pct(w['نسبة_إتمام_الحفظ'])+'</td></tr>';}).join('')||'<tr><td colspan="8" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات</td></tr>';
+  };
+
+  window.pgEduWeekDetails = function(){
+    var w=D.eduWeekDetails||_weekDefault();
+    var circles=arr(D.circles).map(function(c){return '<option>'+hesc(c)+'</option>';}).join('');
+    mc('<div class="stitle"><i class="fas fa-magnifying-glass-chart"></i> التفاصيل التعليمية الأسبوعية</div>'
+      +'<div class="cc"><div class="chdr"><h3>تفاصيل الأسبوع للطلاب</h3><div class="cacts"><input id="eduWeekDetails" class="fi" type="number" min="1" max="80" value="'+w+'" style="width:110px"><select id="eduWeekCircle" class="fi"><option value="">كل الحلق</option>'+circles+'</select><button class="ob sm" onclick="loadEduWeekDetails()"><i class="fas fa-rotate"></i> عرض</button></div></div>'
+      +'<div class="cbody" id="weekDetailsSummary"><div class="empty"><div class="spri" style="margin:0 auto 10px"></div><p>جارٍ التحميل…</p></div></div>'
+      +'<div class="stabs"><button class="stab active" onclick="swST(this,\'weekFailed\')"><i class="fas fa-xmark"></i> الراسبون في الربط</button><button class="stab" onclick="swST(this,\'weekAll\')"><i class="fas fa-list"></i> كل الطلاب</button></div>'
+      +'<div class="spanel active" id="weekFailed"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>#</th><th>الطالب</th><th>الحلقة</th><th>الدرجة</th><th>التاريخ</th></tr></thead><tbody id="weekFailedBody"></tbody></table></div></div>'
+      +'<div class="spanel" id="weekAll"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>#</th><th>الطالب</th><th>الحلقة</th><th>تحضير</th><th>الحضور</th><th>إتمام الحفظ</th><th>الربط</th><th>اختبارات</th><th>عرض الحزب</th></tr></thead><tbody id="weekAllBody"></tbody></table></div></div></div>');
+    loadEduWeekDetails();
+  };
+
+  window.loadEduWeekDetails = async function(){
+    D.eduWeekDetails=Number(val('eduWeekDetails')||_weekDefault());
+    var c=val('eduWeekCircle');
+    var r=await api('جلب_تفاصيل_اسابيع_الربط',{الأسبوع:D.eduWeekDetails,الحلقة:c});
+    if(!r||!r.نجاح){document.getElementById('weekDetailsSummary').innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'')+'</p></div>';return;}
+    document.getElementById('weekDetailsSummary').innerHTML='<div class="kpi-grid">'+kpiCard('الفترة',_termName(r),'fa-calendar-days','')+kpiCard('الأسبوع',r['الأسبوع'],'fa-calendar-week','')+kpiCard('مدى الأسبوع',_weekRange(r),'fa-arrows-left-right','')+kpiCard('الراسبون في الربط',arr(r['الراسبون']).length,'fa-xmark','kpi-er')+kpiCard('إجمالي الطلاب',arr(r['تفاصيل']).length,'fa-users','')+'</div>';
+    document.getElementById('weekFailedBody').innerHTML=arr(r['الراسبون']).map(function(x,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(x['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(x['رقم_الطالب']||'')+'</div></td><td>'+hesc(x['الحلقة']||'—')+'</td><td>'+_score(x['الدرجة'],false)+'</td><td>'+hesc(String(x['تاريخ_العرض']||'').slice(0,10))+'</td></tr>';}).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--ts);padding:18px">لا يوجد راسبون في هذا الأسبوع</td></tr>';
+    document.getElementById('weekAllBody').innerHTML=arr(r['تفاصيل']).map(function(x,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(x['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(x['رقم_الطالب']||'')+'</div></td><td>'+hesc(x['الحلقة']||'—')+'</td><td>'+_num(x['التحضير'])+'</td><td>حاضر '+_num(x['الحضور'])+' / تأخر '+_num(x['التأخر'])+' / غياب '+_num(x['الغياب'])+'</td><td>'+_pct(x['نسبة_إتمام_الحفظ'])+'</td><td>'+(x['درجة_الربط']===null||x['درجة_الربط']===undefined?'—':_score(x['درجة_الربط'],x['مجتاز_الربط']))+'</td><td>'+_num(x['اختبارات_الأسبوع'])+' / رسوب '+_num(x['رسوب_اختبارات_الأسبوع'])+'</td><td>'+_num(x['عروض_الحزب'])+' / آخر '+_num(x['آخر_حزب'])+'</td></tr>';}).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--ts);padding:18px">لا توجد تفاصيل</td></tr>';
+  };
+})();
