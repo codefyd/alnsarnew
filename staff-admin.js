@@ -306,7 +306,7 @@ async function pgAdminAdmW(){
   var cntG=wd?arr((wd['غياب']||{}).list).length:0;
   var cntE=wd?arr((wd['غياب_بعذر']||{}).list).length:0;
   mc('<div class="stitle"><i class="fas fa-user-clock"></i> الإنذارات الإدارية</div>'
-    +'<div class="cc"><div class="stabs" id="admWTabs">'
+    +'<div class="cc"><div class="chdr"><h3>متابعة إنذارات الغياب والتأخر</h3><div class="cacts"><button class="ob sm" onclick="refreshAdmWarnings()"><i class="fas fa-rotate"></i> تحديث الحساب</button></div></div><div class="stabs" id="admWTabs">'
     +'<button class="stab active" onclick="loadAdmWT(\'تأخر\',this)"><i class="fas fa-clock"></i> التأخر'+(cntT?'<span class="nbadge" style="margin-right:5px">'+cntT+'</span>':'')+'</button>'
     +'<button class="stab" onclick="loadAdmWT(\'غياب\',this)"><i class="fas fa-calendar-xmark"></i> الغياب'+(cntG?'<span class="nbadge" style="margin-right:5px">'+cntG+'</span>':'')+'</button>'
     +'<button class="stab" onclick="loadAdmWT(\'غياب_بعذر\',this)"><i class="fas fa-calendar-minus"></i> الغياب بعذر'+(cntE?'<span class="nbadge" style="margin-right:5px">'+cntE+'</span>':'')+'</button>'
@@ -375,7 +375,22 @@ function buildAdmWCards(list){
 
 function filterAdmW(c,q2){var l=arr(D._admNew);if(c)l=l.filter(function(ط){return ط['الحلقة']===c;});if(q2)l=l.filter(function(ط){return String(ط['اسم_الطالب']||'').includes(q2);});var e=document.getElementById('admWCards');if(e)e.innerHTML=buildAdmWCards(l);}
 
-async function saveAdmW(id,name,circle,threshold,count){var sel=document.getElementById('adwP_'+id);var v2=sel?sel.value:'';if(!v2)return;var done=v2==='__done__';spin(true);await api('تحديث_إجراء_انذار_اداري',{رقم_الطالب:id,اسم_الطالب:name,الحلقة:circle,نوع_الانذار:D.admType,رقم_العتبة:threshold,عدد_المخالفات:count,الإجراء:done?'مكتمل':v2,مكتمل:done});spin(false);Swal.fire({icon:'success',title:'تم التسجيل',timer:1400,timerProgressBar:true,showConfirmButton:false});if(done)loadAdmWT(D.admType,null);else if(sel)sel.value='';}
+async function saveAdmW(id,name,circle,threshold,count){
+  var sel=document.getElementById('adwP_'+id);var v2=sel?sel.value:'';if(!v2)return;
+  var done=v2==='__done__';
+  spin(true,'جارٍ تسجيل الإجراء…');
+  var r=await api('تحديث_إجراء_انذار_اداري',{رقم_الطالب:id,اسم_الطالب:name,الحلقة:circle,نوع_الانذار:D.admType,رقم_العتبة:threshold,عدد_المخالفات:count,الإجراء:done?'مكتمل':v2,مكتمل:done});
+  spin(false);
+  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر التسجيل',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}
+  Swal.fire({icon:'success',title:done?'تم إغلاق الإنذار':'تم تسجيل الإجراء',timer:1400,timerProgressBar:true,showConfirmButton:false});
+  if(D.admWarnData)delete D.admWarnData[D.admType];
+  await loadAdmWT(D.admType,null);
+}
+
+async function refreshAdmWarnings(){
+  if(D.admWarnData)delete D.admWarnData[D.admType||'تأخر'];
+  await loadAdmWT(D.admType||'تأخر',document.querySelector('#admWTabs .stab.active'));
+}
 
 function sendAdmWa(phone,sName,pName,threshold,count){var tpl=D.admTpl;var msg=buildMsg(tpl?tpl['نص_القالب']:'',{اسم_الطالب:sName,اسم_ولي_الطالب:pName,رقم_العتبة:threshold,عدد_الغيابات:count,تاريخ:hijri()});whatsapp(phone,msg);}
 
