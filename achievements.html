@@ -1,1044 +1,600 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head> 
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إنجازات المجمع —  مجمع حلق جامع النصار لتحفيظ القرآن الكريم</title>
+<title>إنجازات مجمع النصار لتحفيظ القرآن الكريم</title>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-:root {
-  --gold:        #c8a84b;
-  --gold-light:  #f0d080;
-  --gold-dark:   #8b6914;
-  --deep:        #0d1f35;
-  --deep-2:      #122840;
-  --deep-3:      #1a3c5e;
-  --teal:        #0e7c6e;
-  --teal-light:  #13a896;
-  --surface:     #f8f5ee;
-  --surface-2:   #ffffff;
-  --text-main:   #1a1a2e;
-  --text-muted:  #5a6a7a;
-  --border:      #e2d8c0;
-  --radius:      16px;
-  --shadow:      0 4px 28px rgba(13,31,53,.10);
-  --shadow-lg:   0 16px 56px rgba(13,31,53,.18);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Tajawal', sans-serif;
-  background: var(--surface);
-  color: var(--text-main);
-  direction: rtl;
-  overflow-x: hidden;
-}
-
-/* ══ Hero ══ */
-.hero {
-  background: linear-gradient(160deg, var(--deep) 0%, var(--deep-2) 50%, #0a2540 100%);
-  position: relative;
-  overflow: hidden;
-  padding: 80px 20px 100px;
-  text-align: center;
-}
-
-/* زخارف هندسية خلفية */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(200,168,75,.07) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(14,124,110,.08) 0%, transparent 45%),
-    radial-gradient(circle at 50% 100%, rgba(200,168,75,.05) 0%, transparent 40%);
-  pointer-events: none;
-}
-
-.hero-pattern {
-  position: absolute;
-  inset: 0;
-  opacity: .04;
-  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8a84b' fill-opacity='1'%3E%3Cpath d='M30 0L37.5 22.5H60L42 36L49.5 60L30 46.5L10.5 60L18 36L0 22.5H22.5Z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events: none;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(200,168,75,.15);
-  border: 1px solid rgba(200,168,75,.35);
-  color: var(--gold-light);
-  padding: 6px 18px;
-  border-radius: 30px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  animation: fadeDown .5s ease both;
-}
-
-.hero h1 {
-  font-family: 'Amiri', serif;
-  font-size: clamp(32px, 6vw, 58px);
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.3;
-  margin-bottom: 16px;
-  animation: fadeDown .5s .1s ease both;
-}
-
-.hero h1 span {
-  color: var(--gold-light);
-}
-
-.hero-sub {
-  font-size: clamp(14px, 2.5vw, 18px);
-  color: rgba(255,255,255,.65);
-  max-width: 560px;
-  margin: 0 auto 40px;
-  line-height: 1.8;
-  animation: fadeDown .5s .2s ease both;
-}
-
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* إحصائيات Hero */
-.hero-stats {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  animation: fadeDown .5s .3s ease both;
-}
-
-.hero-stat {
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.12);
-  backdrop-filter: blur(8px);
-  border-radius: 14px;
-  padding: 18px 28px;
-  text-align: center;
-  min-width: 130px;
-  transition: transform .2s, background .2s;
-}
-
-.hero-stat:hover {
-  transform: translateY(-3px);
-  background: rgba(255,255,255,.11);
-}
-
-.hero-stat .stat-val {
-  font-size: 36px;
-  font-weight: 900;
-  color: var(--gold-light);
-  line-height: 1;
-  font-family: 'Tajawal', sans-serif;
-}
-
-.hero-stat .stat-lbl {
-  font-size: 12.5px;
-  color: rgba(255,255,255,.65);
-  margin-top: 6px;
-  font-weight: 500;
-}
-
-/* موجة فاصلة */
-.wave-divider {
-  margin-top: -2px;
-  line-height: 0;
-  overflow: hidden;
-}
-.wave-divider svg { display: block; width: 100%; }
-
-/* ══ تنقل ══ */
-.nav-bar {
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 12px rgba(13,31,53,.06);
-}
-
-.nav-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 0 20px;
-  overflow-x: auto;
-}
-
-.nav-link {
-  padding: 16px 20px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  transition: all .2s;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  text-decoration: none;
-}
-
-.nav-link:hover { color: var(--deep-3); }
-.nav-link.active { color: var(--deep-3); border-bottom-color: var(--gold); }
-
-/* ══ محتوى رئيسي ══ */
-.main-wrap {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 48px 20px 80px;
-}
-
-/* ══ عنوان قسم ══ */
-.section-head {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.section-head .sec-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: linear-gradient(135deg, rgba(200,168,75,.12), rgba(200,168,75,.05));
-  border: 1px solid rgba(200,168,75,.3);
-  color: var(--gold-dark);
-  padding: 5px 16px;
-  border-radius: 20px;
-  font-size: 12.5px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  letter-spacing: .3px;
-}
-
-.section-head h2 {
-  font-family: 'Amiri', serif;
-  font-size: clamp(24px, 4vw, 36px);
-  font-weight: 700;
-  color: var(--deep);
-  margin-bottom: 10px;
-}
-
-.section-head p {
-  font-size: 15px;
-  color: var(--text-muted);
-  max-width: 500px;
-  margin: 0 auto;
-  line-height: 1.7;
-}
-
-/* ══ KPI بطاقات الإنجازات ══ */
-.achievements-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 64px;
-}
-
-.ach-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px 22px;
-  position: relative;
-  overflow: hidden;
-  transition: transform .25s, box-shadow .25s;
-  text-align: center;
-}
-
-.ach-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-}
-
-.ach-card:hover .bg-icon-float {
-  transform: scale(1.2) rotate(10deg);
-  opacity: .09;
-}
-
-.bg-icon-float {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%);
-  font-size: 88px;
-  opacity: .05;
-  color: var(--deep-3);
-  transition: transform .4s ease, opacity .4s ease;
-  pointer-events: none;
-}
-
-.ach-icon-wrap {
-  width: 58px;
-  height: 58px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  font-size: 24px;
-}
-
-.ach-card .ach-val {
-  font-size: 44px;
-  font-weight: 900;
-  line-height: 1;
-  margin-bottom: 8px;
-}
-
-.ach-card .ach-lbl {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.ach-card .ach-sub {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 6px;
-  opacity: .8;
-}
-
-/* ألوان البطاقات */
-.ach-gold  .ach-icon-wrap { background: linear-gradient(135deg,#fef9e7,#fdeaa8); }
-.ach-gold  .ach-icon-wrap i { color: #b8860b; }
-.ach-gold  .ach-val { color: #b8860b; }
-
-.ach-teal  .ach-icon-wrap { background: linear-gradient(135deg,#e0f7f4,#b2ebf2); }
-.ach-teal  .ach-icon-wrap i { color: var(--teal); }
-.ach-teal  .ach-val { color: var(--teal); }
-
-.ach-deep  .ach-icon-wrap { background: linear-gradient(135deg,#e8eef5,#c8d8ec); }
-.ach-deep  .ach-icon-wrap i { color: var(--deep-3); }
-.ach-deep  .ach-val { color: var(--deep-3); }
-
-.ach-green .ach-icon-wrap { background: linear-gradient(135deg,#e8f5e9,#c8e6c9); }
-.ach-green .ach-icon-wrap i { color: #2e7d32; }
-.ach-green .ach-val { color: #2e7d32; }
-
-/* ══ الحلق ══ */
-.circles-section { margin-bottom: 64px; }
-
-.circles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.circle-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  transition: transform .2s, box-shadow .2s;
-}
-
-.circle-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-}
-
-.circle-card-header {
-  background: linear-gradient(135deg, var(--deep-2), var(--deep-3));
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.circle-icon {
-  width: 44px;
-  height: 44px;
-  background: rgba(200,168,75,.2);
-  border: 1px solid rgba(200,168,75,.35);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: var(--gold-light);
-  flex-shrink: 0;
-}
-
-.circle-card-header h3 {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-}
-
-.circle-card-header p {
-  font-size: 12px;
-  color: rgba(255,255,255,.6);
-  margin: 2px 0 0;
-}
-
-.circle-card-body {
-  padding: 16px 20px;
-  display: flex;
-  gap: 16px;
-}
-
-.circle-stat {
-  flex: 1;
-  text-align: center;
-  padding: 12px 8px;
-  background: var(--surface);
-  border-radius: 10px;
-}
-
-.circle-stat .cs-val {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--deep-3);
-}
-
-.circle-stat .cs-lbl {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  margin-top: 3px;
-}
-
-/* ══ أعلى الطلاب حفظاً ══ */
-.top-students-section { margin-bottom: 64px; }
-
-.podium-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-
-.podium-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 160px;
-}
-
-.podium-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.podium-crown {
-  position: absolute;
-  top: -14px;
-  font-size: 20px;
-}
-
-.podium-item h4 {
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 4px;
-  color: var(--text-main);
-}
-
-.podium-item .podium-hifz {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-
-.podium-base {
-  width: 100%;
-  border-radius: 10px 10px 0 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 900;
-  color: #fff;
-}
-
-.rank-1 .podium-avatar { background: linear-gradient(135deg,#fef9e7,#fdeaa8); border: 3px solid #c8a84b; }
-.rank-1 .podium-base   { background: linear-gradient(135deg,#c8a84b,#e8c86a); height: 90px; }
-.rank-2 .podium-avatar { background: linear-gradient(135deg,#f5f5f5,#e0e0e0); border: 3px solid #9e9e9e; }
-.rank-2 .podium-base   { background: linear-gradient(135deg,#9e9e9e,#bdbdbd); height: 70px; }
-.rank-3 .podium-avatar { background: linear-gradient(135deg,#fbe9e7,#ffccbc); border: 3px solid #c8764b; }
-.rank-3 .podium-base   { background: linear-gradient(135deg,#c8764b,#e09060); height: 55px; }
-
-.top-rest-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-}
-
-.top-student-row {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 13px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: transform .15s;
-}
-
-.top-student-row:hover { transform: translateX(-3px); }
-
-.rank-badge {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--deep-3);
-  flex-shrink: 0;
-}
-
-.top-student-row .ts-name { font-size: 14px; font-weight: 700; flex: 1; }
-.top-student-row .ts-circle { font-size: 11.5px; color: var(--text-muted); }
-.top-student-row .ts-hifz {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--teal);
-  background: rgba(14,124,110,.08);
-  padding: 3px 10px;
-  border-radius: 10px;
-}
-
-/* ══ تيمة قرآنية ══ */
-.quran-banner {
-  background: linear-gradient(135deg, var(--deep) 0%, var(--deep-2) 100%);
-  border-radius: 20px;
-  padding: 48px 40px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 64px;
-}
-
-.quran-banner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, rgba(200,168,75,.08) 0%, transparent 70%);
-}
-
-.quran-banner .qb-icon {
-  font-size: 48px;
-  color: var(--gold-light);
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.quran-banner h2 {
-  font-family: 'Amiri', serif;
-  font-size: clamp(20px, 4vw, 30px);
-  color: #fff;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.quran-banner p {
-  font-size: 15px;
-  color: rgba(255,255,255,.65);
-  max-width: 500px;
-  margin: 0 auto;
-  line-height: 1.8;
-  position: relative;
-}
-
-.quran-line {
-  font-family: 'Amiri', serif;
-  font-size: clamp(18px, 3.5vw, 26px);
-  color: var(--gold-light);
-  margin: 20px 0 10px;
-  line-height: 1.8;
-  position: relative;
-}
-
-/* ══ فوتر ══ */
-footer {
-  background: var(--deep);
-  color: rgba(255,255,255,.55);
-  text-align: center;
-  padding: 28px 20px;
-  font-size: 13px;
-  line-height: 1.8;
-}
-
-footer .footer-logo {
-  font-family: 'Amiri', serif;
-  font-size: 18px;
-  color: var(--gold-light);
-  margin-bottom: 8px;
-}
-
-/* ══ Spinner ══ */
-.spinner-overlay {
-  position: fixed; inset: 0;
-  background: rgba(248,245,238,.9);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 9999;
-}
-.spinner-ring {
-  width: 60px; height: 60px;
-  border: 4px solid rgba(200,168,75,.25);
-  border-top-color: var(--gold);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  margin-bottom: 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinner-overlay p { color: var(--deep-3); font-size: 15px; font-weight: 600; }
-
-/* ══ counter animation ══ */
-.counter-val { display: inline-block; }
-
-/* ══ responsive ══ */
-@media(max-width: 600px) {
-  .hero { padding: 60px 16px 80px; }
-  .hero-stats { gap: 10px; }
-  .hero-stat { min-width: 110px; padding: 14px 16px; }
-  .hero-stat .stat-val { font-size: 28px; }
-  .achievements-grid { grid-template-columns: 1fr 1fr; }
-  .podium-wrap { gap: 10px; }
-  .podium-item { width: 130px; }
-  .quran-banner { padding: 36px 20px; }
+:root{
+  --navy:        #072b49;
+  --navy-2:      #0a3a61;
+  --navy-deep:   #04203a;
+  --sky:         #9edae5;
+  --sky-soft:    #c7ecf2;
+  --copper:      #dca26f;
+  --copper-deep: #c2855066;
+  --copper-2:    #e6b88a;
+  --cream:       #f6f1e8;
+  --cream-2:     #fffdf9;
+  --ink:         #102132;
+  --muted:       #5d7186;
+  --line:        #e6ddcd;
+  --radius:      18px;
+  --shadow:      0 6px 34px rgba(7,43,73,.10);
+  --shadow-lg:   0 22px 60px rgba(7,43,73,.22);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Tajawal',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  direction:rtl;
+  overflow-x:hidden;
+  line-height:1.6;
+}
+
+/* arabesque pattern token (subtle) */
+.arabesque{
+  background-image:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23dca26f' stroke-width='1' stroke-opacity='1'%3E%3Cpath d='M40 8 L52 20 L40 32 L28 20 Z M40 48 L52 60 L40 72 L28 60 Z M8 40 L20 28 L32 40 L20 52 Z M48 40 L60 28 L72 40 L60 52 Z'/%3E%3Ccircle cx='40' cy='40' r='6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ════════ HERO ════════ */
+.hero{
+  position:relative;
+  background:
+    radial-gradient(120% 90% at 80% 0%, rgba(158,218,229,.10) 0%, transparent 55%),
+    radial-gradient(100% 80% at 10% 100%, rgba(220,162,111,.12) 0%, transparent 50%),
+    linear-gradient(165deg, var(--navy-deep) 0%, var(--navy) 55%, #06365c 100%);
+  overflow:hidden;
+  padding:0;
+}
+.hero-pattern{
+  position:absolute;inset:0;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%239edae5' stroke-width='1.2'%3E%3Cpath d='M60 6 L78 24 L60 42 L42 24 Z M60 78 L78 96 L60 114 L42 96 Z M6 60 L24 42 L42 60 L24 78 Z M78 60 L96 42 L114 60 L96 78 Z'/%3E%3Ccircle cx='60' cy='60' r='10'/%3E%3Ccircle cx='60' cy='60' r='22'/%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;
+}
+.hero-inner{
+  position:relative;z-index:2;
+  max-width:1180px;margin:0 auto;
+  padding:46px 24px 0;
+  text-align:center;
+}
+
+/* logo emblem */
+.logo-emblem{
+  display:inline-flex;flex-direction:column;align-items:center;gap:0;
+  margin-bottom:26px;
+  animation:rise .7s ease both;
+}
+.logo-ring{
+  width:128px;height:128px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 35%, rgba(158,218,229,.16), rgba(7,43,73,.4));
+  border:1px solid rgba(158,218,229,.28);
+  box-shadow:0 0 0 8px rgba(220,162,111,.06), inset 0 0 30px rgba(4,32,58,.6);
+  position:relative;
+}
+.logo-ring::before{
+  content:'';position:absolute;inset:-13px;border-radius:50%;
+  border:1px dashed rgba(220,162,111,.45);
+}
+.logo-ring img{width:92px;height:92px;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:12.5px;font-weight:700;letter-spacing:.08em;
+  color:var(--sky);
+  border:1px solid rgba(158,218,229,.3);
+  background:rgba(158,218,229,.06);
+  padding:7px 18px;border-radius:40px;
+  margin-bottom:22px;
+  animation:rise .7s .08s ease both;
+}
+.kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--copper)}
+
+.hero h1{
+  font-family:'Amiri',serif;font-weight:700;
+  font-size:clamp(30px,5.4vw,56px);
+  color:#fff;line-height:1.35;margin-bottom:14px;
+  animation:rise .7s .14s ease both;
+}
+.hero h1 .accent{
+  color:var(--copper);
+  position:relative;white-space:nowrap;
+}
+.hero p.lede{
+  font-size:clamp(14px,2.3vw,18px);
+  color:rgba(255,255,255,.66);
+  max-width:600px;margin:0 auto 14px;line-height:1.9;
+  animation:rise .7s .2s ease both;
+}
+.year-pill{
+  display:inline-block;margin-bottom:50px;
+  font-family:'Amiri',serif;font-size:15px;font-weight:700;
+  color:var(--copper-2);letter-spacing:.05em;
+  animation:rise .7s .26s ease both;
+}
+.year-pill::before,.year-pill::after{content:'✦';color:rgba(220,162,111,.5);margin:0 12px;font-size:11px;vertical-align:middle}
+
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* hero stat strip — floats over the wave */
+.stat-strip{
+  position:relative;z-index:3;
+  max-width:1100px;margin:0 auto;
+  transform:translateY(50%);
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  background:var(--cream-2);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;
+}
+.strip-cell{
+  padding:24px 16px;text-align:center;position:relative;
+  border-inline-start:1px solid var(--line);
+}
+.strip-cell:first-child{border-inline-start:none}
+.strip-cell .sv{
+  font-size:clamp(28px,4vw,40px);font-weight:900;line-height:1;
+  color:var(--navy);font-family:'Tajawal',sans-serif;
+}
+.strip-cell .sv small{font-size:.5em;font-weight:700;color:var(--copper);margin-inline-start:3px}
+.strip-cell .sl{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600}
+
+.wave{line-height:0;margin-top:-1px}
+.wave svg{display:block;width:100%;height:70px}
+
+/* ════════ SECTION SHELL ════════ */
+.shell{max-width:1180px;margin:0 auto;padding:0 24px}
+.section{padding:72px 0}
+.section.tight{padding:56px 0}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;letter-spacing:.1em;
+  color:var(--copper-deep);text-transform:none;
+}
+.eyebrow .bar{width:26px;height:2px;background:var(--copper);border-radius:2px}
+.sec-title{
+  font-family:'Amiri',serif;font-weight:700;
+  font-size:clamp(26px,4vw,40px);color:var(--navy);
+  margin:10px 0 8px;
+}
+.sec-desc{font-size:15px;color:var(--muted);max-width:560px;line-height:1.8}
+.center{text-align:center}
+.center .eyebrow{justify-content:center}
+.center .sec-desc{margin-inline:auto}
+
+/* ════════ FULL STATS GRID ════════ */
+.stats-section{background:var(--cream-2);border-block:1px solid var(--line)}
+.kpi-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:18px;margin-top:38px;
+}
+.kpi{
+  position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#fff,#fbf6ee);
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px 22px;transition:transform .25s,box-shadow .25s;
+}
+.kpi:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.kpi .ic{
+  width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:21px;margin-bottom:16px;
+  background:linear-gradient(135deg,rgba(7,43,73,.07),rgba(7,43,73,.02));color:var(--navy);
+}
+.kpi.cu .ic{background:linear-gradient(135deg,rgba(220,162,111,.18),rgba(220,162,111,.05));color:#b06f37}
+.kpi.sk .ic{background:linear-gradient(135deg,rgba(158,218,229,.3),rgba(158,218,229,.08));color:#1c7d8c}
+.kpi .v{font-size:38px;font-weight:900;line-height:1;color:var(--navy)}
+.kpi.cu .v{color:#b06f37}.kpi.sk .v{color:#1c7d8c}
+.kpi .v small{font-size:.45em;font-weight:700;margin-inline-start:4px;opacity:.8}
+.kpi .l{font-size:13.5px;font-weight:700;color:var(--ink);margin-top:7px}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:3px}
+.kpi .ghost{position:absolute;left:-10px;bottom:-18px;font-size:96px;opacity:.04;color:var(--navy);transform:rotate(-8deg)}
+
+/* ════════ COHORTS TIMELINE (signature) ════════ */
+.timeline-section{position:relative}
+.tl{
+  position:relative;margin-top:46px;
+  padding-inline-start:0;
+}
+/* central spine */
+.tl::before{
+  content:'';position:absolute;top:0;bottom:0;right:calc(50% - 1px);
+  width:2px;background:linear-gradient(var(--copper),rgba(220,162,111,.15));
+}
+.tl-row{
+  position:relative;display:grid;grid-template-columns:1fr 64px 1fr;
+  align-items:center;margin-bottom:8px;
+}
+.tl-node{
+  grid-column:2;justify-self:center;
+  width:48px;height:48px;border-radius:50%;
+  background:var(--navy);color:var(--copper-2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Amiri',serif;font-weight:700;font-size:13px;
+  border:2px solid var(--copper);z-index:2;
+  box-shadow:0 0 0 6px var(--cream);
+  transition:transform .2s;
+}
+.tl-row:hover .tl-node{transform:scale(1.12)}
+.tl-card{
+  background:var(--cream-2);border:1px solid var(--line);
+  border-radius:14px;padding:14px 18px;
+  box-shadow:0 3px 14px rgba(7,43,73,.05);
+  transition:transform .2s,box-shadow .2s;
+}
+.tl-row:hover .tl-card{box-shadow:var(--shadow);transform:translateY(-2px)}
+.tl-card .tc-year{font-family:'Amiri',serif;font-weight:700;font-size:18px;color:var(--copper-deep);display:none}
+.tl-card .tc-circle{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:3px}
+.tl-card .tc-circle i{color:var(--sky);margin-inline-end:5px}
+.tl-card .tc-grad{font-size:15.5px;font-weight:800;color:var(--navy)}
+.tl-card .tc-grad i{color:var(--copper);margin-inline-end:7px;font-size:13px}
+/* alternate sides */
+.tl-row.r .tl-card{grid-column:1;text-align:start;margin-inline-end:14px}
+.tl-row.l .tl-card{grid-column:3;text-align:start;margin-inline-start:14px}
+.tl-row.r .tc-circle.empty,.tl-row.l .tc-circle.empty{opacity:.5;font-style:normal}
+
+/* ════════ HUFFAZ TABLE ════════ */
+.huffaz-section{background:linear-gradient(180deg,var(--cream-2),var(--cream))}
+.huffaz-toolbar{
+  display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  margin-top:32px;margin-bottom:18px;
+}
+.search-box{
+  position:relative;flex:1;min-width:220px;max-width:340px;
+}
+.search-box i{position:absolute;top:50%;right:16px;transform:translateY(-50%);color:var(--muted);font-size:14px}
+.search-box input{
+  width:100%;padding:12px 44px 12px 16px;
+  border:1px solid var(--line);border-radius:12px;
+  background:#fff;font-family:'Tajawal';font-size:14px;color:var(--ink);
+  outline:none;transition:border .2s,box-shadow .2s;
+}
+.search-box input:focus{border-color:var(--copper);box-shadow:0 0 0 4px rgba(220,162,111,.12)}
+.count-chip{
+  font-size:13px;font-weight:700;color:var(--navy);
+  background:rgba(158,218,229,.22);border:1px solid rgba(158,218,229,.5);
+  padding:8px 16px;border-radius:30px;white-space:nowrap;
+}
+.count-chip b{color:#b06f37}
+
+.table-wrap{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--shadow);
+}
+table.huffaz{width:100%;border-collapse:collapse;font-size:14.5px}
+table.huffaz thead th{
+  background:var(--navy);color:#fff;
+  font-weight:700;font-size:13.5px;text-align:start;
+  padding:15px 20px;position:sticky;top:0;
+}
+table.huffaz thead th:first-child{width:64px;text-align:center}
+table.huffaz tbody td{padding:13px 20px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.huffaz tbody tr:last-child td{border-bottom:none}
+table.huffaz tbody tr:nth-child(even){background:#fcf9f3}
+table.huffaz tbody tr:hover{background:rgba(158,218,229,.12)}
+.h-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:9px;
+  background:rgba(7,43,73,.05);color:var(--navy);
+  font-weight:800;font-size:12.5px;
+}
+.h-name{font-weight:700;color:var(--ink)}
+.h-name i{color:var(--copper);margin-inline-end:9px;font-size:12px;opacity:.7}
+.h-year{font-family:'Amiri',serif;font-weight:700;color:var(--copper-deep);font-size:15px;white-space:nowrap}
+.no-results{padding:40px;text-align:center;color:var(--muted)}
+.no-results i{font-size:36px;opacity:.25;display:block;margin-bottom:12px}
+
+/* ════════ QURAN BANNER ════════ */
+.ayah{
+  position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(150deg,var(--navy-deep),var(--navy) 60%,#06365c);
+  border-radius:24px;padding:56px 36px;color:#fff;
+}
+.ayah .ic{font-size:30px;color:var(--copper);margin-bottom:18px}
+.ayah .line{
+  font-family:'Amiri',serif;font-size:clamp(20px,3.6vw,30px);
+  color:var(--sky);line-height:1.9;margin-bottom:14px;
+}
+.ayah .ref{font-size:13px;color:rgba(255,255,255,.5);letter-spacing:.05em}
+.ayah .body{font-size:15px;color:rgba(255,255,255,.66);max-width:560px;margin:16px auto 0;line-height:1.9}
+
+/* ════════ FOOTER ════════ */
+footer{
+  background:var(--navy-deep);color:rgba(255,255,255,.55);
+  text-align:center;padding:40px 24px;font-size:13px;
+}
+footer .fl{font-family:'Amiri',serif;font-size:20px;color:var(--copper-2);margin-bottom:10px}
+footer .fl i{margin-inline-end:8px}
+footer .sub{font-size:12.5px;opacity:.7}
+footer .cr{margin-top:14px;font-size:11.5px;opacity:.45}
+
+/* reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;scroll-behavior:auto!important}
+}
+
+/* ════════ RESPONSIVE ════════ */
+@media(max-width:760px){
+  .stat-strip{grid-template-columns:repeat(2,1fr);transform:translateY(40px)}
+  .strip-cell:nth-child(3){border-inline-start:none}
+  .strip-cell:nth-child(odd){border-inline-start:none}
+  .strip-cell{border-top:1px solid var(--line)}
+  .strip-cell:nth-child(-n+2){border-top:none}
+  .tl::before{right:25px}
+  .tl-row{grid-template-columns:50px 1fr}
+  .tl-node{grid-column:1;justify-self:start;width:42px;height:42px;font-size:12px}
+  .tl-row.r .tl-card,.tl-row.l .tl-card{grid-column:2;margin:0 0 0 0;margin-inline-start:8px;text-align:start}
+}
+@media(max-width:520px){
+  table.huffaz thead th,table.huffaz tbody td{padding:11px 12px;font-size:13.5px}
+  table.huffaz thead th:nth-child(3),table.huffaz tbody td:nth-child(3){display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- Spinner -->
-<div class="spinner-overlay" id="spinnerOverlay">
-  <div class="spinner-ring"></div>
-  <p>جارٍ تحميل الإنجازات…</p>
-</div>
-
-<!-- ══ Hero ══ -->
-<section class="hero">
+<!-- ════════ HERO ════════ -->
+<header class="hero">
   <div class="hero-pattern"></div>
-  <div class="hero-badge">
-    <i class="fas fa-star fa-xs"></i> منظومة الإدارة الرقمية المتكاملة
+  <div class="hero-inner">
+    <div class="logo-emblem">
+      <div class="logo-ring">
+        <img src="https://e.top4top.io/p_3825j6z0v1.png" alt="شعار مجمع النصار">
+      </div>
+    </div>
+    <div class="kicker"><span class="dot"></span> عشرون عاماً من العطاء · حصاد ٢</div>
+    <h1>مجمع <span class="accent">النصار</span> لتحفيظ القرآن الكريم</h1>
+    <p class="lede">مسيرة علمٍ وتحفيظٍ وتربية — نفخر بحفّاظنا ودفعاتنا المتخرجة في خدمة كتاب الله.</p>
+    <div class="year-pill">حصاد عام ١٤٤٧ هـ</div>
   </div>
-  <h1>مجمع حلق جامع النصار لتحفيظ القرآن<br><span>الكريم</span></h1>
-  <p class="hero-sub">
-    مسيرة علم وتحفيظ وتربية — نفخر بطلابنا وعطاء معلمينا في خدمة كتاب الله
-  </p>
 
-  <!-- إحصائيات Hero -->
-  <div class="hero-stats" id="heroStats">
-    <div class="hero-stat">
-      <div class="stat-val counter-val" data-target="0" id="hs_students">0</div>
-      <div class="stat-lbl">طالب في المجمع</div>
+  <!-- floating stat strip -->
+  <div class="shell">
+    <div class="stat-strip">
+      <div class="strip-cell"><div class="sv">٣٢٣</div><div class="sl">طالب في المجمع</div></div>
+      <div class="strip-cell"><div class="sv">٦٠٨٥</div><div class="sl">وجهاً محفوظاً</div></div>
+      <div class="strip-cell"><div class="sv">٦٠</div><div class="sl">حافظاً متخرجاً</div></div>
+      <div class="strip-cell"><div class="sv">٢٠</div><div class="sl">دفعة منذ ١٤٢٧</div></div>
     </div>
-    <div class="hero-stat">
-      <div class="stat-val counter-val" data-target="0" id="hs_circles">0</div>
-      <div class="stat-lbl">حلقة قرآنية</div>
+  </div>
+
+  <div class="wave">
+    <svg viewBox="0 0 1440 70" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C320,72 560,8 760,30 C980,54 1180,72 1440,36 L1440,70 L0,70 Z" fill="#f6f1e8"/>
+    </svg>
+  </div>
+</header>
+
+<!-- ════════ STATS 1447 ════════ -->
+<section class="section stats-section" id="stats">
+  <div class="shell">
+    <div class="center">
+      <span class="eyebrow"><span class="bar"></span> أرقام عام ١٤٤٧ هـ</span>
+      <h2 class="sec-title">حصاد المجمع هذا العام</h2>
+      <p class="sec-desc">أرقامٌ تختصر مسيرة عامٍ كامل في حفظ كتاب الله ومراجعته وغرس قيمه.</p>
     </div>
-    <div class="hero-stat">
-      <div class="stat-val counter-val" data-target="0" id="hs_hifz">0</div>
-      <div class="stat-lbl">جزء محفوظ</div>
-    </div>
-    <div class="hero-stat">
-      <div class="stat-val counter-val" data-target="0" id="hs_stages">4</div>
-      <div class="stat-lbl">مراحل دراسية</div>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="ic"><i class="fas fa-users"></i></div><div class="v">٣٢٣</div><div class="l">طلاب المجمع</div><div class="s">في جميع الحلق</div><i class="fas fa-users ghost"></i></div>
+      <div class="kpi cu"><div class="ic"><i class="fas fa-book-open"></i></div><div class="v">٦٠٨٥</div><div class="l">الأوجه المحفوظة</div><div class="s">وجهاً خلال العام</div><i class="fas fa-book-open ghost"></i></div>
+      <div class="kpi sk"><div class="ic"><i class="fas fa-rotate"></i></div><div class="v">٢٨٬٠٠٠</div><div class="l">أوجه المراجعة</div><div class="s">وجهاً تمت مراجعته</div><i class="fas fa-rotate ghost"></i></div>
+      <div class="kpi"><div class="ic"><i class="fas fa-award"></i></div><div class="v">٧</div><div class="l">حفّاظ العام</div><div class="s">أتمّوا حفظ القرآن</div><i class="fas fa-award ghost"></i></div>
+      <div class="kpi cu"><div class="ic"><i class="fas fa-user-graduate"></i></div><div class="v">٣٧</div><div class="l">متخرجون من قارئ</div><div class="s">خريجاً هذا العام</div><i class="fas fa-user-graduate ghost"></i></div>
+      <div class="kpi sk"><div class="ic"><i class="fas fa-hand-holding-heart"></i></div><div class="v">٢٧٦</div><div class="l">المستفيدون من القيم</div><div class="s">مستفيداً من ٦ قيم</div><i class="fas fa-hand-holding-heart ghost"></i></div>
+      <div class="kpi"><div class="ic"><i class="fas fa-lightbulb"></i></div><div class="v">٦</div><div class="l">القيم القرآنية</div><div class="s">قيماً مطروحة</div><i class="fas fa-lightbulb ghost"></i></div>
+      <div class="kpi cu"><div class="ic"><i class="fas fa-calendar-check"></i></div><div class="v">+٥٠</div><div class="l">الأنشطة المطروحة</div><div class="s">نشاطاً متنوعاً</div><i class="fas fa-calendar-check ghost"></i></div>
     </div>
   </div>
 </section>
 
-<!-- موجة فاصلة -->
-<div class="wave-divider">
-  <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-    <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#f8f5ee"/>
-  </svg>
-</div>
-
-<!-- ══ شريط التنقل ══ -->
-<nav class="nav-bar">
-  <div class="nav-inner">
-    <a class="nav-link active" href="#achievements"><i class="fas fa-trophy"></i> الإنجازات</a>
-    <a class="nav-link" href="#circles"><i class="fas fa-mosque"></i> الحلق</a>
-    <a class="nav-link" href="#top-students"><i class="fas fa-medal"></i> المتميزون</a>
-    <a class="nav-link" href="#about"><i class="fas fa-info-circle"></i> عن المجمع</a>
-    <a class="nav-link" href="register.html" style="margin-right:auto;color:var(--deep-3)">
-      <i class="fas fa-user-plus"></i> تسجيل طالب
-    </a>
-    <a class="nav-link" href="student.html">
-      <i class="fas fa-search"></i> استعلام
-    </a>
-    <a class="nav-link" href="staff.html">
-      <i class="fas fa-lock"></i> بوابة العاملين
-    </a>
+<!-- ════════ COHORTS TIMELINE ════════ -->
+<section class="section timeline-section" id="cohorts">
+  <div class="shell">
+    <div class="center">
+      <span class="eyebrow"><span class="bar"></span> الدفعات المتخرجة</span>
+      <h2 class="sec-title">مسيرة عشرين دفعة</h2>
+      <p class="sec-desc">من عام ١٤٢٧ حتى ١٤٤٦ هـ — .</p>
+    </div>
+    <div class="tl" id="cohortTimeline"></div>
   </div>
-</nav>
+</section>
 
-<!-- ══ المحتوى الرئيسي ══ -->
-<div class="main-wrap">
-
-  <!-- ── قسم الإنجازات ── -->
-  <section id="achievements" style="margin-bottom:64px;">
-    <div class="section-head">
-      <div class="sec-label"><i class="fas fa-trophy fa-sm"></i> أرقام وإنجازات</div>
-      <h2>إنجازات المجمع</h2>
-      <p>أرقام تعكس مسيرتنا في تحفيظ كتاب الله وخدمة طلاب العلم</p>
+<!-- ════════ AYAH ════════ -->
+<section class="section tight">
+  <div class="shell">
+    <div class="ayah">
+      <div class="ic"><i class="fas fa-book-quran"></i></div>
+      <div class="line">﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾</div>
+      <div class="ref">سورة الإسراء — الآية ٩</div>
+      <p class="body">يسعى مجمع النصار إلى بيئةٍ متكاملة لحفظ القرآن الكريم وتجويده وتفسيره لجميع المراحل، إيماناً بأن القرآن هدى البشرية وصلاح المجتمعات.</p>
     </div>
-
-    <div class="achievements-grid" id="achievementsGrid">
-      <!-- تُملأ ديناميكياً -->
-      <div class="ach-card ach-gold">
-        <div class="ach-icon-wrap"><i class="fas fa-users"></i></div>
-        <div class="ach-val counter-val" data-target="0" id="ac_students">—</div>
-        <div class="ach-lbl">إجمالي الطلاب</div>
-        <div class="ach-sub">في جميع الحلق والمراحل</div>
-        <i class="fas fa-users bg-icon-float"></i>
-      </div>
-      <div class="ach-card ach-teal">
-        <div class="ach-icon-wrap"><i class="fas fa-mosque"></i></div>
-        <div class="ach-val counter-val" data-target="0" id="ac_circles">—</div>
-        <div class="ach-lbl">حلقة قرآنية</div>
-        <div class="ach-sub">من الابتدائي حتى الجامعي</div>
-        <i class="fas fa-mosque bg-icon-float"></i>
-      </div>
-      <div class="ach-card ach-deep">
-        <div class="ach-icon-wrap"><i class="fas fa-book-open"></i></div>
-        <div class="ach-val counter-val" data-target="0" id="ac_hifz">—</div>
-        <div class="ach-lbl">جزء محفوظ إجمالاً</div>
-        <div class="ach-sub">مجموع حفظ جميع الطلاب</div>
-        <i class="fas fa-book-open bg-icon-float"></i>
-      </div>
-      <div class="ach-card ach-green">
-        <div class="ach-icon-wrap"><i class="fas fa-user-check"></i></div>
-        <div class="ach-val counter-val" data-target="0" id="ac_regular">—</div>
-        <div class="ach-lbl">طالب منتظم</div>
-        <div class="ach-sub">نسبة الانتظام في الحضور</div>
-        <i class="fas fa-user-check bg-icon-float"></i>
-      </div>
-      <div class="ach-card ach-gold">
-        <div class="ach-icon-wrap"><i class="fas fa-chalkboard-user"></i></div>
-        <div class="ach-val counter-val" data-target="0" id="ac_teachers">—</div>
-        <div class="ach-lbl">معلم ومشرف</div>
-        <div class="ach-sub">كادر تعليمي متخصص</div>
-        <i class="fas fa-chalkboard-user bg-icon-float"></i>
-      </div>
-      <div class="ach-card ach-teal">
-        <div class="ach-icon-wrap"><i class="fas fa-chart-line"></i></div>
-        <div class="ach-val counter-val" data-target="0" id="ac_avg">—</div>
-        <div class="ach-lbl">متوسط الحفظ/طالب</div>
-        <div class="ach-sub">جزءاً بالمتوسط لكل طالب</div>
-        <i class="fas fa-chart-line bg-icon-float"></i>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── الآية القرآنية ── -->
-  <div class="quran-banner" id="about">
-    <div class="qb-icon"><i class="fas fa-book-quran"></i></div>
-    <h2>رسالتنا في خدمة كتاب الله</h2>
-    <div class="quran-line">
-      ﴿ إِنَّ هَذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾
-    </div>
-    <p>
-      يسعى مجمع النصار لتحفيظ القرآن الكريم إلى تقديم بيئة تعليمية متكاملة لحفظ القرآن الكريم وتجويده
-      وتفسيره لجميع المراحل الدراسية، انطلاقاً من الإيمان بأن القرآن الكريم هو الدستور الرباني
-      لهداية البشرية وإصلاح المجتمعات.
-    </p>
   </div>
+</section>
 
-  <!-- ── الحلق ── -->
-  <section id="circles" class="circles-section">
-    <div class="section-head">
-      <div class="sec-label"><i class="fas fa-mosque fa-sm"></i> الحلق القرآنية</div>
-      <h2>حلق المجمع</h2>
-      <p>حلق متخصصة لكل مرحلة دراسية برعاية كوكبة من المعلمين المتميزين</p>
-    </div>
-    <div class="circles-grid" id="circlesGrid">
-      <!-- تُملأ ديناميكياً -->
-    </div>
-  </section>
-
-  <!-- ── المتميزون ── -->
-  <section id="top-students" class="top-students-section">
-    <div class="section-head">
-      <div class="sec-label"><i class="fas fa-medal fa-sm"></i> نجوم التحفيظ</div>
-      <h2>المتميزون في الحفظ</h2>
-      <p>أبرز الطلاب تميزاً في حفظ كتاب الله الكريم</p>
+<!-- ════════ HUFFAZ ════════ -->
+<section class="section huffaz-section" id="huffaz">
+  <div class="shell">
+    <div class="center">
+      <span class="eyebrow"><span class="bar"></span> سجل الحفّاظ</span>
+      <h2 class="sec-title">حفّاظ المجمع</h2>
+      <p class="sec-desc">ستون حافظاً أتمّوا كتاب الله في رحاب المجمع — نسأل الله أن يجعله في موازين حسناتهم.</p>
     </div>
 
-    <!-- منصة التتويج -->
-    <div class="podium-wrap" id="podiumWrap">
-      <!-- تُملأ ديناميكياً -->
+    <div class="huffaz-toolbar">
+      <div class="search-box">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="huffazSearch" placeholder="ابحث باسم الحافظ أو السنة…" autocomplete="off">
+      </div>
+      <div class="count-chip"><b id="huffazCount">٦٠</b> حافظاً</div>
     </div>
 
-    <!-- باقي المتميزين -->
-    <div class="top-rest-grid" id="topRestGrid">
-      <!-- تُملأ ديناميكياً -->
+    <div class="table-wrap">
+      <table class="huffaz">
+        <thead>
+          <tr><th>م</th><th>اسم الحافظ</th><th>عام / تاريخ الحفظ</th></tr>
+        </thead>
+        <tbody id="huffazBody"></tbody>
+      </table>
     </div>
-  </section>
+  </div>
+</section>
 
-</div>
-
-<!-- ══ فوتر ══ -->
+<!-- ════════ FOOTER ════════ -->
 <footer>
-  <div class="footer-logo"><i class="fas fa-book-open-reader me-2"></i>مجمع النصار لتحفيظ القرآن الكريم</div>
-  <div>منظومة الإدارة الرقمية المتكاملة</div>
-  <div style="margin-top:8px;font-size:12px;opacity:.5">
-    جميع الحقوق محفوظة &copy; <span id="currentYear"></span>
-  </div>
+  <div class="fl"><i class="fas fa-book-open-reader"></i>مجمع النصار لتحفيظ القرآن الكريم</div>
+  <div class="sub">عشرون عاماً من العطاء · حصاد ١٤٤٧ هـ</div>
+  <div class="cr">جميع الحقوق محفوظة &copy; <span id="yr"></span> — مجمع النصار</div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbyfNLsP39SOzW1egWRWBG3OPEXUUJHxqZqa3yylzSY2hY_Dw_YOK9_W_-_iRFF-feUJFw/exec';
+document.getElementById('yr').textContent = new Date().getFullYear();
 
-document.getElementById('currentYear').textContent = new Date().getFullYear();
+/* ════════ DATA ════════ */
+// الدفعات المتخرجة: السنة، اسم الحلقة، اسم الخريج
+const COHORTS = [
+  {year:'١٤٢٧', circle:'', grad:'صالح عبدالله السعوي'},
+  {year:'١٤٢٨', circle:'', grad:'محمد عبدالله المشيقح'},
+  {year:'١٤٢٩', circle:'', grad:'عبدالرحمن سليمان المحيميد'},
+  {year:'١٤٣٠', circle:'', grad:'أيوب عبدالله الزميع'},
+  {year:'١٤٣١', circle:'', grad:'عبدالله علي السندي'},
+  {year:'١٤٣٢', circle:'', grad:'سلطان حمود العضيبي'},
+  {year:'١٤٣٣', circle:'', grad:'عبدالرحمن عبدالله السعوي'},
+  {year:'١٤٣٤', circle:'', grad:'سهيل محمد السعوي'},
+  {year:'١٤٣٥', circle:'وائل بن حجر', grad:'عبدالعزيز عبدالله الفلاحي'},
+  {year:'١٤٣٦', circle:'جندب البجلي', grad:'محمد صالح السلوم'},
+  {year:'١٤٣٧', circle:'الأسود بن ربيعة', grad:'سلمان عبدالعزيز الغفيص'},
+  {year:'١٤٣٨', circle:'الربيع بن زياد', grad:'محمد إبراهيم العمر'},
+  {year:'١٤٣٩', circle:'عبدالرحمن الفريان', grad:'عبدالرحمن محمد السعوي'},
+  {year:'١٤٤٠', circle:'الحسن بن علي', grad:'خالد محمد الفوزان'},
+  {year:'١٤٤١', circle:'السائب بن الأقرع', grad:'محمد عبدالرحمن السعوي'},
+  {year:'١٤٤٢', circle:'عتبة بن غزوان', grad:'عبدالرحمن عبدالعزيز المحيميد'},
+  {year:'١٤٤٣', circle:'مالك بن جبير', grad:'سلوم صالح السلوم'},
+  {year:'١٤٤٤', circle:'الأسود بن ربيعة', grad:'محمد خالد السعوي'},
+  {year:'١٤٤٥', circle:'الحسن بن علي', grad:'فارس عبدالرحمن العايد'},
+  {year:'١٤٤٦', circle:'وائل بن حجر', grad:'عبدالعزيز عبدالله الفلاحي'},
+];
 
-// ── API ──────────────────────────────────────────
-async function api(action, data = {}) {
-  const r = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action, data }),
-  });
-  return r.json();
-}
+// حفّاظ المجمع (الجدول الأول): الاسم، عام/تاريخ الحفظ
+const HUFFAZ = [
+  {name:'محمد إبراهيم العمر', year:'١٤٣٣'},
+  {name:'عبدالعزيز فهد المحيميد', year:'١٤٣٣'},
+  {name:'ياسر عبدالعزيز السعوي', year:'١٤٣٣'},
+  {name:'إبراهيم عبدالعزيز التويجري', year:'١٤٣٣'},
+  {name:'صالح محمد السعوي', year:'١٤٣٣'},
+  {name:'إبراهيم عبدالله السعوي', year:'١٤٣٣'},
+  {name:'عبدالرحمن إبراهيم العمر', year:'١٤٣٣'},
+  {name:'سليمان عبدالعزيز المهنا', year:'١٤٣٣'},
+  {name:'عبدالعزيز صالح السويد', year:'١٤٣٧'},
+  {name:'عبدالرحمن عبدالعزيز المحيميد', year:'١٤٣٧'},
+  {name:'عمر إبراهيم الرميحي', year:'١٤٣٧'},
+  {name:'عبدالله أحمد السعوي', year:'١٤٣٨'},
+  {name:'معاذ عبدالله السلوم', year:'١٤٣٨'},
+  {name:'أنس عبدالله السعوي', year:'١٤٣٨'},
+  {name:'ثامر عبدالعزيز السويد', year:'١٤٣٩'},
+  {name:'أيوب عبدالعزيز العمر', year:'١٤٣٩'},
+  {name:'معاذ عبدالله السعوي', year:'١/٩/١٤٣٩'},
+  {name:'عزام عبدالرحمن السويد', year:'١/٩/١٤٣٩'},
+  {name:'حسام حمد المحسن', year:'١٨/٩/١٤٣٩'},
+  {name:'محمد سلطان الحميدان', year:'٢٠/١٠/١٤٣٩'},
+  {name:'المثنى سلطان البقيشي', year:'٢٧/٦/١٤٤٠'},
+  {name:'سفيان حمد الربيش', year:'٤/٧/١٤٤٠'},
+  {name:'سفيان محمد الحميد', year:'١٥/١١/١٤٤٠'},
+  {name:'عبدالرحمن سليمان الثنيان', year:'١٤٤١'},
+  {name:'إياد محمد السعوي', year:'٩/٦/١٤٤١'},
+  {name:'عبدالإله إبراهيم النصار', year:'١٧/١١/١٤٤١'},
+  {name:'عبدالمجيد علي الدويغري', year:'٢١/١١/١٤٤١'},
+  {name:'مالك عبدالله السعوي', year:'٩/١٢/١٤٤٢'},
+  {name:'أنس عبدالله الغدوني', year:'٢٦/١٢/١٤٤٢'},
+  {name:'عبدالعزيز عبدالله البريدي', year:'٣/٥/١٤٤٣'},
+  {name:'مصعب بندر السعوي', year:'٥/٥/١٤٤٣'},
+  {name:'باسل عبدالله الفلاحي', year:'٢٢/٧/١٤٤٣'},
+  {name:'ليث علي الغفيص', year:'١٩/٩/١٤٤٣'},
+  {name:'إبراهيم عبدالعزيز المحيميد', year:'٣٠/٩/١٤٤٣'},
+  {name:'معاذ سليمان الغفيص', year:'١٧/١٠/١٤٤٣'},
+  {name:'معاذ عبدالرحمن النصيان', year:'٢٧/١٠/١٤٤٣'},
+  {name:'عبدالحكيم سليمان الغفيص', year:'٥/١١/١٤٤٣'},
+  {name:'محمد سليمان التويجري', year:'٥/١١/١٤٤٣'},
+  {name:'عمر محمد العيد', year:'٢١/٦/١٤٤٤'},
+  {name:'وسيم عبدالعزيز العمر', year:'٦/٧/١٤٤٤'},
+  {name:'المهند صالح القريري', year:'٣/١١/١٤٤٤'},
+  {name:'عبدالسلام محمد الفوزان', year:'٢٤/١٢/١٤٤٤'},
+  {name:'محمد عبدالعزيز التويجري', year:'٢٠/١/١٤٤٥'},
+  {name:'حسان صالح السعوي', year:'٦/٣/١٤٤٥'},
+  {name:'محمد صالح المهاوش', year:'٢٨/٣/١٤٤٥'},
+  {name:'نعيم عبدالله السلوم', year:'٢٨/٨/١٤٤٥'},
+  {name:'عبدالله محمد الدخيل', year:'٤/٩/١٤٤٥'},
+  {name:'صالح محمد التويجري', year:'١٣/٩/١٤٤٥'},
+  {name:'عمر جعفر المشيقح', year:'٢٩/٩/١٤٤٥'},
+  {name:'باسل محمد العمر', year:'٢٩/٩/١٤٤٥'},
+  {name:'فارس عبدالله التويجري', year:'٤/١٢/١٤٤٥'},
+  {name:'عبدالرحمن عبدالله السويد', year:'٩/١٢/١٤٤٥'},
+  {name:'هشام أحمد العيد', year:'٨/٣/١٤٤٦'},
+  {name:'باسل صالح السعوي', year:'١٨/٥/١٤٤٦'},
+  {name:'عمر فهد المحيميد', year:'١١/٨/١٤٤٦'},
+  {name:'أيوب سليمان السويد', year:'١٩/٩/١٤٤٦'},
+  {name:'عبدالله عبدالحكيم المحيميد', year:'١٤/١٠/١٤٤٦'},
+  {name:'باسم عبدالله العيد', year:'٧/١١/١٤٤٦'},
+  {name:'صالح عبدالرحمن الدخيل', year:'١٤/١٢/١٤٤٦'},
+  {name:'أنس محمد العيد', year:'١٣/٣/١٤٤٧'},
+];
 
-// ── تحميل البيانات ───────────────────────────────
-async function loadAll() {
-  try {
-    const r = await api('جلب_بيانات_الإنجازات_العامة', {});
-    if (!r || !r.نجاح) {
-      throw new Error((r && r.خطأ) || 'فشل تحميل البيانات');
-    }
+const toAr = n => String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 
-    const إجمالي_الطلاب = Number(r.إجمالي_الطلاب || 0);
-    const عدد_الحلق = Number(r.عدد_الحلق || 0);
-    const مجموع_الحفظ = Number(r.مجموع_الحفظ || 0);
-    const المنتظمون = Number(r.المنتظمون || 0);
-    const عدد_العاملين = Number(r.عدد_العاملين || 0);
-    const متوسط_الحفظ = r.متوسط_الحفظ || 0;
-
-    animateCounter('hs_students', إجمالي_الطلاب);
-    animateCounter('hs_circles', عدد_الحلق);
-    animateCounter('hs_hifz', مجموع_الحفظ);
-
-    animateCounter('ac_students', إجمالي_الطلاب);
-    animateCounter('ac_circles', عدد_الحلق);
-    animateCounter('ac_hifz', مجموع_الحفظ);
-    animateCounter('ac_regular', المنتظمون);
-    animateCounter('ac_teachers', عدد_العاملين);
-    setVal('ac_avg', متوسط_الحفظ);
-
-    renderCirclesFromSummary(r.حلق || []);
-    renderPodium(r.ترتيب || []);
-    renderTopRest(r.ترتيب || []);
-
-  } catch (e) {
-    console.error('خطأ في تحميل البيانات:', e);
-  } finally {
-    document.getElementById('spinnerOverlay').style.display = 'none';
-  }
-}
-
-
-  function renderCirclesFromSummary(حلق) {
-  const el = document.getElementById('circlesGrid');
-
-  if (!حلق.length) {
-    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
-      <i class="fas fa-mosque" style="font-size:40px;opacity:.2;display:block;margin-bottom:12px"></i>
-      لم تُضف حلق بعد
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = حلق.map(ح => `
-    <div class="circle-card">
-      <div class="circle-card-header">
-        <div class="circle-icon"><i class="fas fa-mosque"></i></div>
-        <div>
-          <h3>${ح['اسم_الحلقة'] || '—'}</h3>
-          <p><i class="fas fa-chalkboard-user fa-xs me-1"></i>${ح['المعلم'] || 'المعلم غير محدد'}</p>
-        </div>
-      </div>
-      <div class="circle-card-body">
-        <div class="circle-stat">
-          <div class="cs-val">${ح['عدد_الطلاب'] || 0}</div>
-          <div class="cs-lbl">طالب</div>
-        </div>
-        <div class="circle-stat">
-          <div class="cs-val">${ح['مجموع_الحفظ'] || 0}</div>
-          <div class="cs-lbl">جزء محفوظ</div>
-        </div>
-        <div class="circle-stat">
-          <div class="cs-val">${ح['متوسط_الحفظ'] || 0}</div>
-          <div class="cs-lbl">متوسط الحفظ</div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-  
-// ── عرض الحلق ────────────────────────────────────
-function renderCircles(حلق, طلاب) {
-  const el = document.getElementById('circlesGrid');
-  if (!حلق.length) {
-    el.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">
-      <i class="fas fa-mosque" style="font-size:40px;opacity:.2;display:block;margin-bottom:12px"></i>
-      لم تُضف حلق بعد
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = حلق.map(ح => {
-    const طلاب_الحلقة = طلاب.filter(ط => ط['الحلقة'] === ح['اسم_الحلقة']);
-    const عدد_الطلاب  = طلاب_الحلقة.length;
-    const مجموع_حفظ_الحلقة = طلاب_الحلقة.reduce((s, ط) => s + Number(ط['مجموع_الحفظ'] || 0), 0);
-    const متوسط       = عدد_الطلاب ? (مجموع_حفظ_الحلقة / عدد_الطلاب).toFixed(1) : 0;
-
+/* ── render cohorts timeline ── */
+(function renderCohorts(){
+  const el = document.getElementById('cohortTimeline');
+  el.innerHTML = COHORTS.map((c,i)=>{
+    const side = i % 2 === 0 ? 'r' : 'l';
+    const circle = c.circle
+      ? `<div class="tc-circle"><i class="fas fa-mosque"></i>حلقة ${c.circle}</div>`
+      : `<div class="tc-circle empty"><i class="fas fa-mosque"></i>دون اسم حلقة</div>`;
     return `
-      <div class="circle-card">
-        <div class="circle-card-header">
-          <div class="circle-icon"><i class="fas fa-mosque"></i></div>
-          <div>
-            <h3>${ح['اسم_الحلقة'] || '—'}</h3>
-            <p><i class="fas fa-chalkboard-user fa-xs me-1"></i>${ح['المعلم'] || 'المعلم غير محدد'}</p>
-          </div>
-        </div>
-        <div class="circle-card-body">
-          <div class="circle-stat">
-            <div class="cs-val">${عدد_الطلاب}</div>
-            <div class="cs-lbl">طالب</div>
-          </div>
-          <div class="circle-stat">
-            <div class="cs-val">${مجموع_حفظ_الحلقة}</div>
-            <div class="cs-lbl">جزء محفوظ</div>
-          </div>
-          <div class="circle-stat">
-            <div class="cs-val">${متوسط}</div>
-            <div class="cs-lbl">متوسط الحفظ</div>
-          </div>
+      <div class="tl-row ${side}">
+        <div class="tl-node">${c.year}</div>
+        <div class="tl-card">
+          ${circle}
+          <div class="tc-grad"><i class="fas fa-user-graduate"></i>${c.grad}</div>
         </div>
       </div>`;
   }).join('');
-}
+})();
 
-// ── منصة التتويج ─────────────────────────────────
-function renderPodium(list) {
-  const el = document.getElementById('podiumWrap');
-  if (list.length < 1) { el.innerHTML = ''; return; }
+/* ── render huffaz table + search ── */
+const tbody = document.getElementById('huffazBody');
+const countEl = document.getElementById('huffazCount');
 
-  const items = [
-    list[1] || null, // المركز الثاني (يسار)
-    list[0] || null, // المركز الأول (وسط)
-    list[2] || null, // المركز الثالث (يمين)
-  ];
-
-  const ranks   = [2, 1, 3];
-  const crowns  = ['🥈', '🥇', '🥉'];
-  const heights = [70, 90, 55];
-
-  el.innerHTML = items.map((ط, i) => {
-    if (!ط) return '';
-    const rank = ranks[i];
-    return `
-      <div class="podium-item rank-${rank}">
-        <div class="podium-avatar">
-          <span class="podium-crown">${crowns[i]}</span>
-          <i class="fas fa-user-graduate" style="color:${rank===1?'#b8860b':rank===2?'#757575':'#c8764b'}"></i>
-        </div>
-        <h4>${ط['اسم_الطالب'] || '—'}</h4>
-        <div class="podium-hifz"><i class="fas fa-book-open fa-xs me-1" style="color:var(--teal)"></i>${ط['مجموع_الحفظ']} جزءاً</div>
-        <div class="podium-base" style="height:${heights[i]}px">${rank}</div>
-      </div>`;
-  }).join('');
-}
-
-// ── باقي المتميزين ────────────────────────────────
-function renderTopRest(list) {
-  const el = document.getElementById('topRestGrid');
-  const rest = list.slice(3);
-  if (!rest.length) { el.innerHTML = ''; return; }
-
-  el.innerHTML = rest.map((ط, i) => `
-    <div class="top-student-row">
-      <div class="rank-badge">${i + 4}</div>
-      <div>
-        <div class="ts-name">${ط['اسم_الطالب'] || '—'}</div>
-        <div class="ts-circle"><i class="fas fa-mosque fa-xs me-1"></i>${ط['الحلقة'] || '—'}</div>
-      </div>
-      <div class="ts-hifz">${ط['مجموع_الحفظ']} جزء</div>
-    </div>`).join('');
-}
-
-// ── عداد متحرك ───────────────────────────────────
-function animateCounter(id, target) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const dur = 1200;
-  const start = performance.now();
-  const from = 0;
-
-  function step(now) {
-    const prog = Math.min((now - start) / dur, 1);
-    const ease = 1 - Math.pow(1 - prog, 3);
-    el.textContent = Math.round(from + (target - from) * ease).toLocaleString('ar');
-    if (prog < 1) requestAnimationFrame(step);
-    else el.textContent = Number(target).toLocaleString('ar');
+function renderHuffaz(list){
+  if(!list.length){
+    tbody.innerHTML = `<tr><td colspan="3"><div class="no-results">
+      <i class="fas fa-magnifying-glass"></i>لا توجد نتائج مطابقة لبحثك</div></td></tr>`;
+    countEl.textContent = '٠';
+    return;
   }
-  requestAnimationFrame(step);
+  tbody.innerHTML = list.map((h,i)=>`
+    <tr>
+      <td style="text-align:center"><span class="h-num">${toAr(i+1)}</span></td>
+      <td><span class="h-name"><i class="fas fa-star"></i>${h.name}</span></td>
+      <td><span class="h-year">${h.year}</span></td>
+    </tr>`).join('');
+  countEl.textContent = toAr(list.length);
 }
+renderHuffaz(HUFFAZ);
 
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
-
-// ── تمييز التنقل عند التمرير ─────────────────────
-const sections = document.querySelectorAll('section[id], div[id="about"]');
-const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
-
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(sec => {
-    if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
-  });
-  navLinks.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
-  });
+document.getElementById('huffazSearch').addEventListener('input', e=>{
+  const q = e.target.value.trim();
+  if(!q){ renderHuffaz(HUFFAZ); return; }
+  const filtered = HUFFAZ.filter(h => h.name.includes(q) || h.year.includes(q));
+  renderHuffaz(filtered);
 });
-
-// ── تشغيل ────────────────────────────────────────
-loadAll();
 </script>
-
-<!-- Supabase Adapter -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-adapter.js"></script>
-
 </body>
 </html>
