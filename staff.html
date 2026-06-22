@@ -239,13 +239,13 @@ function scriptsForUser(role){
   };
   var list=[map[role]];
   // هذه الصفحات قد تعطى لأي مستخدم من الصلاحيات، لذلك نحمل ملفاتها حسب الصفحة لا حسب الدور.
-  if(hasPerm('rabt_assessments')||hasPerm('student_tests')||hasPerm('hizb_presentations')||hasPerm('teacher_preparation')||hasPerm('teacher_attendance')||hasPerm('weekly_prep_report')||hasPerm('student_period_report')||hasPerm('student_paths')){
+  if(hasPerm('teacher_reports')||hasPerm('rabt_assessments')||hasPerm('student_tests')||hasPerm('hizb_presentations')||hasPerm('teacher_preparation')||hasPerm('teacher_attendance')||hasPerm('weekly_prep_report')||hasPerm('student_period_report')||hasPerm('student_paths')){
     list.push('staff-teacher.js');
   }
   if(hasPerm('edu_assessment_reports')||hasPerm('edu_weekly_rabt_report')||hasPerm('edu_week_details')){
     list.push('staff-edu.js');
   }
-  if(hasPerm('educational_assessment_settings')||hasPerm('users')||hasPerm('settings')||hasPerm('students')||hasPerm('registration_requests')||hasPerm('edit_requests')||hasPerm('educational_warnings')||hasPerm('administrative_warnings')||hasPerm('learning_terms')||hasPerm('thresholds')||hasPerm('templates')){
+  if(hasPerm('administrative_reports')||hasPerm('educational_assessment_settings')||hasPerm('users')||hasPerm('settings')||hasPerm('students')||hasPerm('registration_requests')||hasPerm('edit_requests')||hasPerm('educational_warnings')||hasPerm('administrative_warnings')||hasPerm('learning_terms')||hasPerm('thresholds')||hasPerm('templates')){
     list.push('staff-admin.js');
   }
   return _uniqueScripts(list);
@@ -676,6 +676,10 @@ function nav(page){
       if (typeof window.pgTeacherStudentPeriodReport === 'function') return window.pgTeacherStudentPeriodReport();
       return missingPageFunction('pgTeacherStudentPeriodReport');
 
+    case 'tTeacherFullReport':
+      if (typeof window.pgTeacherFullReport === 'function') return window.pgTeacherFullReport();
+      return missingPageFunction('pgTeacherFullReport');
+
     case 'tPaths':
       if (typeof window.pgTeacherStudentPaths === 'function') return window.pgTeacherStudentPaths();
       return missingPageFunction('pgTeacherStudentPaths');
@@ -723,6 +727,10 @@ function nav(page){
     case 'aKpi':
       if (typeof window.pgAdminKpi === 'function') return window.pgAdminKpi();
       return missingPageFunction('pgAdminKpi');
+
+    case 'aAdminReports':
+      if (typeof window.pgAdminReports === 'function') return window.pgAdminReports();
+      return missingPageFunction('pgAdminReports');
 
     case 'aSt':
       if (typeof window.pgAdminSt === 'function') return window.pgAdminSt();
@@ -801,6 +809,7 @@ function swST(btn,panelId){
     ['عام','tPreparation',['teacher_preparation','teacher_attendance'],'fa-clipboard-check','التحضير اليومي'],
     ['عام','tWeeklyReport','weekly_prep_report','fa-table','تقرير الطلاب الأسبوعي'],
     ['عام','tStudentReport','student_period_report','fa-chart-column','تقرير الطلاب'],
+    ['عام','tTeacherFullReport','teacher_reports','fa-chart-pie','تقرير المعلم'],
     ['عام','tPaths','student_paths','fa-route','مسارات الطلاب'],
     ['التقييم التعليمي','tRabt','rabt_assessments','fa-link','عرض الربط'],
     ['التقييم التعليمي','tTests','student_tests','fa-clipboard-list','الاختبارات'],
@@ -813,6 +822,7 @@ function swST(btn,panelId){
     ['الإشراف التعليمي','eRabtWeekReport','edu_weekly_rabt_report','fa-table-list','تقرير الربط الأسبوعي'],
     ['الإشراف التعليمي','eWeekDetails','edu_week_details','fa-magnifying-glass-chart','تفاصيل أسابيع الربط'],
     ['الإدارة','aKpi',['dashboard','reports'],'fa-chart-pie','لوحة التقارير'],
+    ['الإدارة','aAdminReports','administrative_reports','fa-chart-simple','التقارير الإدارية'],
     ['الإدارة','aSt','students','fa-users','إدارة الطلاب'],
     ['الإدارة','aReq',['registration_requests','edit_requests'],'fa-inbox','الطلبات'],
     ['الإدارة','aEduW','educational_warnings','fa-book-open','الإنذارات التعليمية'],

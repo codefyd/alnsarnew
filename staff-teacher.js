@@ -675,3 +675,45 @@ async function openHizbPresentationForm(){
   if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e'});return;}
   Swal.fire({icon:'success',title:'تم حفظ عرض الحزب',timer:1500,showConfirmButton:false});loadTeacherHizb();
 }
+
+// =====================================================================
+// Phase 4F — تقرير المعلم حسب الفترة والأسابيع
+// =====================================================================
+function tRepNum(v){return Number(v||0).toLocaleString('ar-SA');}
+function tRepPct(v){return '<span class="bp bp-in">'+hesc(v||0)+'%</span>';}
+async function pgTeacherFullReport(){
+  mc('<div class="stitle"><i class="fas fa-chart-pie"></i> تقرير المعلم</div>'
+    +'<div class="cc"><div class="chdr"><h3>تقرير الحلقة حسب الفترة النشطة</h3><div class="cacts">'
+    +'<button class="ob sm" onclick="loadTeacherFullReport()"><i class="fas fa-rotate"></i> تحديث</button>'
+    +'<button class="ob sm" onclick="exportTeacherFullReportCsv()"><i class="fas fa-file-csv"></i> CSV</button>'
+    +'</div></div>'
+    +'<div class="cbody" id="teacherFullSummary"><div class="empty"><div class="spri"></div><h3>جارٍ تحميل التقرير…</h3></div></div>'
+    +'<div class="stabs"><button class="stab active" onclick="swST(this,\'teacherFullWeeks\')"><i class="fas fa-calendar-week"></i> الأسابيع</button><button class="stab" onclick="swST(this,\'teacherFullStudents\')"><i class="fas fa-users"></i> الطلاب</button></div>'
+    +'<div class="spanel active" id="teacherFullWeeks"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>الأسبوع</th><th>الفترة</th><th>حضور</th><th>تأخر</th><th>غياب</th><th>غياب بعذر</th><th>أتم</th><th>لم يتم</th><th>نسبة الإتمام</th></tr></thead><tbody id="teacherFullWeeksBody"></tbody></table></div></div>'
+    +'<div class="spanel" id="teacherFullStudents"><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead><tr><th>#</th><th>الطالب</th><th>أيام التحضير</th><th>حضور</th><th>تأخر</th><th>غياب</th><th>نسبة الحضور</th><th>نسبة الإتمام</th></tr></thead><tbody id="teacherFullStudentsBody"></tbody></table></div></div>'
+    +'</div>');
+  await loadTeacherFullReport();
+}
+async function loadTeacherFullReport(){
+  var r=await api('جلب_تقرير_المعلم_للفترة',{الحلقة:teacherCircle()});
+  D.teacherFullReport=r;
+  if(!r||!r.نجاح){document.getElementById('teacherFullSummary').innerHTML='<div class="empty"><h3>تعذر التحميل</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';return;}
+  var m=r.ملخص||{}, term=r.الفترة||{};
+  document.getElementById('teacherFullSummary').innerHTML='<div class="pgbar" style="margin-bottom:12px"><span>الفترة: <strong>'+hesc(term['اسم_الفترة']||'—')+'</strong> · الحلقة: <strong>'+hesc(r['الحلقة']||teacherCircle()||'—')+'</strong> · '+hesc(term['تاريخ_البداية']||'')+' إلى '+hesc(term['تاريخ_النهاية']||'')+'</span></div>'
+    +'<div class="kpi-grid">'
+    +kpiCard('عدد الطلاب',m['عدد_الطلاب']||0,'fa-users','')
+    +kpiCard('أيام التحضير',m['أيام_التحضير']||0,'fa-calendar-check','kpi-ok')
+    +kpiCard('حضور',m['حضور']||0,'fa-user-check','kpi-ok')
+    +kpiCard('تأخر',m['تأخر']||0,'fa-clock','kpi-wa')
+    +kpiCard('غياب',m['غياب']||0,'fa-user-xmark','kpi-er')
+    +kpiCard('أتم الحفظ',m['أتم_الحفظ']||0,'fa-book-open','kpi-ok')+'</div>';
+  document.getElementById('teacherFullWeeksBody').innerHTML=arr(r['أسابيع']).map(function(w){return '<tr><td><strong>الأسبوع '+tRepNum(w['رقم_الأسبوع'])+'</strong></td><td>'+hesc(w['بداية_الأسبوع']||'')+' - '+hesc(w['نهاية_الأسبوع']||'')+'</td><td>'+tRepNum(w['حضور'])+'</td><td>'+tRepNum(w['تأخر'])+'</td><td>'+tRepNum(w['غياب'])+'</td><td>'+tRepNum(w['غياب_بعذر'])+'</td><td>'+tRepNum(w['أتم_الحفظ'])+'</td><td>'+tRepNum(w['لم_يتم_الحفظ'])+'</td><td>'+tRepPct(w['نسبة_إتمام_الحفظ'])+'</td></tr>';}).join('')||'<tr><td colspan="9" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات</td></tr>';
+  document.getElementById('teacherFullStudentsBody').innerHTML=arr(r['طلاب']).map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td><td>'+tRepNum(s['أيام_التحضير'])+'</td><td>'+tRepNum(s['حضور'])+'</td><td>'+tRepNum(s['تأخر'])+'</td><td>'+tRepNum(s['غياب'])+'</td><td>'+tRepPct(s['نسبة_الحضور'])+'</td><td>'+tRepPct(s['نسبة_إتمام_الحفظ'])+'</td></tr>';}).join('')||'<tr><td colspan="8" style="text-align:center;padding:18px;color:var(--ts)">لا توجد بيانات</td></tr>';
+}
+function exportTeacherFullReportCsv(){
+  var rows=arr((D.teacherFullReport||{})['طلاب']);
+  if(!rows.length){Swal.fire({icon:'info',title:'لا توجد بيانات للتصدير',confirmButtonColor:'#1a3c5e'});return;}
+  var cols=['رقم_الطالب','اسم_الطالب','الحلقة','أيام_التحضير','حضور','تأخر','غياب','غياب_بعذر','أتم_الحفظ','لم_يتم_الحفظ','نسبة_الحضور','نسبة_إتمام_الحفظ'];
+  var csv=cols.join(',')+'\n'+rows.map(function(x){return cols.map(function(c){return '"'+String(x[c]==null?'':x[c]).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='teacher_term_report_'+Date.now()+'.csv';a.click();
+}
