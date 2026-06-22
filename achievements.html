@@ -335,8 +335,9 @@ footer .cr{margin-top:14px;font-size:11.5px;opacity:.45}
   .tl-row.r .tl-card,.tl-row.l .tl-card{grid-column:2;margin:0 0 0 0;margin-inline-start:8px;text-align:start}
 }
 @media(max-width:520px){
-  table.huffaz thead th,table.huffaz tbody td{padding:11px 12px;font-size:13.5px}
-  table.huffaz thead th:nth-child(3),table.huffaz tbody td:nth-child(3){display:none}
+  table.huffaz thead th,table.huffaz tbody td{padding:11px 10px;font-size:13px}
+  table.huffaz thead th:first-child,table.huffaz tbody td:first-child{width:42px}
+  .h-name i{display:none}
 }
 </style>
 </head>
@@ -402,21 +403,9 @@ footer .cr{margin-top:14px;font-size:11.5px;opacity:.45}
     <div class="center">
       <span class="eyebrow"><span class="bar"></span> الدفعات المتخرجة</span>
       <h2 class="sec-title">مسيرة عشرين دفعة</h2>
-      <p class="sec-desc">من عام ١٤٢٧ حتى ١٤٤٦ هـ — .</p>
+      <p class="sec-desc">من عام ١٤٢٧ حتى ١٤٤٦ هـ — كل دفعةٍ تحمل اسم حلقتها واسم معلّمها.</p>
     </div>
     <div class="tl" id="cohortTimeline"></div>
-  </div>
-</section>
-
-<!-- ════════ AYAH ════════ -->
-<section class="section tight">
-  <div class="shell">
-    <div class="ayah">
-      <div class="ic"><i class="fas fa-book-quran"></i></div>
-      <div class="line">﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾</div>
-      <div class="ref">سورة الإسراء — الآية ٩</div>
-      <p class="body">يسعى مجمع النصار إلى بيئةٍ متكاملة لحفظ القرآن الكريم وتجويده وتفسيره لجميع المراحل، إيماناً بأن القرآن هدى البشرية وصلاح المجتمعات.</p>
-    </div>
   </div>
 </section>
 
@@ -448,6 +437,18 @@ footer .cr{margin-top:14px;font-size:11.5px;opacity:.45}
   </div>
 </section>
 
+<!-- ════════ AYAH ════════ -->
+<section class="section tight">
+  <div class="shell">
+    <div class="ayah">
+      <div class="ic"><i class="fas fa-book-quran"></i></div>
+      <div class="line">﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾</div>
+      <div class="ref">سورة الإسراء — الآية ٩</div>
+      <p class="body">يسعى مجمع النصار إلى بيئةٍ متكاملة لحفظ القرآن الكريم وتجويده وتفسيره لجميع المراحل، إيماناً بأن القرآن هدى البشرية وصلاح المجتمعات.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ════════ FOOTER ════════ -->
 <footer>
   <div class="fl"><i class="fas fa-book-open-reader"></i>مجمع النصار لتحفيظ القرآن الكريم</div>
@@ -459,31 +460,31 @@ footer .cr{margin-top:14px;font-size:11.5px;opacity:.45}
 document.getElementById('yr').textContent = new Date().getFullYear();
 
 /* ════════ DATA ════════ */
-// الدفعات المتخرجة: السنة، اسم الحلقة، اسم الخريج
+// الدفعات المتخرجة: السنة، اسم الحلقة، اسم المعلم
 const COHORTS = [
-  {year:'١٤٢٧', circle:'', grad:'صالح عبدالله السعوي'},
-  {year:'١٤٢٨', circle:'', grad:'محمد عبدالله المشيقح'},
-  {year:'١٤٢٩', circle:'', grad:'عبدالرحمن سليمان المحيميد'},
-  {year:'١٤٣٠', circle:'', grad:'أيوب عبدالله الزميع'},
-  {year:'١٤٣١', circle:'', grad:'عبدالله علي السندي'},
-  {year:'١٤٣٢', circle:'', grad:'سلطان حمود العضيبي'},
-  {year:'١٤٣٣', circle:'', grad:'عبدالرحمن عبدالله السعوي'},
-  {year:'١٤٣٤', circle:'', grad:'سهيل محمد السعوي'},
-  {year:'١٤٣٥', circle:'وائل بن حجر', grad:'عبدالعزيز عبدالله الفلاحي'},
-  {year:'١٤٣٦', circle:'جندب البجلي', grad:'محمد صالح السلوم'},
-  {year:'١٤٣٧', circle:'الأسود بن ربيعة', grad:'سلمان عبدالعزيز الغفيص'},
-  {year:'١٤٣٨', circle:'الربيع بن زياد', grad:'محمد إبراهيم العمر'},
-  {year:'١٤٣٩', circle:'عبدالرحمن الفريان', grad:'عبدالرحمن محمد السعوي'},
-  {year:'١٤٤٠', circle:'الحسن بن علي', grad:'خالد محمد الفوزان'},
-  {year:'١٤٤١', circle:'السائب بن الأقرع', grad:'محمد عبدالرحمن السعوي'},
-  {year:'١٤٤٢', circle:'عتبة بن غزوان', grad:'عبدالرحمن عبدالعزيز المحيميد'},
-  {year:'١٤٤٣', circle:'مالك بن جبير', grad:'سلوم صالح السلوم'},
-  {year:'١٤٤٤', circle:'الأسود بن ربيعة', grad:'محمد خالد السعوي'},
-  {year:'١٤٤٥', circle:'الحسن بن علي', grad:'فارس عبدالرحمن العايد'},
-  {year:'١٤٤٦', circle:'وائل بن حجر', grad:'عبدالعزيز عبدالله الفلاحي'},
+  {year:'١٤٢٧', circle:'', teacher:'صالح عبدالله السعوي'},
+  {year:'١٤٢٨', circle:'', teacher:'محمد عبدالله المشيقح'},
+  {year:'١٤٢٩', circle:'', teacher:'عبدالرحمن سليمان المحيميد'},
+  {year:'١٤٣٠', circle:'', teacher:'أيوب عبدالله الزميع'},
+  {year:'١٤٣١', circle:'', teacher:'عبدالله علي السندي'},
+  {year:'١٤٣٢', circle:'', teacher:'سلطان حمود العضيبي'},
+  {year:'١٤٣٣', circle:'', teacher:'عبدالرحمن عبدالله السعوي'},
+  {year:'١٤٣٤', circle:'', teacher:'سهيل محمد السعوي'},
+  {year:'١٤٣٥', circle:'وائل بن حجر', teacher:'عبدالعزيز عبدالله الفلاحي'},
+  {year:'١٤٣٦', circle:'جندب البجلي', teacher:'محمد صالح السلوم'},
+  {year:'١٤٣٧', circle:'الأسود بن ربيعة', teacher:'سلمان عبدالعزيز الغفيص'},
+  {year:'١٤٣٨', circle:'الربيع بن زياد', teacher:'محمد إبراهيم العمر'},
+  {year:'١٤٣٩', circle:'عبدالرحمن الفريان', teacher:'عبدالرحمن محمد السعوي'},
+  {year:'١٤٤٠', circle:'الحسن بن علي', teacher:'خالد محمد الفوزان'},
+  {year:'١٤٤١', circle:'السائب بن الأقرع', teacher:'محمد عبدالرحمن السعوي'},
+  {year:'١٤٤٢', circle:'عتبة بن غزوان', teacher:'عبدالرحمن عبدالعزيز المحيميد'},
+  {year:'١٤٤٣', circle:'مالك بن جبير', teacher:'سلوم صالح السلوم'},
+  {year:'١٤٤٤', circle:'الأسود بن ربيعة', teacher:'محمد خالد السعوي'},
+  {year:'١٤٤٥', circle:'الحسن بن علي', teacher:'فارس عبدالرحمن العايد'},
+  {year:'١٤٤٦', circle:'وائل بن حجر', teacher:'عبدالعزيز عبدالله الفلاحي'},
 ];
 
-// حفّاظ المجمع (الجدول الأول): الاسم، عام/تاريخ الحفظ
+// حفّاظ المجمع (الجدول الأول): الاسم، سنة الحفظ فقط
 const HUFFAZ = [
   {name:'محمد إبراهيم العمر', year:'١٤٣٣'},
   {name:'عبدالعزيز فهد المحيميد', year:'١٤٣٣'},
@@ -501,53 +502,55 @@ const HUFFAZ = [
   {name:'أنس عبدالله السعوي', year:'١٤٣٨'},
   {name:'ثامر عبدالعزيز السويد', year:'١٤٣٩'},
   {name:'أيوب عبدالعزيز العمر', year:'١٤٣٩'},
-  {name:'معاذ عبدالله السعوي', year:'١/٩/١٤٣٩'},
-  {name:'عزام عبدالرحمن السويد', year:'١/٩/١٤٣٩'},
-  {name:'حسام حمد المحسن', year:'١٨/٩/١٤٣٩'},
-  {name:'محمد سلطان الحميدان', year:'٢٠/١٠/١٤٣٩'},
-  {name:'المثنى سلطان البقيشي', year:'٢٧/٦/١٤٤٠'},
-  {name:'سفيان حمد الربيش', year:'٤/٧/١٤٤٠'},
-  {name:'سفيان محمد الحميد', year:'١٥/١١/١٤٤٠'},
+  {name:'معاذ عبدالله السعوي', year:'١٤٣٩'},
+  {name:'عزام عبدالرحمن السويد', year:'١٤٣٩'},
+  {name:'حسام حمد المحسن', year:'١٤٣٩'},
+  {name:'محمد سلطان الحميدان', year:'١٤٣٩'},
+  {name:'المثنى سلطان البقيشي', year:'١٤٤٠'},
+  {name:'سفيان حمد الربيش', year:'١٤٤٠'},
+  {name:'سفيان محمد الحميد', year:'١٤٤٠'},
   {name:'عبدالرحمن سليمان الثنيان', year:'١٤٤١'},
-  {name:'إياد محمد السعوي', year:'٩/٦/١٤٤١'},
-  {name:'عبدالإله إبراهيم النصار', year:'١٧/١١/١٤٤١'},
-  {name:'عبدالمجيد علي الدويغري', year:'٢١/١١/١٤٤١'},
-  {name:'مالك عبدالله السعوي', year:'٩/١٢/١٤٤٢'},
-  {name:'أنس عبدالله الغدوني', year:'٢٦/١٢/١٤٤٢'},
-  {name:'عبدالعزيز عبدالله البريدي', year:'٣/٥/١٤٤٣'},
-  {name:'مصعب بندر السعوي', year:'٥/٥/١٤٤٣'},
-  {name:'باسل عبدالله الفلاحي', year:'٢٢/٧/١٤٤٣'},
-  {name:'ليث علي الغفيص', year:'١٩/٩/١٤٤٣'},
-  {name:'إبراهيم عبدالعزيز المحيميد', year:'٣٠/٩/١٤٤٣'},
-  {name:'معاذ سليمان الغفيص', year:'١٧/١٠/١٤٤٣'},
-  {name:'معاذ عبدالرحمن النصيان', year:'٢٧/١٠/١٤٤٣'},
-  {name:'عبدالحكيم سليمان الغفيص', year:'٥/١١/١٤٤٣'},
-  {name:'محمد سليمان التويجري', year:'٥/١١/١٤٤٣'},
-  {name:'عمر محمد العيد', year:'٢١/٦/١٤٤٤'},
-  {name:'وسيم عبدالعزيز العمر', year:'٦/٧/١٤٤٤'},
-  {name:'المهند صالح القريري', year:'٣/١١/١٤٤٤'},
-  {name:'عبدالسلام محمد الفوزان', year:'٢٤/١٢/١٤٤٤'},
-  {name:'محمد عبدالعزيز التويجري', year:'٢٠/١/١٤٤٥'},
-  {name:'حسان صالح السعوي', year:'٦/٣/١٤٤٥'},
-  {name:'محمد صالح المهاوش', year:'٢٨/٣/١٤٤٥'},
-  {name:'نعيم عبدالله السلوم', year:'٢٨/٨/١٤٤٥'},
-  {name:'عبدالله محمد الدخيل', year:'٤/٩/١٤٤٥'},
-  {name:'صالح محمد التويجري', year:'١٣/٩/١٤٤٥'},
-  {name:'عمر جعفر المشيقح', year:'٢٩/٩/١٤٤٥'},
-  {name:'باسل محمد العمر', year:'٢٩/٩/١٤٤٥'},
-  {name:'فارس عبدالله التويجري', year:'٤/١٢/١٤٤٥'},
-  {name:'عبدالرحمن عبدالله السويد', year:'٩/١٢/١٤٤٥'},
-  {name:'هشام أحمد العيد', year:'٨/٣/١٤٤٦'},
-  {name:'باسل صالح السعوي', year:'١٨/٥/١٤٤٦'},
-  {name:'عمر فهد المحيميد', year:'١١/٨/١٤٤٦'},
-  {name:'أيوب سليمان السويد', year:'١٩/٩/١٤٤٦'},
-  {name:'عبدالله عبدالحكيم المحيميد', year:'١٤/١٠/١٤٤٦'},
-  {name:'باسم عبدالله العيد', year:'٧/١١/١٤٤٦'},
-  {name:'صالح عبدالرحمن الدخيل', year:'١٤/١٢/١٤٤٦'},
-  {name:'أنس محمد العيد', year:'١٣/٣/١٤٤٧'},
+  {name:'إياد محمد السعوي', year:'١٤٤١'},
+  {name:'عبدالإله إبراهيم النصار', year:'١٤٤١'},
+  {name:'عبدالمجيد علي الدويغري', year:'١٤٤١'},
+  {name:'مالك عبدالله السعوي', year:'١٤٤٢'},
+  {name:'أنس عبدالله الغدوني', year:'١٤٤٢'},
+  {name:'عبدالعزيز عبدالله البريدي', year:'١٤٤٣'},
+  {name:'مصعب بندر السعوي', year:'١٤٤٣'},
+  {name:'باسل عبدالله الفلاحي', year:'١٤٤٣'},
+  {name:'ليث علي الغفيص', year:'١٤٤٣'},
+  {name:'إبراهيم عبدالعزيز المحيميد', year:'١٤٤٣'},
+  {name:'معاذ سليمان الغفيص', year:'١٤٤٣'},
+  {name:'معاذ عبدالرحمن النصيان', year:'١٤٤٣'},
+  {name:'عبدالحكيم سليمان الغفيص', year:'١٤٤٣'},
+  {name:'محمد سليمان التويجري', year:'١٤٤٣'},
+  {name:'عمر محمد العيد', year:'١٤٤٤'},
+  {name:'وسيم عبدالعزيز العمر', year:'١٤٤٤'},
+  {name:'المهند صالح القريري', year:'١٤٤٤'},
+  {name:'عبدالسلام محمد الفوزان', year:'١٤٤٤'},
+  {name:'محمد عبدالعزيز التويجري', year:'١٤٤٥'},
+  {name:'حسان صالح السعوي', year:'١٤٤٥'},
+  {name:'محمد صالح المهاوش', year:'١٤٤٥'},
+  {name:'نعيم عبدالله السلوم', year:'١٤٤٥'},
+  {name:'عبدالله محمد الدخيل', year:'١٤٤٥'},
+  {name:'صالح محمد التويجري', year:'١٤٤٥'},
+  {name:'عمر جعفر المشيقح', year:'١٤٤٥'},
+  {name:'باسل محمد العمر', year:'١٤٤٥'},
+  {name:'فارس عبدالله التويجري', year:'١٤٤٥'},
+  {name:'عبدالرحمن عبدالله السويد', year:'١٤٤٥'},
+  {name:'هشام أحمد العيد', year:'١٤٤٦'},
+  {name:'باسل صالح السعوي', year:'١٤٤٦'},
+  {name:'عمر فهد المحيميد', year:'١٤٤٦'},
+  {name:'أيوب سليمان السويد', year:'١٤٤٦'},
+  {name:'عبدالله عبدالحكيم المحيميد', year:'١٤٤٦'},
+  {name:'باسم عبدالله العيد', year:'١٤٤٦'},
+  {name:'صالح عبدالرحمن الدخيل', year:'١٤٤٦'},
+  {name:'أنس محمد العيد', year:'١٤٤٧'},
 ];
 
 const toAr = n => String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+// تطبيع: تحويل الأرقام الإنجليزية إلى عربية ليشمل البحث النوعين
+const normDigits = s => String(s).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 
 /* ── render cohorts timeline ── */
 (function renderCohorts(){
@@ -562,7 +565,7 @@ const toAr = n => String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
         <div class="tl-node">${c.year}</div>
         <div class="tl-card">
           ${circle}
-          <div class="tc-grad"><i class="fas fa-user-graduate"></i>${c.grad}</div>
+          <div class="tc-grad"><i class="fas fa-chalkboard-user"></i>${c.teacher}</div>
         </div>
       </div>`;
   }).join('');
@@ -590,9 +593,12 @@ function renderHuffaz(list){
 renderHuffaz(HUFFAZ);
 
 document.getElementById('huffazSearch').addEventListener('input', e=>{
-  const q = e.target.value.trim();
-  if(!q){ renderHuffaz(HUFFAZ); return; }
-  const filtered = HUFFAZ.filter(h => h.name.includes(q) || h.year.includes(q));
+  const raw = e.target.value.trim();
+  if(!raw){ renderHuffaz(HUFFAZ); return; }
+  const q = normDigits(raw);
+  const filtered = HUFFAZ.filter(h =>
+    h.name.includes(raw) || normDigits(h.year).includes(q)
+  );
   renderHuffaz(filtered);
 });
 </script>
