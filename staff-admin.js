@@ -819,6 +819,10 @@ async function deleteLearningTerm(id){
 // Phase 4D — إعدادات التقييم التعليمي في صفحة المشرف الإداري
 // =====================================================================
 function buildEduAssessmentSettingsPanel(){
+  if(!D.eduAssessSettings || !Array.isArray(D.eduAssessSettings['حلق_الربط'])){
+    setTimeout(loadEduAssessmentSettingsInline,30);
+    return '<div class="empty" style="padding:30px 10px"><div class="spri" style="margin:0 auto 10px"></div><h3>جارٍ تحميل إعدادات التقييم…</h3></div>';
+  }
   var st=D.eduAssessSettings||{};
   var enabled={};arr(st['حلق_الربط']).forEach(function(x){enabled[x['اسم_الحلقة']]=!!x['مفعل'];});
   var circles=arr(D.setCircles).map(function(c){var n=c['اسم_الحلقة'];return '<label style="display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 10px"><input type="checkbox" class="eduRabtCircle" value="'+q(n)+'" '+(enabled[n]?'checked':'')+'> <span>'+q(n)+'</span></label>';}).join('');
@@ -832,6 +836,16 @@ function buildEduAssessmentSettingsPanel(){
     +'<div><button class="pb sm" onclick="saveEduAssessmentSettings()"><i class="fas fa-floppy-disk"></i> حفظ إعدادات التقييم التعليمي</button></div>'
     +'</div>';
 }
+async function loadEduAssessmentSettingsInline(){
+  var panel=document.getElementById('stEduAssess');
+  try{
+    var r=await api('جلب_اعدادات_التقييم_التعليمي',{});
+    if(r&&r.نجاح){D.eduAssessSettings=r['إعدادات']||{};}
+    if(!D.setCircles||!D.setCircles.length){var c=await api('جلب_الحلق',{});D.setCircles=arr(c.حلق);}
+    if(panel)panel.innerHTML=buildEduAssessmentSettingsPanel();
+  }catch(e){if(panel)panel.innerHTML='<div class="empty"><h3>تعذر تحميل إعدادات التقييم</h3><p>'+q(e.message||e)+'</p></div>';}
+}
+
 async function saveEduAssessmentSettings(){
   var circles=[];document.querySelectorAll('.eduRabtCircle:checked').forEach(function(c){circles.push(c.value);});
   spin(true,'جارٍ حفظ إعدادات التقييم…');

@@ -209,64 +209,66 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 
-// ── تحميل ملف JS الخاص بالدور ──
-var _roleScriptLoaded = false;
-function loadRoleScript(role, callback) {
-  if (_roleScriptLoaded) {
-    if (callback) callback();
-    return;
-  }
-
-  var map = {
-    'معلم': 'staff-teacher.js',
-    'مسمع_تعليمي': 'staff-teacher.js',
-    'مساعد_معلم': 'staff-teacher.js',
-    'مساعد_خارجي': 'staff-teacher.js',
-    'مشرف_تعليمي': 'staff-edu.js',
-    'مشرف_اداري': 'staff-admin.js',
-    'مدير': 'staff-director.js'
-  };
-
-  var src = map[role];
-  if (!src) {
-    console.warn('No script for role:', role);
-    if (callback) callback();
-    return;
-  }
-
-  var s = document.createElement('script');
-  s.src = src + '?v=' + Date.now();
-
-  s.onload = function () {
-    _roleScriptLoaded = true;
-
-    var expected = {
-      'معلم': 'pgTeacherSt',
-      'مسمع_تعليمي': 'pgTeacherSt',
-      'مساعد_معلم': 'pgTeacherSt',
-      'مساعد_خارجي': 'pgTeacherSt',
-      'مشرف_تعليمي': 'pgEduKpi',
-      'مشرف_اداري': 'pgAdminKpi',
-      'مدير': 'pgDirectorKpi'
-    }[role];
-
-    if (expected && typeof window[expected] !== 'function') {
-      console.error('Role script loaded but function missing:', expected);
-      alert('تم تحميل ملف الدور لكن الدالة المطلوبة غير موجودة: ' + expected);
-      return;
-    }
-
-    if (callback) callback();
-  };
-
-  s.onerror = function () {
-    console.error('Failed to load role script:', src);
-    alert('تعذر تحميل ملف الدور: ' + src);
-  };
-
-  document.head.appendChild(s);
+// ── تحميل ملفات JS حسب الصلاحيات وليس الدور فقط ──
+var _loadedRoleScripts = {};
+function _loadOneRoleScript(src){
+  return new Promise(function(resolve,reject){
+    if(!src) return resolve();
+    if(_loadedRoleScripts[src]) return resolve();
+    var s=document.createElement('script');
+    s.src=src+'?v='+Date.now();
+    s.onload=function(){_loadedRoleScripts[src]=true;resolve();};
+    s.onerror=function(){console.error('Failed to load script:',src);reject(new Error('تعذر تحميل ملف: '+src));};
+    document.head.appendChild(s);
+  });
 }
-
+function _uniqueScripts(list){
+  var seen={}, out=[];
+  list.forEach(function(x){if(x&&!seen[x]){seen[x]=true;out.push(x);}});
+  return out;
+}
+function scriptsForUser(role){
+  var map={
+    'معلم':'staff-teacher.js',
+    'مسمع_تعليمي':'staff-teacher.js',
+    'مساعد_معلم':'staff-teacher.js',
+    'مساعد_خارجي':'staff-teacher.js',
+    'مشرف_تعليمي':'staff-edu.js',
+    'مشرف_اداري':'staff-admin.js',
+    'مدير':'staff-director.js'
+  };
+  var list=[map[role]];
+  // هذه الصفحات قد تعطى لأي مستخدم من الصلاحيات، لذلك نحمل ملفاتها حسب الصفحة لا حسب الدور.
+  if(hasPerm('rabt_assessments')||hasPerm('student_tests')||hasPerm('hizb_presentations')||hasPerm('teacher_preparation')||hasPerm('teacher_attendance')||hasPerm('weekly_prep_report')||hasPerm('student_period_report')||hasPerm('student_paths')){
+    list.push('staff-teacher.js');
+  }
+  if(hasPerm('edu_assessment_reports')||hasPerm('edu_weekly_rabt_report')||hasPerm('edu_week_details')){
+    list.push('staff-edu.js');
+  }
+  if(hasPerm('educational_assessment_settings')||hasPerm('users')||hasPerm('settings')){
+    list.push('staff-admin.js');
+  }
+  return _uniqueScripts(list);
+}
+function loadRoleScript(role, callback){
+  var scripts=scriptsForUser(role);
+  if(!scripts.length){ if(callback)callback(); return; }
+  Promise.all(scripts.map(_loadOneRoleScript)).then(function(){
+    var expected={
+      'معلم':'pgTeacherSt',
+      'مسمع_تعليمي':'pgTeacherSt',
+      'مساعد_معلم':'pgTeacherSt',
+      'مساعد_خارجي':'pgTeacherSt',
+      'مشرف_تعليمي':'pgEduKpi',
+      'مشرف_اداري':'pgAdminKpi',
+      'مدير':'pgDirectorKpi'
+    }[role];
+    if(expected && typeof window[expected] !== 'function'){
+      console.warn('Role base function missing:',expected,'role:',role,'scripts:',scripts);
+    }
+    if(callback)callback();
+  }).catch(function(e){alert(e.message||'تعذر تحميل ملفات الصفحة');});
+}
 // ══════════════════════════════════════════════════════
 // الثوابت والحالة
 // ══════════════════════════════════════════════════════
@@ -586,6 +588,20 @@ function _fetchAdminBackground(){
 
 
 // ══ بناء الشريط الجانبي ══
+function commonAssessmentNav(role){
+  var h='';
+  if(!isTeacherLike(role)){
+    if(hasPerm('rabt_assessments')) h+=`<div class="nitem" onclick="nav('tRabt')"><i class="fas fa-link"></i> عرض الربط</div>`;
+    if(hasPerm('student_tests')) h+=`<div class="nitem" onclick="nav('tTests')"><i class="fas fa-clipboard-list"></i> الاختبارات</div>`;
+    if(hasPerm('hizb_presentations')) h+=`<div class="nitem" onclick="nav('tHizb')"><i class="fas fa-book-quran"></i> عرض الحزب</div>`;
+  }
+  if(role!=='مشرف_تعليمي'){
+    if(hasPerm('edu_assessment_reports')) h+=`<div class="nitem" onclick="nav('eAssessmentReport')"><i class="fas fa-chart-line"></i> تقرير التقييم التعليمي</div>`;
+    if(hasPerm('edu_weekly_rabt_report')) h+=`<div class="nitem" onclick="nav('eRabtWeekReport')"><i class="fas fa-table-list"></i> تقرير الربط الأسبوعي</div>`;
+    if(hasPerm('edu_week_details')) h+=`<div class="nitem" onclick="nav('eWeekDetails')"><i class="fas fa-magnifying-glass-chart"></i> تفاصيل أسابيع الربط</div>`;
+  }
+  return h ? '<div class="slabel">التقييم التعليمي</div>'+h : '';
+}
 function buildSidebar(){
   var role=D.role,h='';
   if(isTeacherLike(role)){
@@ -625,6 +641,7 @@ function buildSidebar(){
     h='<div class="slabel">الاطلاع</div>'
      +`<div class="nitem" onclick="nav('dirKpi')"><i class="fas fa-chart-pie"></i> لوحة الإحصاءات</div>`;
   }
+  h += commonAssessmentNav(role);
   document.getElementById('sidebarNav').innerHTML=h||'<div class="slabel">لا توجد صفحات متاحة</div>';
 }
 function navFirst(){
@@ -639,6 +656,12 @@ function navFirst(){
     if(hasPerm('hizb_presentations')) return nav('tHizb');
     if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
   }
+  if(hasPerm('rabt_assessments')) return nav('tRabt');
+  if(hasPerm('student_tests')) return nav('tTests');
+  if(hasPerm('hizb_presentations')) return nav('tHizb');
+  if(hasPerm('edu_assessment_reports')) return nav('eAssessmentReport');
+  if(hasPerm('edu_weekly_rabt_report')) return nav('eRabtWeekReport');
+  if(hasPerm('edu_week_details')) return nav('eWeekDetails');
   var m={مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
   nav(m[D.role]||'aKpi');
 }
