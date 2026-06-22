@@ -9,6 +9,9 @@ function currentWeekNo(){
   return Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
 }
 
+// Helper: تهريب النصوص لاستخدامها بأمان داخل HTML
+function hesc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}
+
 function pgEduKpi(){
   var t=D.eduKpi;
   mc('<div class="stitle"><i class="fas fa-chart-pie"></i> لوحة المشرف التعليمي</div><div class="kpi-grid">'
