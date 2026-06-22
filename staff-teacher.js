@@ -225,7 +225,7 @@ async function saveDailyPrep(){
 async function pgTeacherWeeklyReport(){
   var d=D.weeklyReportDate||todayISO();
   mc('<div class="stitle"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>'
-    +'<div class="cc"><div class="chdr"><h3>تقرير الحضور وإتمام الحفظ</h3><div class="cacts">'
+    +'<div class="cc" style="direction:rtl"><div class="chdr"><h3>الحضور، إتمام الحفظ، والربط الأسبوعي</h3><div class="cacts">'
     +'<input class="fi" id="weeklyReportDate" type="date" value="'+d+'">'
     +'<button class="ob sm" onclick="loadWeeklyPrepReport()"><i class="fas fa-rotate"></i> تحديث</button>'
     +'</div></div><div class="cbody" id="weeklyReportBody"><div class="empty"><div class="spri"></div><h3>جارٍ تجهيز التقرير الأسبوعي…</h3></div></div></div>');
@@ -241,17 +241,33 @@ async function loadWeeklyPrepReport(){
   if(body)body.innerHTML='<div class="empty"><div class="spri"></div><h3>جارٍ تجهيز التقرير الأسبوعي…</h3></div>';
   var r=await api('جلب_تقرير_تحضير_اسبوعي',{الحلقة:teacherCircle(),من:fromISO,إلى:toISO});
   if(!r||!r.نجاح){body.innerHTML='<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>تعذر تحميل التقرير</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';return;}
+  function pct(v){return (v===null||v===undefined||v==='')?'<span class="bp bp-gr">—</span>':'<span class="bp bp-in">'+hesc(v)+'%</span>';}
+  function rabtBadge(x){
+    if(!x||x['الدرجة']===null||x['الدرجة']===undefined||x['الدرجة']==='')return '<span class="bp bp-gr">لا يوجد</span>';
+    return scoreBadge(x['الدرجة'],!!x['مجتاز']);
+  }
   var days=arr(r['الأيام']);
-  var head='<tr><th>الطالب</th>'+days.map(function(d){return '<th style="min-width:115px">'+new Date(d).toLocaleDateString('ar-SA',{weekday:'short',day:'numeric',month:'numeric'})+'</th>';}).join('')+'</tr>';
+  var m=r['ملخص']||{};
+  var summary='<div class="kpi-grid">'
+    +kpiCard('الفترة',hesc((r['الفترة']||{})['اسم_الفترة']||'—'),'fa-calendar-days','')
+    +kpiCard('الأسبوع',r['الأسبوع']||'—','fa-calendar-week','')
+    +kpiCard('الحضور',m['الحضور']||0,'fa-user-check','kpi-ok')
+    +kpiCard('التأخر',m['التأخر']||0,'fa-clock','kpi-wa')
+    +kpiCard('الغياب',m['الغياب']||0,'fa-user-xmark','kpi-er')
+    +kpiCard('نسبة إتمام الحفظ',((m['نسبة_إتمام_الحفظ']||0)+'%'),'fa-percent','kpi-ac')
+    +kpiCard('مختبرو الربط',m['المختبرين_بالربط']||0,'fa-link','')
+    +kpiCard('اجتياز الربط',((m['نسبة_اجتياز_الربط']||0)+'%'),'fa-check-double','kpi-ok')
+    +'</div>';
+  var head='<tr><th style="min-width:190px">الطالب</th>'+days.map(function(x){return '<th style="min-width:120px;text-align:center">'+new Date(x).toLocaleDateString('ar-SA',{weekday:'short',day:'numeric',month:'numeric'})+'</th>';}).join('')+'<th style="min-width:120px">نسبة الإتمام</th><th style="min-width:120px">الربط الأسبوعي</th></tr>';
   var rows=arr(r.طلاب).map(function(s){
     var cells=days.map(function(d){
       var x=(s['الأيام']||{})[d]||{};
       var att=x['الحضور']||'';
-      return '<td><div>'+ (att?attBadge(att):'<span class="bp bp-gr">—</span>') +'</div><div style="margin-top:5px">'+doneBadge(x['اتمام_الحفظ'])+'</div>'+(x['السورة']?'<div style="font-size:11px;color:var(--ts);margin-top:4px">'+hesc(x['السورة'])+' '+hesc(x['رقم_الاية']||'')+'</div>':'')+'</td>';
+      return '<td style="text-align:center"><div>'+ (att?attBadge(att):'<span class="bp bp-gr">—</span>') +'</div><div style="margin-top:5px">'+doneBadge(x['اتمام_الحفظ'])+'</div>'+(x['السورة']?'<div style="font-size:11px;color:var(--ts);margin-top:4px">'+hesc(x['السورة'])+' '+hesc(x['رقم_الاية']||'')+'</div>':'')+'</td>';
     }).join('');
-    return '<tr><td><strong>'+hesc(s['اسم_الطالب']||'')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td>'+cells+'</tr>';
+    return '<tr><td><strong>'+hesc(s['اسم_الطالب']||'')+'</strong><div style="font-size:11px;color:var(--ts)">'+hesc(s['رقم_الطالب']||'')+'</div></td>'+cells+'<td>'+pct(s['نسبة_إتمام_الحفظ'])+'</td><td>'+rabtBadge(s['الربط'])+'</td></tr>';
   }).join('');
-  body.innerHTML='<div class="pgbar" style="margin-bottom:10px"><span>حلقة: '+hesc(r['الحلقة']||teacherCircle()||'—')+' · من '+fromISO+' إلى '+toISO+'</span><div class="pgbtns"><button class="pgbtn" onclick="loadWeeklyPrepReport()"><i class="fas fa-rotate"></i> تحديث</button></div></div><div style="overflow:auto"><table class="dt"><thead>'+head+'</thead><tbody>'+(rows||'<tr><td colspan="'+(days.length+1)+'" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب</td></tr>')+'</tbody></table></div>';
+  body.innerHTML=summary+'<div class="pgbar" style="margin-bottom:10px"><span>حلقة: <strong>'+hesc(r['الحلقة']||teacherCircle()||'—')+'</strong> · من '+fromISO+' إلى '+toISO+' · '+hesc((r['بيانات_الأسبوع']||{})['بداية_الأسبوع']||'')+' إلى '+hesc((r['بيانات_الأسبوع']||{})['نهاية_الأسبوع']||'')+'</span><div class="pgbtns"><button class="pgbtn" onclick="loadWeeklyPrepReport()"><i class="fas fa-rotate"></i> تحديث</button></div></div><div style="overflow:auto;direction:rtl"><table class="dt" style="direction:rtl;text-align:right"><thead>'+head+'</thead><tbody>'+(rows||'<tr><td colspan="'+(days.length+3)+'" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب</td></tr>')+'</tbody></table></div>';
 }
 
 async function pgTeacherStudentPaths(){

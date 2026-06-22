@@ -593,19 +593,59 @@ async function editUser(s){
 async function editUserPerms(s){
   var u=JSON.parse(decodeURIComponent(s)),perms=arr(u['صلاحيات']),map={};perms.forEach(function(p){map[p.page_key]=p;});
   function rowAllChecked(p){return !!(p.can_view&&p.can_create&&p.can_update&&p.can_delete);}
-  var rows=arr(D.appPages).map(function(pg){var p=map[pg.page_key]||{};return '<tr data-page="'+q(pg.page_key)+'"><td><strong>'+q(pg.page_title)+'</strong><div style="font-size:11px;color:var(--ts)">'+q(pg.page_group||'')+'</div></td><td style="text-align:center"><input type="checkbox" class="permAll" data-page="'+q(pg.page_key)+'" '+(rowAllChecked(p)?'checked':'')+' onchange="togglePermRow(this)"></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_view" '+(p.can_view?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\')"></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_create" '+(p.can_create?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\')"></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_update" '+(p.can_update?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\')"></td><td><input type="checkbox" class="permv" data-page="'+q(pg.page_key)+'" data-act="can_delete" '+(p.can_delete?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\')"></td></tr>';}).join('');
-  var res=await Swal.fire({title:'صلاحيات: '+q(u['الاسم']),width:'820px',html:'<div style="direction:rtl;text-align:right;max-height:60vh;overflow:auto"><table class="dt"><thead><tr><th>الصفحة</th><th>الكل</th><th>عرض</th><th>إضافة</th><th>تعديل</th><th>حذف</th></tr></thead><tbody>'+rows+'</tbody></table><div style="font-size:12px;color:var(--ts);margin-top:8px">زر الكل يحدد: عرض + إضافة + تعديل + حذف للصفحة نفسها.</div></div>',confirmButtonText:'حفظ الصلاحيات',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},preConfirm:function(){var out={};document.querySelectorAll('.permv').forEach(function(ch){var pg=ch.dataset.page,act=ch.dataset.act;if(!out[pg])out[pg]={page_key:pg,can_view:false,can_create:false,can_update:false,can_delete:false};out[pg][act]=ch.checked;});return Object.keys(out).map(function(k){return out[k];});}});
+  var groups={};
+  arr(D.appPages).slice().sort(function(a,b){
+    var ga=(a.page_group||'عام'), gb=(b.page_group||'عام');
+    if(ga!==gb)return ga.localeCompare(gb,'ar');
+    return (Number(a.sort_order||0)-Number(b.sort_order||0)) || String(a.page_title||'').localeCompare(String(b.page_title||''),'ar');
+  }).forEach(function(pg){
+    var g=pg.page_group||'عام'; if(!groups[g])groups[g]=[]; groups[g].push(pg);
+  });
+  var html='<div style="direction:rtl;text-align:right;max-height:62vh;overflow:auto;padding-left:4px">'
+    +'<div style="font-size:12px;color:var(--ts);line-height:1.7;background:#fafaf8;border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:10px">'
+    +'رتبت الصلاحيات حسب الأقسام. زر <b>الكل</b> في كل صفحة يحدد: عرض + إضافة + تعديل + حذف، وزر <b>كل القسم</b> يحدد كل صفحات القسم.</div>';
+  Object.keys(groups).forEach(function(g,gi){
+    var rows=groups[g].map(function(pg){
+      var p=map[pg.page_key]||{};
+      return '<tr data-group="'+q(g)+'" data-page="'+q(pg.page_key)+'">'
+        +'<td><strong>'+q(pg.page_title)+'</strong><div style="font-size:11px;color:var(--ts)">'+q(pg.page_key||'')+'</div></td>'
+        +'<td style="text-align:center"><input type="checkbox" class="permAll" data-page="'+q(pg.page_key)+'" '+(rowAllChecked(p)?'checked':'')+' onchange="togglePermRow(this)"></td>'
+        +'<td style="text-align:center"><input type="checkbox" class="permv" data-group="'+q(g)+'" data-page="'+q(pg.page_key)+'" data-act="can_view" '+(p.can_view?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\');syncPermGroup(\''+q(g)+'\')"></td>'
+        +'<td style="text-align:center"><input type="checkbox" class="permv" data-group="'+q(g)+'" data-page="'+q(pg.page_key)+'" data-act="can_create" '+(p.can_create?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\');syncPermGroup(\''+q(g)+'\')"></td>'
+        +'<td style="text-align:center"><input type="checkbox" class="permv" data-group="'+q(g)+'" data-page="'+q(pg.page_key)+'" data-act="can_update" '+(p.can_update?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\');syncPermGroup(\''+q(g)+'\')"></td>'
+        +'<td style="text-align:center"><input type="checkbox" class="permv" data-group="'+q(g)+'" data-page="'+q(pg.page_key)+'" data-act="can_delete" '+(p.can_delete?'checked':'')+' onchange="syncPermRow(\''+q(pg.page_key)+'\');syncPermGroup(\''+q(g)+'\')"></td>'
+        +'</tr>';
+    }).join('');
+    html+='<div class="cc" style="margin-bottom:10px;overflow:hidden"><div class="chdr" style="cursor:pointer" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';">'
+      +'<h3><i class="fas fa-folder-open"></i> '+q(g)+'</h3><div class="cacts"><label class="bp" style="cursor:pointer"><input type="checkbox" class="permGroupAll" data-group="'+q(g)+'" onchange="togglePermGroup(event,this)"> كل القسم</label></div></div>'
+      +'<div class="cbody" style="padding:0;display:'+(gi===0?'block':'block')+'"><table class="dt"><thead><tr><th>الصفحة</th><th>الكل</th><th>عرض</th><th>إضافة</th><th>تعديل</th><th>حذف</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  });
+  html+='</div>';
+  var res=await Swal.fire({title:'صلاحيات: '+q(u['الاسم']),width:'900px',html:html,confirmButtonText:'حفظ الصلاحيات',cancelButtonText:'إلغاء',showCancelButton:true,confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'},didOpen:function(){document.querySelectorAll('.permGroupAll').forEach(function(x){syncPermGroup(x.dataset.group);});},preConfirm:function(){var out={};document.querySelectorAll('.permv').forEach(function(ch){var pg=ch.dataset.page,act=ch.dataset.act;if(!out[pg])out[pg]={page_key:pg,can_view:false,can_create:false,can_update:false,can_delete:false};out[pg][act]=ch.checked;});return Object.keys(out).map(function(k){return out[k];});}});
   if(!res.isConfirmed)return;spin(true,'جارٍ حفظ الصلاحيات…');var r=await api('حفظ_صلاحيات_عامل',{معرف:u['معرف'],صلاحيات:res.value});spin(false);if(!r.نجاح){Swal.fire({icon:'error',title:'تعذر حفظ الصلاحيات',text:r.خطأ||'حدث خطأ',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}await reloadSettings();
 }
 function togglePermRow(cb){
   var pg=cb.dataset.page;
   document.querySelectorAll('.permv[data-page="'+pg+'"]').forEach(function(x){x.checked=cb.checked;});
+  var one=document.querySelector('.permv[data-page="'+pg+'"]'); if(one)syncPermGroup(one.dataset.group);
 }
 function syncPermRow(pg){
   var all=true;
   document.querySelectorAll('.permv[data-page="'+pg+'"]').forEach(function(x){if(!x.checked)all=false;});
   var a=document.querySelector('.permAll[data-page="'+pg+'"]');
   if(a)a.checked=all;
+}
+function togglePermGroup(ev,cb){
+  if(ev)ev.stopPropagation();
+  var g=cb.dataset.group;
+  document.querySelectorAll('.permv[data-group="'+g+'"]').forEach(function(x){x.checked=cb.checked;});
+  document.querySelectorAll('tr[data-group="'+g+'"]').forEach(function(tr){syncPermRow(tr.dataset.page);});
+}
+function syncPermGroup(g){
+  var all=true, any=false;
+  document.querySelectorAll('.permv[data-group="'+g+'"]').forEach(function(x){any=true;if(!x.checked)all=false;});
+  var cb=document.querySelector('.permGroupAll[data-group="'+g+'"]');
+  if(cb){cb.checked=!!(any&&all);}
 }
 
 async function deactUser(name){var r=await Swal.fire({title:'تعطيل حساب؟',text:name,showCancelButton:true,confirmButtonColor:'#c0392b',confirmButtonText:'تعطيل',cancelButtonText:'إلغاء',customClass:{popup:'swal-rtl'}});if(!r.isConfirmed)return;spin(true);await api('حذف_عامل',{الاسم:name});spin(false);await reloadSettings();}
