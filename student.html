@@ -354,6 +354,52 @@ body::before {
   .student-card-header { flex-wrap: wrap; }
   .student-status-chip { margin-right: 0; margin-top: 6px; }
 }
+
+
+/* ── أرشيف الفصول والبرامج ── */
+.archive-wrap { display: grid; gap: 18px; }
+.archive-note {
+  display:flex; gap:10px; align-items:flex-start;
+  background:#fff8e6; border:1px solid #f0d080; color:#6f520e;
+  border-radius:12px; padding:12px 14px; font-size:13px; line-height:1.7;
+}
+.archive-term-card {
+  border:1px solid var(--border); border-radius:16px; background:#fff;
+  overflow:hidden; box-shadow:0 3px 18px rgba(26,60,94,.07);
+}
+.archive-term-head {
+  display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  padding:18px 20px; background:linear-gradient(135deg,#f9f7f0,#fff);
+  border-bottom:1px solid var(--border);
+}
+.archive-term-head h3 { font-size:17px; font-weight:800; color:var(--primary); margin:0 0 5px; }
+.archive-term-head p { margin:0; font-size:12.5px; color:var(--text-muted); }
+.archive-badges { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; }
+.archive-status { display:inline-flex; align-items:center; gap:5px; border-radius:999px; padding:5px 10px; font-size:11.5px; font-weight:700; }
+.archive-status.active { background:#eafaf1; color:#1e7e4a; border:1px solid #a9dfbf; }
+.archive-status.archived { background:#eef3ff; color:#2563a8; border:1px solid #b8cff5; }
+.archive-status.live { background:#fff8e6; color:#b7860b; border:1px solid #f5d78e; }
+.archive-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:10px; padding:16px 20px; }
+.archive-kpi { border:1px solid #eee6d2; background:#fafaf8; border-radius:12px; padding:12px; display:grid; gap:5px; }
+.archive-kpi i { color:var(--primary-light); }
+.archive-kpi span { color:var(--text-muted); font-size:11.5px; font-weight:600; }
+.archive-kpi strong { color:var(--primary); font-size:20px; font-weight:900; line-height:1; }
+.archive-sections { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; padding:0 20px 18px; }
+.archive-box { border:1px solid var(--border); border-radius:14px; padding:14px; background:#fff; }
+.archive-box h4, .archive-week-wrap h4 { font-size:13.5px; font-weight:800; color:var(--primary); margin:0 0 12px; display:flex; align-items:center; gap:7px; }
+.archive-line { display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px dashed #eee6d2; font-size:12.5px; }
+.archive-line:last-child { border-bottom:none; }
+.archive-line span { color:var(--text-muted); }
+.archive-line strong { color:var(--text-main); text-align:left; }
+.archive-week-wrap { padding:0 20px 20px; }
+.archive-week-table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
+.archive-week-table { width:100%; border-collapse:collapse; min-width:820px; font-size:12.5px; direction:rtl; }
+.archive-week-table th { background:#f4f2ec; color:var(--primary); padding:10px; text-align:right; white-space:nowrap; }
+.archive-week-table td { border-top:1px solid #eee6d2; padding:10px; vertical-align:top; }
+.archive-pass, .archive-fail, .arch-muted { display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:3px 8px; font-size:11px; font-weight:700; margin-top:3px; }
+.archive-pass { background:#eafaf1; color:#1e7e4a; }
+.archive-fail { background:#fdf0ef; color:#c0392b; }
+.arch-muted { background:#f4f2ec; color:#5a6a7a; }
 </style>
 </head>
 <body>
@@ -572,6 +618,9 @@ function renderStudentCard(ط) {
         <button class="tab-btn" onclick="switchTab(this,'tabWarnings')">
           <i class="fas fa-triangle-exclamation"></i> الإنذارات
         </button>
+        <button class="tab-btn" onclick="switchTab(this,'tabArchive')">
+          <i class="fas fa-box-archive"></i> أرشيف الفصول والبرامج
+        </button>
       </div>
 
       <!-- تبويب 1: البيانات الأساسية -->
@@ -614,10 +663,21 @@ function renderStudentCard(ط) {
           </div>
         </div>
       </div>
+
+      <!-- تبويب 4: أرشيف الفصول والبرامج -->
+      <div class="tab-content" id="tabArchive">
+        <div id="archiveContent">
+          <div class="empty-state" style="padding:32px 20px">
+            <i class="fas fa-box-archive" style="font-size:36px;opacity:.3"></i>
+            <p style="margin-top:12px">جارٍ تحميل أرشيف الفصول والبرامج…</p>
+          </div>
+        </div>
+      </div>
     </div>`;
 
-  // تحميل الإنذارات لاحقاً
+  // تحميل الإنذارات والأرشيف لاحقاً
   loadWarnings(ط['رقم_الطالب'], ط['اسم_الطالب']);
+  loadStudentArchive(ط['رقم_الطالب']);
 }
 
 function buildField(key, ط, label, icon, editable, type='text') {
@@ -881,6 +941,167 @@ async function sendEditRequest(key, label, oldVal, newVal, isEmpty) {
       confirmButtonColor: '#1a3c5e'
     });
   }
+}
+
+
+// ── أرشيف الفصول والبرامج ─────────────────────────────
+function escHtml(v) {
+  return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+
+function pctVal(v) {
+  const n = Number(v || 0);
+  if (!isFinite(n)) return '0%';
+  return n.toFixed(n % 1 ? 1 : 0) + '%';
+}
+
+function badgeResult(isPassed) {
+  if (isPassed === true) return '<span class="arch-pass"><i class="fas fa-check"></i> مجتاز</span>';
+  if (isPassed === false) return '<span class="arch-fail"><i class="fas fa-xmark"></i> راسب</span>';
+  return '<span class="arch-muted">—</span>';
+}
+
+async function loadStudentArchive(studentCode) {
+  const el = document.getElementById('archiveContent');
+  if (!el || !studentCode) return;
+
+  try {
+    const res = await callAPI('جلب_ارشيف_الطالب_للبوابة', { رقم_الطالب: studentCode });
+    if (!res || !res.نجاح) throw new Error(res && res.خطأ ? res.خطأ : 'تعذر تحميل الأرشيف');
+    renderStudentArchive(res.فترات || []);
+  } catch (e) {
+    el.innerHTML = `<div class="empty-state" style="padding:32px 20px">
+      <i class="fas fa-circle-exclamation" style="font-size:36px;color:var(--danger);opacity:.65"></i>
+      <h3 style="margin-top:12px;color:var(--danger)">تعذّر تحميل الأرشيف</h3>
+      <p>${escHtml(e.message || 'حدث خطأ غير متوقع')}</p>
+    </div>`;
+  }
+}
+
+function renderStudentArchive(terms) {
+  const el = document.getElementById('archiveContent');
+  if (!el) return;
+
+  if (!terms.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:36px 20px">
+      <i class="fas fa-box-open" style="font-size:40px;opacity:.32"></i>
+      <h3 style="margin-top:12px">لا يوجد أرشيف حتى الآن</h3>
+      <p>سيظهر هنا ملخص الفصول والبرامج بعد تسجيل التحضير أو أرشفة الفترة.</p>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="archive-wrap">
+    <div class="archive-note">
+      <i class="fas fa-circle-info"></i>
+      <div>يعرض هذا التبويب ملخص الفترة النشطة والفترات المؤرشفة للطالب، ويشمل الحضور والحفظ والربط والاختبارات وعرض الحزب.</div>
+    </div>
+    ${terms.map(renderArchiveTerm).join('')}
+  </div>`;
+}
+
+function renderArchiveTerm(t) {
+  const prep = t['التحضير'] || {};
+  const mem  = t['الحفظ'] || {};
+  const rabt = t['الربط'] || {};
+  const tests = t['الاختبارات'] || {};
+  const hizb = t['عرض_الحزب'] || {};
+  const weeks = t['الأسابيع'] || [];
+  const isActive = !!t['نشطة'];
+  const isArchived = !!t['مؤرشفة'];
+
+  return `<section class="archive-term-card">
+    <div class="archive-term-head">
+      <div>
+        <h3>${escHtml(t['اسم_الفترة'] || 'فترة غير مسماة')}</h3>
+        <p>${escHtml(t['نوع_الفترة'] || '—')} · من ${formatDate(t['تاريخ_البداية'])} إلى ${formatDate(t['تاريخ_النهاية'])}</p>
+      </div>
+      <div class="archive-badges">
+        ${isActive ? '<span class="archive-status active"><i class="fas fa-bolt"></i> نشطة</span>' : ''}
+        ${isArchived ? '<span class="archive-status archived"><i class="fas fa-lock"></i> مؤرشفة</span>' : '<span class="archive-status live"><i class="fas fa-clock"></i> مباشر</span>'}
+      </div>
+    </div>
+
+    <div class="archive-kpis">
+      ${archiveKpi('أيام التحضير', prep['إجمالي_الأيام'], 'fa-calendar-check')}
+      ${archiveKpi('حضور', prep['حاضر'], 'fa-user-check')}
+      ${archiveKpi('تأخر', prep['متأخر'], 'fa-user-clock')}
+      ${archiveKpi('غياب', prep['غائب'], 'fa-calendar-xmark')}
+      ${archiveKpi('إتمام الحفظ', pctVal(mem['نسبة_الإتمام']), 'fa-book-open')}
+      ${archiveKpi('نسبة الحضور', pctVal(prep['نسبة_الحضور']), 'fa-chart-pie')}
+    </div>
+
+    <div class="archive-sections">
+      <div class="archive-box">
+        <h4><i class="fas fa-book-quran"></i> الحفظ والمسار</h4>
+        <div class="archive-line"><span>المسار</span><strong>${escHtml(t['المسار'] || '—')}</strong></div>
+        <div class="archive-line"><span>أتم</span><strong>${mem['أتم'] || 0}</strong></div>
+        <div class="archive-line"><span>لم يتم</span><strong>${mem['لم_يتم'] || 0}</strong></div>
+        <div class="archive-line"><span>آخر محفوظ</span><strong>${escHtml(mem['آخر_سورة'] || '—')}${mem['آخر_آية'] && mem['آخر_آية'] !== '—' ? ' - آية ' + escHtml(mem['آخر_آية']) : ''}</strong></div>
+      </div>
+
+      <div class="archive-box">
+        <h4><i class="fas fa-link"></i> الربط</h4>
+        <div class="archive-line"><span>إجمالي العروض</span><strong>${rabt['إجمالي'] || 0}</strong></div>
+        <div class="archive-line"><span>مجتاز</span><strong>${rabt['مجتاز'] || 0}</strong></div>
+        <div class="archive-line"><span>راسب</span><strong>${rabt['راسب'] || 0}</strong></div>
+        <div class="archive-line"><span>نسبة الاجتياز</span><strong>${pctVal(rabt['نسبة_الاجتياز'])}</strong></div>
+      </div>
+
+      <div class="archive-box">
+        <h4><i class="fas fa-clipboard-list"></i> الاختبارات</h4>
+        <div class="archive-line"><span>إجمالي</span><strong>${tests['إجمالي'] || 0}</strong></div>
+        <div class="archive-line"><span>مجتاز</span><strong>${tests['مجتاز'] || 0}</strong></div>
+        <div class="archive-line"><span>راسب</span><strong>${tests['راسب'] || 0}</strong></div>
+        <div class="archive-line"><span>متوسط الدرجة</span><strong>${tests['متوسط_الدرجة'] || 0}</strong></div>
+      </div>
+
+      <div class="archive-box">
+        <h4><i class="fas fa-layer-group"></i> عرض الحزب</h4>
+        <div class="archive-line"><span>عدد العروض</span><strong>${hizb['إجمالي'] || 0}</strong></div>
+        <div class="archive-line"><span>آخر حزب</span><strong>${hizb['آخر_حزب'] || 0}</strong></div>
+        <div class="archive-line"><span>متوسط الدرجة</span><strong>${hizb['متوسط_الدرجة'] || 0}</strong></div>
+      </div>
+    </div>
+
+    ${renderArchiveWeeks(weeks)}
+  </section>`;
+}
+
+function archiveKpi(label, value, icon) {
+  return `<div class="archive-kpi">
+    <i class="fas ${icon}"></i>
+    <span>${label}</span>
+    <strong>${value ?? 0}</strong>
+  </div>`;
+}
+
+function renderArchiveWeeks(weeks) {
+  if (!weeks || !weeks.length) return '';
+  return `<div class="archive-week-wrap">
+    <h4><i class="fas fa-calendar-week"></i> تفاصيل الأسابيع</h4>
+    <div class="archive-week-table-wrap">
+      <table class="archive-week-table">
+        <thead><tr>
+          <th>الأسبوع</th><th>الفترة</th><th>الحضور</th><th>الحفظ</th><th>الربط</th><th>الاختبارات</th><th>عرض الحزب</th>
+        </tr></thead>
+        <tbody>
+          ${weeks.map(w => {
+            const prep = w['تحضير'] || {}, mem = w['الحفظ'] || {}, rabt = w['الربط'] || {}, tests = w['الاختبارات'] || {}, hizb = w['عرض_الحزب'] || {};
+            return `<tr>
+              <td><strong>الأسبوع ${w['رقم_الأسبوع']}</strong></td>
+              <td>${formatDate(w['من'])} - ${formatDate(w['إلى'])}</td>
+              <td>حضور ${prep['حاضر'] || 0} · تأخر ${prep['متأخر'] || 0} · غياب ${prep['غائب'] || 0}</td>
+              <td>${pctVal(mem['نسبة_الإتمام'])}<br><small>${escHtml(mem['آخر_محفوظ'] || '—')}</small></td>
+              <td>${rabt['الدرجة'] ?? '—'} / 10<br>${badgeResult(rabt['مجتاز'])}</td>
+              <td>${tests['العدد'] || 0} اختبار · متوسط ${tests['متوسط'] || 0}</td>
+              <td>${hizb['العدد'] || 0} عرض · آخر حزب ${hizb['آخر_حزب'] || 0}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
 }
 
 
