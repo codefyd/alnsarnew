@@ -24,10 +24,51 @@
 
   window.alnsarSupabase = sb;
 
+  function isStudentPortalWarningsAction(action) {
+    return action === 'جلب_انذارات_الطالب_للبوابة' || action === 'جلب_إنذارات_الطالب_للبوابة';
+  }
+
   async function callSupabaseAction(action, data) {
+    data = data || {};
+
+    // Phase 5B: تبويب إنذارات الطالب في البوابة العامة.
+    // نستخدم RPC مباشر حتى لا يتعطل الجلب إذا كانت نسخة app_api القديمة لا تعرف الإجراء الجديد.
+    if (isStudentPortalWarningsAction(action)) {
+      const studentKey = data['رقم_الطالب'] || data.student_code || data['بحث'] || data.search || '';
+      const { data: directResult, error: directError } = await sb.rpc('student_portal_warnings', {
+        p_student_key: studentKey,
+      });
+
+      if (!directError) {
+        return directResult || { نجاح: true };
+      }
+
+      console.warn('student_portal_warnings RPC error:', directError);
+
+      // محاولة احتياطية عبر app_api إذا كان ملف SQL الجديد ربط الإجراء داخله.
+      const { data: fallbackResult, error: fallbackError } = await sb.rpc('app_api', {
+        p_action: action,
+        p_data: data,
+      });
+
+      if (fallbackError) {
+        console.error('Supabase RPC error:', fallbackError);
+        return { نجاح: false, خطأ: fallbackError.message || 'خطأ في الاتصال بقاعدة البيانات' };
+      }
+
+      if (fallbackResult && fallbackResult.نجاح === false && String(fallbackResult.خطأ || '').includes('إجراء غير معروف')) {
+        return {
+          نجاح: false,
+          خطأ: 'إجراء الإنذارات غير مفعل في Supabase. نفّذ ملف SQL الخاص بمرحلة Phase 5B ثم أعد المحاولة.'
+        };
+      }
+
+      return fallbackResult || { نجاح: true };
+    }
+
     const { data: result, error } = await sb.rpc('app_api', {
       p_action: action,
-      p_data: data || {},
+      p_data: data,
     });
 
     if (error) {
