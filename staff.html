@@ -28,6 +28,7 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 .lcard p{font-size:13px;color:var(--ts);margin-bottom:28px;}
 .linput{width:100%;border:2px solid var(--bd);border-radius:12px;padding:14px 18px;font-family:'Tajawal',sans-serif;font-size:18px;text-align:center;letter-spacing:6px;color:var(--p);font-weight:700;margin-bottom:16px;transition:border-color .2s;}
 .linput:focus{outline:none;border-color:var(--pl);}
+.linput-text{text-align:right;letter-spacing:normal;font-size:15px;font-weight:500;}
 .lbtn{width:100%;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:12px;padding:14px;font-family:'Tajawal',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .lbtn:disabled{opacity:.7;cursor:not-allowed;}
 .lerr{color:var(--er);font-size:13px;margin-top:8px;display:none;}
@@ -172,10 +173,11 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
   <div class="lcard">
     <div class="llogo"><i class="fas fa-book-open-reader"></i></div>
     <h2>بوابة العاملين</h2>
-    <p>مجمع حلق جامع النصار<br>أدخل رمز الدخول الخاص بك</p>
-    <input class="linput" type="password" id="loginCode" placeholder="● ● ● ●" maxlength="50" onkeydown="if(event.key==='Enter')doLogin()">
+    <p>مجمع حلق جامع النصار<br>سجّل الدخول بالبريد وكلمة المرور</p>
+    <input class="linput linput-text" type="email" id="loginEmail" placeholder="البريد الإلكتروني" autocomplete="username" maxlength="120" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+    <input class="linput linput-text" type="password" id="loginPassword" placeholder="كلمة المرور" autocomplete="current-password" maxlength="120" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="lbtn" id="loginBtn" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> دخول</button>
-    <div class="lerr" id="loginErr"><i class="fas fa-circle-xmark me-1"></i>رمز الدخول غير صحيح</div>
+    <div class="lerr" id="loginErr"><i class="fas fa-circle-xmark me-1"></i>بيانات الدخول غير صحيحة</div>
     <div class="llinks">
       <a href="index.html"><i class="fas fa-home fa-xs"></i> الرئيسية</a>
       <a href="register.html"><i class="fas fa-user-plus fa-xs"></i> تسجيل طالب</a>
@@ -227,47 +229,34 @@ function _uniqueScripts(list){
   list.forEach(function(x){if(x&&!seen[x]){seen[x]=true;out.push(x);}});
   return out;
 }
-function scriptsForUser(role){
-  var map={
-    'معلم':'staff-teacher.js',
-    'مسمع_تعليمي':'staff-teacher.js',
-    'مساعد_معلم':'staff-teacher.js',
-    'مساعد_خارجي':'staff-teacher.js',
-    'مشرف_تعليمي':'staff-edu.js',
-    'مشرف_اداري':'staff-admin.js',
-    'مدير':'staff-director.js'
-  };
-  var list=[map[role]];
-  // هذه الصفحات قد تعطى لأي مستخدم من الصلاحيات، لذلك نحمل ملفاتها حسب الصفحة لا حسب الدور.
-  if(hasPerm('teacher_reports')||hasPerm('rabt_assessments')||hasPerm('student_tests')||hasPerm('hizb_presentations')||hasPerm('teacher_preparation')||hasPerm('teacher_attendance')||hasPerm('weekly_prep_report')||hasPerm('student_period_report')||hasPerm('student_paths')){
-    list.push('staff-teacher.js');
-  }
-  if(hasPerm('edu_assessment_reports')||hasPerm('edu_weekly_rabt_report')||hasPerm('edu_week_details')){
-    list.push('staff-edu.js');
-  }
-  if(hasPerm('administrative_reports')||hasPerm('educational_assessment_settings')||hasPerm('users')||hasPerm('settings')||hasPerm('students')||hasPerm('registration_requests')||hasPerm('edit_requests')||hasPerm('educational_warnings')||hasPerm('administrative_warnings')||hasPerm('learning_terms')||hasPerm('thresholds')||hasPerm('templates')){
-    list.push('staff-admin.js');
-  }
-  return _uniqueScripts(list);
-}
-function loadRoleScript(role, callback){
-  var scripts=scriptsForUser(role);
-  if(!scripts.length){ if(callback)callback(); return; }
+// ══════════════════════════════════════════════════════
+// تحميل وحدات الواجهة — الحاكم هو الصلاحيات لا الوظيفة
+// ──────────────────────────────────────────────────────
+// قائمة الصفحات والصلاحيات والوحدات معرّفة في مصدر واحد:
+// PAGE_ITEMS قرب نهاية الملف، الذي يعرّف window.scriptsForUser.
+// هنا فقط نحمّل الملفات الناتجة. لإضافة صفحة/صلاحية جديدة عدّل
+// PAGE_ITEMS فقط.
+// ══════════════════════════════════════════════════════
+var MODULE_BASE = {
+  'staff-teacher.js':'pgTeacherSt',
+  'staff-edu.js':'pgEduKpi',
+  'staff-admin.js':'pgAdminKpi',
+  'staff-director.js':'pgDirectorKpi'
+};
+
+function loadRoleScript(_ignoredRole, callback){
+  var scripts = (typeof window.scriptsForUser === 'function') ? window.scriptsForUser() : [];
+  if(!scripts.length){ if(callback) callback(); return; }
   Promise.all(scripts.map(_loadOneRoleScript)).then(function(){
-    var expected={
-      'معلم':'pgTeacherSt',
-      'مسمع_تعليمي':'pgTeacherSt',
-      'مساعد_معلم':'pgTeacherSt',
-      'مساعد_خارجي':'pgTeacherSt',
-      'مشرف_تعليمي':'pgEduKpi',
-      'مشرف_اداري':'pgAdminKpi',
-      'مدير':'pgDirectorKpi'
-    }[role];
-    if(expected && typeof window[expected] !== 'function'){
-      console.warn('Role base function missing:',expected,'role:',role,'scripts:',scripts);
-    }
-    if(callback)callback();
-  }).catch(function(e){alert(e.message||'تعذر تحميل ملفات الصفحة');});
+    // تحقّق أن كل وحدة محمّلة صدّرت دالتها الأساسية
+    scripts.forEach(function(mod){
+      var base = MODULE_BASE[mod];
+      if(base && typeof window[base] !== 'function'){
+        console.warn('Module base function missing:', base, 'module:', mod);
+      }
+    });
+    if(callback) callback();
+  }).catch(function(e){ alert(e.message||'تعذر تحميل ملفات الصفحة'); });
 }
 // ══════════════════════════════════════════════════════
 // الثوابت والحالة
@@ -357,7 +346,9 @@ function toggleSidebar(){document.getElementById('sidebarNav').classList.toggle(
 function closeSidebar(){document.getElementById('sidebarNav').classList.remove('open');document.getElementById('sOverlay').classList.remove('show');}
 
 // ══════════════════════════════════════════════════════
-// PREFETCH — طلب واحد لكل شيء
+// PREFETCH — [مهجور / DEPRECATED] غير مستدعى.
+// المسار الحالي يستخدم 'جلب_بيانات_التهيئة' أعلاه (محكوم بالصلاحيات).
+// أُبقي عليه للمرجع فقط؛ منطقه محكوم بالوظيفة (قديم) — لا تعتمد عليه.
 // ══════════════════════════════════════════════════════
 async function prefetch(){
   var role=D.role, حلقة=D.user['الحلقة']||'';
@@ -443,91 +434,18 @@ async function prefetch(){
 }
 
 // ══════════════════════════════════════════════════════
-// LOGIN — جلب البيانات أولاً ثم عرض الصفحة
+// LOGIN — [مهجور] الدخول الفعلي يتولاه supabase-adapter.js عبر
+// signInWithPassword ثم completeStaffLogin (بريد + كلمة مرور).
+// هذه نسخة احتياطية: إن نُفّذت (مثلاً لم يُحمّل الـ adapter) تُنبّه فقط
+// ولا تعتمد على حقول النظام القديم المحذوفة (loginCode/رمز_الدخول).
 // ══════════════════════════════════════════════════════
 async function doLogin(){
-  var code=document.getElementById('loginCode').value.trim();
-  if(!code)return;
-  var btn=document.getElementById('loginBtn');
-  btn.disabled=true; btn.innerHTML='<span class="spin-sm"></span> جارٍ التحقق…';
-  try{
-    var r=await api('تحقق_رمز_دخول',{رمز_الدخول:code});
-    if(!r.نجاح){
-      document.getElementById('loginErr').style.display='block';
-      setTimeout(function(){document.getElementById('loginErr').style.display='none';},3000);
-      return;
-    }
-    D.user=r.عامل; D.role=D.user['الوظيفة']||'';
-    console.log('LOGIN ROLE =', D.role, D.user);
-    D.sessionToken = r.token || '';
-try { localStorage.setItem('alnsar_staff_token', D.sessionToken); } catch(e) {}
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('appHeader').style.display='block';
-    document.getElementById('appScreen').style.display='block';
-    document.getElementById('hName').textContent=D.user['الاسم']||'—';
-    document.getElementById('hRole').textContent=roleLabel(D.role);
-    buildSidebar();
-    spin(true,'جارٍ تجهيز البيانات…');
-
-var init = await api('جلب_بيانات_التهيئة', {
-  الوظيفة: D.role,
-  الحلقة: D.user['الحلقة'] || ''
-});
-
-spin(false);
-
-if (!init || !init.نجاح) {
-  throw new Error((init && init.خطأ) || 'فشل تحميل التهيئة');
-}
-
-if (isTeacherLike(D.role)) {
-  D.teacherStudents = init.طلاب || [];
-  D.teacherKpi = init.تقارير || {};
-}
-else if (D.role === 'مشرف_تعليمي') {
-  D.eduKpi = init.تقارير || {};
-  D.eduWarnings = init.انذارات_تعليمية || [];
-  D.eduStudents = init.طلاب || [];
-  D.eduStudentMap = {};
-  D.eduStudents.forEach(function(s){ D.eduStudentMap[s['اسم_الطالب']] = s; });
-  D.circles = init.حلق || [];
-  D.eduReasons = init.أسباب_تعليمية || [];
-D.eduProcs = init.اجراءات_تعليمية || [];
-}
-else if (D.role === 'مشرف_اداري') {
-  D.students = init.طلاب || [];
-  D.studentsTotal = init.طلاب_مجموع || 0;
-  D.studentsPages = init.طلاب_صفحات || 1;
-  D.circles = init.حلق || [];
-  D.statuses = init.حالات || [];
-  D.reqNew = init.طلبات_جديدة || [];
-  D.reqWait = init.طلبات_انتظار || [];
-  D.reqEdits = init.طلبات_تعديل || [];
-  D.adminEduW = init.انذارات_تعليمية || [];
-  D.adminAdmW = init.انذارات_ادارية_ارشيف || [];
-  D.templates = init.قوالب || [];
-  D.thresholds = init.عتبات || [];
-  D.procedures = init.اجراءات || [];
-  D.eduReasons = init.أسباب_تعليمية || [];
-  D.setUsers = init.عاملون || [];
-  D.appPages = init.صفحات || [];
-  D.kpi = init.kpi || {};
-}
-else if (D.role === 'مدير') {
-  D.dirData = {
-    admin: init.admin_kpi || {},
-    edu: init.edu_kpi || {},
-    circles: init.حلق || [],
-    users: init.عاملون || []
-  };
-}
-    // تحميل ملف JS الخاص بالدور
-    loadRoleScript(D.role, function() {
-      navFirst();
-      updateReqBadge(); updateEduBadge();
-    });
-  }catch(e){ spin(false); alert('خطأ في الاتصال: '+e.message); }
-  finally{btn.disabled=false; btn.innerHTML='<i class="fas fa-right-to-bracket"></i> دخول';}
+  var err = document.getElementById('loginErr');
+  if(err){
+    err.textContent = 'تعذّر تحميل نظام الدخول. حدّث الصفحة وحاول مجدداً.';
+    err.style.display = 'block';
+  }
+  console.error('Supabase adapter not loaded: doLogin fallback invoked.');
 }
 function doLogout(){
   try { localStorage.removeItem('alnsar_staff_token'); } catch(e) {}
@@ -587,63 +505,13 @@ function _fetchAdminBackground(){
 }
 
 
-// ══ بناء الشريط الجانبي ══
-function buildSidebar(){
-  var role=D.role,h='';
-  if(isTeacherLike(role)){
-    h='<div class="slabel">القائمة</div>';
-    if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
-    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
-    if(hasPerm('weekly_prep_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tWeeklyReport')"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>`;
-    if(hasPerm('student_period_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tStudentReport')"><i class="fas fa-chart-column"></i> تقرير الطلاب</div>`;
-    if(hasPerm('student_paths')) h+=`<div class="nitem" onclick="nav('tPaths')"><i class="fas fa-route"></i> مسارات الطلاب</div>`;
-    if(hasPerm('rabt_assessments')) h+=`<div class="nitem" onclick="nav('tRabt')"><i class="fas fa-link"></i> عرض الربط</div>`;
-    if(hasPerm('student_tests')) h+=`<div class="nitem" onclick="nav('tTests')"><i class="fas fa-clipboard-list"></i> الاختبارات</div>`;
-    if(hasPerm('hizb_presentations')) h+=`<div class="nitem" onclick="nav('tHizb')"><i class="fas fa-book-quran"></i> عرض الحزب</div>`;
-    if(hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`;
-  } else if(role==='مشرف_تعليمي'){
-    h='<div class="slabel">القائمة</div>'
-     +`<div class="nitem" onclick="nav('eKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`
-     +`<div class="nitem" onclick="nav('eSupervision')"><i class="fas fa-user-graduate"></i> الإشراف التعليمي</div>`
-     +`<div class="nitem" onclick="nav('eW')"><i class="fas fa-triangle-exclamation"></i> الإنذارات <span class="nbadge" id="nbEdu"></span></div>`
-     +`<div class="nitem" onclick="nav('eSt')"><i class="fas fa-users"></i> الحلق والطلاب</div>`;
-    if(hasPerm('edu_assessment_reports')||D.role==='مشرف_تعليمي') h+=`<div class="nitem" onclick="nav('eAssessmentReport')"><i class="fas fa-chart-line"></i> تقرير التقييم التعليمي</div>`;
-    if(hasPerm('edu_weekly_rabt_report')||D.role==='مشرف_تعليمي') h+=`<div class="nitem" onclick="nav('eRabtWeekReport')"><i class="fas fa-table-list"></i> تقرير الربط الأسبوعي</div>`;
-    if(hasPerm('edu_week_details')||D.role==='مشرف_تعليمي') h+=`<div class="nitem" onclick="nav('eWeekDetails')"><i class="fas fa-magnifying-glass-chart"></i> تفاصيل أسابيع الربط</div>`;
-  } else if(role==='مشرف_اداري'){
-    var cnt=arr(D.reqNew).length+arr(D.reqEdits).length;
-    h='<div class="slabel">الإدارة</div>'
-     +`<div class="nitem" onclick="nav('aKpi')"><i class="fas fa-chart-pie"></i> لوحة التقارير</div>`
-     +`<div class="nitem" onclick="nav('aSt')"><i class="fas fa-users"></i> إدارة الطلاب</div>`
-     +`<div class="nitem" onclick="nav('aReq')"><i class="fas fa-inbox"></i> الطلبات <span class="nbadge" id="nbReq">${cnt||''}</span></div>`
-     +'<div class="slabel">الإنذارات</div>'
-     +`<div class="nitem" onclick="nav('aEduW')"><i class="fas fa-book-open"></i> الإنذارات التعليمية</div>`
-     +`<div class="nitem" onclick="nav('aAdmW')"><i class="fas fa-user-clock"></i> الإنذارات الإدارية</div>`
-     +`<div class="nitem" onclick="nav('aAllW')"><i class="fas fa-list-check"></i> جميع الإنذارات</div>`
-     +'<div class="slabel">الإعدادات</div>'
-     +`<div class="nitem" onclick="nav('aTerms')"><i class="fas fa-calendar-days"></i> الفصول والبرامج</div>`
-     +`<div class="nitem" onclick="nav('settings')"><i class="fas fa-gear"></i> الإعدادات</div>`;
-  } else if(role==='مدير'){
-    h='<div class="slabel">الاطلاع</div>'
-     +`<div class="nitem" onclick="nav('dirKpi')"><i class="fas fa-chart-pie"></i> لوحة الإحصاءات</div>`;
-  }
-  document.getElementById('sidebarNav').innerHTML=h||'<div class="slabel">لا توجد صفحات متاحة</div>';
-}
-function navFirst(){
-  if(isTeacherLike(D.role)){
-    if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
-    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) return nav('tPreparation');
-    if(hasPerm('weekly_prep_report')||hasPerm('reports')||D.role==='معلم') return nav('tWeeklyReport');
-    if(hasPerm('student_period_report')||hasPerm('reports')||D.role==='معلم') return nav('tStudentReport');
-    if(hasPerm('student_paths')) return nav('tPaths');
-    if(hasPerm('rabt_assessments')) return nav('tRabt');
-    if(hasPerm('student_tests')) return nav('tTests');
-    if(hasPerm('hizb_presentations')) return nav('tHizb');
-    if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
-  }
-  var m={مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
-  nav(m[D.role]||'aKpi');
-}
+// ══════════════════════════════════════════════════════
+// التنقّل وبناء السايدبار وحارس الصلاحيات:
+// كلها معرّفة في طبقة PAGE_ITEMS الموحّدة قرب نهاية الملف
+// (window.buildSidebar / window.navFirst / window.scriptsForUser
+//  + حارس nav). هي مصدر الحقيقة الوحيد المحكوم بالصلاحيات.
+// لا تُعرّف نسخاً موازية هنا.
+// ══════════════════════════════════════════════════════
   
 function nav(page){
   closeSidebar();
