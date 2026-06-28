@@ -216,7 +216,6 @@
     if (hName) hName.textContent = window.D.user['الاسم'] || '—';
     if (hRole) hRole.textContent = typeof window.roleLabel === 'function' ? window.roleLabel(window.D.role) : window.D.role;
 
-    if (typeof window.buildSidebar === 'function') window.buildSidebar();
     if (typeof window.spin === 'function') window.spin(true, 'جارٍ تجهيز البيانات…');
 
     const init = await callSupabaseAction('جلب_بيانات_التهيئة', {
@@ -227,37 +226,45 @@
     if (typeof window.spin === 'function') window.spin(false);
     if (!init || !init.نجاح) throw new Error((init && init.خطأ) || 'فشل تحميل التهيئة');
 
-    if (isTeacherLike(window.D.role)) {
-      window.D.teacherStudents = init.طلاب || [];
-      window.D.teacherKpi = init.تقارير || {};
-    } else if (window.D.role === 'مشرف_تعليمي') {
-      window.D.eduKpi = init.تقارير || {};
-      window.D.eduWarnings = init.انذارات_تعليمية || [];
-      window.D.eduStudents = init.طلاب || [];
+    // تحميل البيانات حسب الوحدات المتاحة (الصلاحيات) لا الوظيفة —
+    // مطابق لمنطق staff.html. المستخدم قد يملك أكثر من وحدة.
+    var _mods = (typeof window.scriptsForUser === 'function') ? window.scriptsForUser() : [];
+    var _has = function (m) { return _mods.indexOf(m) >= 0; };
+
+    if (_has('staff-teacher.js')) {
+      window.D.teacherStudents = init.طلاب || window.D.teacherStudents;
+      window.D.teacherKpi = init.تقارير || window.D.teacherKpi;
+    }
+    if (_has('staff-edu.js')) {
+      window.D.eduKpi = init.تقارير || window.D.eduKpi;
+      window.D.eduWarnings = init.انذارات_تعليمية || window.D.eduWarnings;
+      window.D.eduStudents = init.طلاب || window.D.eduStudents;
       window.D.eduStudentMap = {};
-      window.D.eduStudents.forEach(function (s) { window.D.eduStudentMap[s['اسم_الطالب']] = s; });
-      window.D.circles = init.حلق || [];
-      window.D.eduReasons = init.أسباب_تعليمية || [];
-      window.D.eduProcs = init.اجراءات_تعليمية || [];
-    } else if (window.D.role === 'مشرف_اداري') {
-      window.D.students = init.طلاب || [];
-      window.D.studentsTotal = init.طلاب_مجموع || 0;
-      window.D.studentsPages = init.طلاب_صفحات || 1;
-      window.D.circles = init.حلق || [];
-      window.D.statuses = init.حالات || [];
-      window.D.reqNew = init.طلبات_جديدة || [];
-      window.D.reqWait = init.طلبات_انتظار || [];
-      window.D.reqEdits = init.طلبات_تعديل || [];
-      window.D.adminEduW = init.انذارات_تعليمية || [];
-      window.D.adminAdmW = init.انذارات_ادارية_ارشيف || [];
-      window.D.templates = init.قوالب || [];
-      window.D.thresholds = init.عتبات || [];
-      window.D.procedures = init.اجراءات || [];
-      window.D.eduReasons = init.أسباب_تعليمية || [];
-      window.D.setUsers = init.عاملون || [];
-      window.D.appPages = init.صفحات || [];
-      window.D.kpi = init.kpi || {};
-    } else if (window.D.role === 'مدير') {
+      (window.D.eduStudents || []).forEach(function (s) { window.D.eduStudentMap[s['اسم_الطالب']] = s; });
+      window.D.circles = init.حلق || window.D.circles;
+      window.D.eduReasons = init.أسباب_تعليمية || window.D.eduReasons;
+      window.D.eduProcs = init.اجراءات_تعليمية || window.D.eduProcs;
+    }
+    if (_has('staff-admin.js')) {
+      window.D.students = init.طلاب || window.D.students;
+      window.D.studentsTotal = init.طلاب_مجموع || window.D.studentsTotal;
+      window.D.studentsPages = init.طلاب_صفحات || window.D.studentsPages;
+      window.D.circles = init.حلق || window.D.circles;
+      window.D.statuses = init.حالات || window.D.statuses;
+      window.D.reqNew = init.طلبات_جديدة || window.D.reqNew;
+      window.D.reqWait = init.طلبات_انتظار || window.D.reqWait;
+      window.D.reqEdits = init.طلبات_تعديل || window.D.reqEdits;
+      window.D.adminEduW = init.انذارات_تعليمية || window.D.adminEduW;
+      window.D.adminAdmW = init.انذارات_ادارية_ارشيف || window.D.adminAdmW;
+      window.D.templates = init.قوالب || window.D.templates;
+      window.D.thresholds = init.عتبات || window.D.thresholds;
+      window.D.procedures = init.اجراءات || window.D.procedures;
+      window.D.eduReasons = init.أسباب_تعليمية || window.D.eduReasons;
+      window.D.setUsers = init.عاملون || window.D.setUsers;
+      window.D.appPages = init.صفحات || window.D.appPages;
+      window.D.kpi = init.kpi || window.D.kpi;
+    }
+    if (_has('staff-director.js')) {
       window.D.dirData = {
         admin: init.admin_kpi || {},
         edu: init.edu_kpi || {},
@@ -266,8 +273,10 @@
       };
     }
 
+    // تحميل وحدات الواجهة حسب الصلاحيات، ثم بناء السايدبار والتنقل
     if (typeof window.loadRoleScript === 'function') {
       window.loadRoleScript(window.D.role, function () {
+        if (typeof window.buildSidebar === 'function') window.buildSidebar();
         if (typeof window.navFirst === 'function') window.navFirst();
         if (typeof window.updateReqBadge === 'function') window.updateReqBadge();
         if (typeof window.updateEduBadge === 'function') window.updateEduBadge();
