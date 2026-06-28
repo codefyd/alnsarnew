@@ -67,18 +67,20 @@ async function pgTeacherAttendance(){return pgTeacherPreparation();}
 async function pgTeacherPreparation(){
   var d=D.dailyPrepDate||todayISO();
   mc('<div class="stitle"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>'
+    +'<div id="dailyWeekBar" class="dpweek"><div class="spri" style="width:22px;height:22px;border-width:3px;margin:0"></div><span>جارٍ تحميل الفترة…</span></div>'
     +'<div class="cc"><div class="chdr"><h3>تحضير حضور الطالب اليومي</h3>'
     +'<div class="cacts">'
     +'<input class="fi" id="dailyPrepDate" type="date" value="'+d+'" onchange="loadDailyPrep()">'
     +'<button class="ob sm" onclick="loadDailyPrep()"><i class="fas fa-rotate"></i> تحديث</button>'
     +'<button class="ob sm" onclick="setAllAttendance(\'حاضر\')"><i class="fas fa-check"></i> الكل حاضر</button>'
-    +'<button class="ob sm" onclick="saveDailyPrep()"><i class="fas fa-floppy-disk"></i> حفظ اليوم</button>'
+    +'<button class="ob sm" onclick="setAllDone(true)"><i class="fas fa-book-open"></i> الكل أتم</button>'
     +'</div></div>'
-    +'<div class="cbody" id="dailyTermBar"><div class="empty"><div class="spri"></div><h3>جارٍ تحميل الفترة…</h3></div></div>'
     +'<div class="cbody" id="dailySummary"></div>'
-    +'<div style="overflow-x:auto"><table class="dt" id="dailyPrepTbl"><thead><tr><th>#</th><th>الطالب</th><th>المسار</th><th>الحضور</th><th>إتمام الحفظ</th><th>محفوظ اليوم</th><th>ملاحظة</th></tr></thead><tbody id="dailyPrepBody"></tbody></table></div>'
-    +'<div class="cbody"><div class="pgbar"><span id="dailyPrepFoot">—</span><div class="pgbtns"><button class="pgbtn" onclick="saveDailyPrep()"><i class="fas fa-floppy-disk"></i> حفظ اليوم</button></div></div></div>'
-    +'</div>');
+    +'<div class="dpwrap" id="dailyPrepWrap">'
+    +'<table class="dt dptable" id="dailyPrepTbl"><thead><tr><th>#</th><th>الطالب</th><th>المسار</th><th>الحضور</th><th>إتمام الحفظ</th><th>محفوظ اليوم</th><th>ملاحظة</th></tr></thead><tbody id="dailyPrepBody"></tbody></table></div>'
+    +'<div class="cbody"><div class="pgbar"><span id="dailyPrepFoot">—</span></div></div>'
+    +'</div>'
+    +'<button class="dpfab" id="dailyPrepFab" onclick="saveDailyPrep()" title="حفظ اليوم"><i class="fas fa-floppy-disk"></i><span>حفظ اليوم</span></button>');
   await loadDailyPrep();
 }
 
@@ -89,47 +91,43 @@ async function loadDailyPrep(){
   var r=await api('جلب_تحضير_يومي_موحد',{الحلقة:teacherCircle(),التاريخ:d});
   spin(false);
   if(!r||!r.نجاح){
-    var e=document.getElementById('dailyTermBar')||document.getElementById('weeklyReportBody')||document.getElementById('pathsBody');
+    var e=document.getElementById('dailyWeekBar')||document.getElementById('weeklyReportBody')||document.getElementById('pathsBody');
     if(e)e.innerHTML='<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>تعذر تحميل البيانات</h3><p>'+hesc((r&&r.خطأ)||'خطأ غير معروف')+'</p></div>';
     return;
   }
   D.dailyRows=arr(r.طلاب);
   D.dailyPerms=r.صلاحيات||{};
   D.dailyTerm=r.الفترة||{};
-  var title=document.querySelector('.stitle');
-  if(title && r['الحلقة']) title.innerHTML=title.innerHTML+' <span style="font-size:12px;color:var(--ts);font-weight:500">· حلقة: '+hesc(r['الحلقة'])+'</span>';
-  renderTermBar(r.الفترة||{});
+  renderDailyWeekBar(r.الفترة||{}, r['رقم_الأسبوع'], r['الحلقة']);
   renderDailySummary(r.ملخص||{});
   document.getElementById('dailyPrepBody').innerHTML=buildDailyPrepRows(D.dailyRows);
   document.getElementById('dailyPrepFoot').textContent='عدد الطلاب: '+D.dailyRows.length+' · التاريخ: '+d;
   updateDailyCounts();
 }
 
-function renderTermBar(term){
-  var e=document.getElementById('dailyTermBar'); if(!e)return;
-  e.innerHTML='<div class="kpi-grid" style="margin-bottom:0">'
-    +kpiCard('الفترة الحالية',hesc(term['اسم_الفترة']||'—'),'fa-calendar-days','')
-    +kpiCard('نوع الفترة',hesc(term['نوع_الفترة']||'—'),'fa-layer-group','')
-    +kpiCard('من',hesc(term['تاريخ_البداية']||'—'),'fa-play','kpi-ok')
-    +kpiCard('إلى',hesc(term['تاريخ_النهاية']||'—'),'fa-flag-checkered','kpi-wa')
-    +'</div>';
+function renderDailyWeekBar(term,weekNo,circle){
+  var e=document.getElementById('dailyWeekBar'); if(!e)return;
+  var name=hesc(term['اسم_الفترة']||'—');
+  var wk=(weekNo||weekNo===0)?('الأسبوع '+hesc(weekNo)):'—';
+  e.innerHTML='<div class="dpweek-main"><i class="fas fa-calendar-week"></i><div><div class="dpweek-wk">'+wk+'</div><div class="dpweek-sub">ضمن فترة: '+name+'</div></div></div>'
+    +(circle?'<div class="dpweek-circle"><i class="fas fa-people-group"></i> '+hesc(circle)+'</div>':'');
 }
 
 function renderDailySummary(m){
   var e=document.getElementById('dailySummary'); if(!e)return;
-  e.innerHTML='<div class="kpi-grid" style="margin-bottom:0">'
+  e.innerHTML='<div class="kpi-grid" style="margin-bottom:14px">'
     +kpiCard('إجمالي الطلاب',m['إجمالي']||0,'fa-users','')
     +kpiCard('مسجل اليوم',m['مسجل']||0,'fa-clipboard-check','kpi-ok')
     +kpiCard('لم يسجل',m['غير_مسجل']||0,'fa-hourglass-half','kpi-wa')
-    +kpiCard('أتم الحفظ',m['أتم']||0,'fa-check','kpi-ok')
+    +kpiCard('أتم الحفظ',m['أتم']||0,'fa-book-open','kpi-ok')
     +kpiCard('لم يتم',m['لم_يتم']||0,'fa-xmark','kpi-er')
-    +'</div><div id="dailyLiveCounts" style="font-size:12.5px;color:var(--ts);margin-top:10px"></div>';
+    +'</div><div class="dpcounts" id="dailyLiveCounts"></div>';
 }
 
 function attendanceButtons(cur){
-  return ['حاضر','تأخر','غائب','غائب_بعذر'].map(function(t){
-    var active=(cur||'حاضر')===t?' active':'';
-    return '<button type="button" class="mini-att '+active+'" data-type="'+t+'" onclick="setRowAttendance(this)">'+attLabel(t)+'</button>';
+  return ['حاضر','تأخر','غائب_بعذر','غائب'].map(function(t){
+    var active=(cur===t)?' active':'';
+    return '<button type="button" class="mini-att att-'+t+active+'" data-type="'+t+'" onclick="setRowAttendance(this)">'+attLabel(t)+'</button>';
   }).join('');
 }
 function doneButtons(v){
@@ -142,22 +140,31 @@ function buildDailyPrepRows(list){
   if(!list.length)return'<tr><td colspan="7" style="text-align:center;padding:18px;color:var(--ts)">لا يوجد طلاب في هذه الحلقة، تأكد أن المستخدم مربوط بنفس اسم الحلقة في ملفه.</td></tr>';
   return list.map(function(s,i){
     var code=hesc(s['رقم_الطالب']||''), done=s['اتمام_الحفظ'];
-    return '<tr class="dailyRow" data-code="'+code+'" data-name="'+hesc(s['اسم_الطالب']||'')+'" data-done="'+(done===true?'true':done===false?'false':'')+'">'
-      +'<td>'+(i+1)+'</td>'
-      +'<td><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+code+'</div></td>'
-      +'<td><span class="bp bp-in">'+hesc(s['المسار']||'—')+'</span></td>'
-      +'<td><div class="mini-wrap attWrap">'+attendanceButtons(s['نوع_الحضور']||'حاضر')+'</div></td>'
-      +'<td><div class="mini-wrap doneWrap">'+doneButtons(done)+'</div></td>'
-      +'<td><div style="display:flex;gap:6px;min-width:220px"><input class="fi surahInput" value="'+hesc(s['السورة']||'')+'" placeholder="السورة" style="min-width:120px"><input class="fi ayahInput" value="'+hesc(s['رقم_الاية']||'')+'" placeholder="رقم الآية" style="width:90px"></div></td>'
-      +'<td><input class="fi dailyNote" value="'+hesc(s['ملاحظة']||'')+'" placeholder="اختياري" style="min-width:160px"></td>'
+    var att=s['نوع_الحضور']||'';
+    return '<tr class="dailyRow" data-code="'+code+'" data-name="'+hesc(s['اسم_الطالب']||'')+'" data-att="'+hesc(att)+'" data-done="'+(done===true?'true':done===false?'false':'')+'">'
+      +'<td data-label="#">'+(i+1)+'</td>'
+      +'<td data-label="الطالب"><strong>'+hesc(s['اسم_الطالب']||'—')+'</strong><div style="font-size:11px;color:var(--ts)">'+code+'</div></td>'
+      +'<td data-label="المسار"><span class="bp bp-in">'+hesc(s['المسار']||'—')+'</span></td>'
+      +'<td data-label="الحضور"><div class="mini-wrap attWrap">'+attendanceButtons(att)+'</div></td>'
+      +'<td data-label="إتمام الحفظ"><div class="mini-wrap doneWrap">'+doneButtons(done)+'</div></td>'
+      +'<td data-label="محفوظ اليوم"><div style="display:flex;gap:6px;min-width:200px"><input class="fi surahInput" value="'+hesc(s['السورة']||'')+'" placeholder="السورة" style="min-width:110px"><input class="fi ayahInput" value="'+hesc(s['رقم_الاية']||'')+'" placeholder="الآية" style="width:80px"></div></td>'
+      +'<td data-label="ملاحظة"><input class="fi dailyNote" value="'+hesc(s['ملاحظة']||'')+'" placeholder="اختياري" style="min-width:150px"></td>'
       +'</tr>';
   }).join('');
 }
 
 function setRowAttendance(btn){
+  var row=btn.closest('.dailyRow');
   var wrap=btn.closest('.attWrap');
-  wrap.querySelectorAll('.mini-att').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
+  var t=btn.dataset.type;
+  if(row.dataset.att===t){
+    row.dataset.att='';
+    wrap.querySelectorAll('.mini-att').forEach(function(b){b.classList.remove('active');});
+  }else{
+    row.dataset.att=t;
+    wrap.querySelectorAll('.mini-att').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+  }
   updateDailyCounts();
 }
 function setRowDone(btn){
@@ -176,19 +183,30 @@ function setRowDone(btn){
 }
 function setAllAttendance(type){
   document.querySelectorAll('#dailyPrepBody .dailyRow').forEach(function(r){
+    r.dataset.att=type;
     r.querySelectorAll('.mini-att').forEach(function(b){b.classList.toggle('active',b.dataset.type===type);});
   });
   updateDailyCounts();
 }
-function getRowAttendance(row){var b=row.querySelector('.mini-att.active');return (b&&b.dataset.type)||'حاضر';}
+function setAllDone(v){
+  var val=v?'true':'false';
+  document.querySelectorAll('#dailyPrepBody .dailyRow').forEach(function(r){
+    r.dataset.done=val;
+    r.querySelectorAll('.mini-done').forEach(function(b){b.classList.toggle('active',b.dataset.done===val);});
+  });
+  updateDailyCounts();
+}
+function getRowAttendance(row){return row.dataset.att||'';}
 function getRowDone(row){if(row.dataset.done==='true')return true;if(row.dataset.done==='false')return false;return null;}
 function readDailyItems(){
   var out=[];
   document.querySelectorAll('#dailyPrepBody .dailyRow').forEach(function(r){
+    var att=getRowAttendance(r);
+    if(!att)return; // غير محضَّر ⇒ لا يُرسل (لا يُحفظ له سجل)
     out.push({
       رقم_الطالب:r.dataset.code||'',
       اسم_الطالب:r.dataset.name||'',
-      نوع_الحضور:getRowAttendance(r),
+      نوع_الحضور:att,
       اتمام_الحفظ:getRowDone(r),
       السورة:(r.querySelector('.surahInput')||{}).value||'',
       رقم_الاية:(r.querySelector('.ayahInput')||{}).value||'',
@@ -198,26 +216,27 @@ function readDailyItems(){
   return out;
 }
 function updateDailyCounts(){
-  var c={حاضر:0,تأخر:0,غائب:0,'غائب_بعذر':0,done:0,notDone:0};
+  var c={حاضر:0,تأخر:0,غائب:0,'غائب_بعذر':0,done:0,notDone:0,محضّر:0};
   document.querySelectorAll('#dailyPrepBody .dailyRow').forEach(function(r){
-    c[getRowAttendance(r)] = (c[getRowAttendance(r)]||0)+1;
+    var a=getRowAttendance(r);
+    if(a){c[a]=(c[a]||0)+1;c.محضّر++;}
     if(getRowDone(r)===true)c.done++;
     if(getRowDone(r)===false)c.notDone++;
   });
   var e=document.getElementById('dailyLiveCounts');
-  if(e)e.innerHTML=attBadge('حاضر')+' '+c.حاضر+' &nbsp; '+attBadge('تأخر')+' '+c['تأخر']+' &nbsp; '+attBadge('غائب')+' '+c.غائب+' &nbsp; '+attBadge('غائب_بعذر')+' '+c['غائب_بعذر']+' &nbsp; '+doneBadge(true)+' '+c.done+' &nbsp; '+doneBadge(false)+' '+c.notDone;
+  if(e)e.innerHTML='<span class="bp bp-in">محضَّر: '+c.محضّر+'</span> &nbsp; '+attBadge('حاضر')+' '+c.حاضر+' &nbsp; '+attBadge('تأخر')+' '+c['تأخر']+' &nbsp; '+attBadge('غائب_بعذر')+' '+c['غائب_بعذر']+' &nbsp; '+attBadge('غائب')+' '+c.غائب+' &nbsp; '+doneBadge(true)+' '+c.done+' &nbsp; '+doneBadge(false)+' '+c.notDone;
 }
 
 async function saveDailyPrep(){
   var items=readDailyItems();
-  if(!items.length){Swal.fire({icon:'info',title:'لا يوجد طلاب للحفظ',confirmButtonColor:'#1a3c5e'});return;}
+  if(!items.length){Swal.fire({icon:'info',title:'لم تُحضِّر أي طالب',text:'حدّد حالة حضور لطالب واحد على الأقل قبل الحفظ.',confirmButtonColor:'#072b49',customClass:{popup:'swal-rtl'}});return;}
   var d=val('dailyPrepDate')||todayISO();
-  var res=await Swal.fire({icon:'question',title:'حفظ تحضير اليوم؟',text:'سيتم حفظ حضور وتحضير '+items.length+' طالب ليوم '+d,showCancelButton:true,confirmButtonText:'حفظ',cancelButtonText:'إلغاء',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});
+  var res=await Swal.fire({icon:'question',title:'حفظ تحضير اليوم؟',text:'سيتم حفظ '+items.length+' طالب محضَّر ليوم '+d+' (الطلاب غير المحضَّرين لن تُسجَّل لهم بيانات).',showCancelButton:true,confirmButtonText:'حفظ',cancelButtonText:'إلغاء',confirmButtonColor:'#072b49',customClass:{popup:'swal-rtl'}});
   if(!res.isConfirmed)return;
   spin(true,'جارٍ حفظ التحضير اليومي…');
   var r=await api('حفظ_تحضير_يومي_موحد',{الحلقة:teacherCircle(),التاريخ:d,طلاب:items});
   spin(false);
-  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#1a3c5e',customClass:{popup:'swal-rtl'}});return;}
+  if(!r||!r.نجاح){Swal.fire({icon:'error',title:'تعذر الحفظ',text:(r&&r.خطأ)||'خطأ غير معروف',confirmButtonColor:'#072b49',customClass:{popup:'swal-rtl'}});return;}
   Swal.fire({icon:'success',title:'تم الحفظ',text:'تم حفظ '+(r['تم_الحفظ']||0)+' سجل',timer:1800,timerProgressBar:true,showConfirmButton:false,customClass:{popup:'swal-rtl'}});
   await loadDailyPrep();
 }
@@ -324,7 +343,43 @@ async function saveStudentPaths(){
 (function(){
   if(document.getElementById('dailyPrepMiniCss'))return;
   var st=document.createElement('style');st.id='dailyPrepMiniCss';
-  st.textContent='.mini-wrap{display:flex;gap:4px;flex-wrap:wrap;min-width:190px}.mini-att,.mini-done{border:1px solid var(--bd);background:#fff;color:var(--ts);border-radius:8px;padding:5px 8px;font-family:Tajawal;font-size:11.5px;font-weight:700;cursor:pointer}.mini-att.active,.mini-done.active{background:var(--p);border-color:var(--p);color:#fff}.mini-done.active[data-done="true"]{background:var(--ok);border-color:var(--ok)}.mini-done.active[data-done="false"]{background:var(--er);border-color:var(--er)}';
+  st.textContent=[
+    '.mini-wrap{display:flex;gap:5px;flex-wrap:wrap;min-width:200px}',
+    '.mini-att,.mini-done{border:1.5px solid var(--bd);background:#fff;color:var(--ts);border-radius:9px;padding:6px 11px;font-family:Tajawal;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s}',
+    '.mini-att:hover,.mini-done:hover{border-color:var(--navy)}',
+    /* ألوان حالات الحضور عند التفعيل */
+    '.mini-att.att-حاضر.active{background:#1e7e4a;border-color:#1e7e4a;color:#fff}',
+    '.mini-att.att-تأخر.active{background:#d4890a;border-color:#d4890a;color:#fff}',
+    '.mini-att.att-غائب_بعذر.active{background:#e88b82;border-color:#e88b82;color:#fff}',
+    '.mini-att.att-غائب.active{background:#c0392b;border-color:#c0392b;color:#fff}',
+    '.mini-done.active[data-done="true"]{background:var(--ok);border-color:var(--ok);color:#fff}',
+    '.mini-done.active[data-done="false"]{background:var(--er);border-color:var(--er);color:#fff}',
+    /* شريط الأسبوع */
+    '.dpweek{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,var(--navy),var(--pl));color:#fff;border-radius:var(--r);padding:14px 18px;margin-bottom:16px;box-shadow:var(--sh)}',
+    '.dpweek-main{display:flex;align-items:center;gap:12px}',
+    '.dpweek-main>i{font-size:22px;opacity:.85}',
+    '.dpweek-wk{font-size:17px;font-weight:800;line-height:1.2}',
+    '.dpweek-sub{font-size:12px;opacity:.8}',
+    '.dpweek-circle{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:5px 12px;border-radius:18px;font-size:12px;font-weight:600;white-space:nowrap}',
+    /* عدّادات حية */
+    '.dpcounts{font-size:12.5px;color:var(--ts);display:flex;flex-wrap:wrap;gap:4px;align-items:center}',
+    /* الزر العائم */
+    '.dpfab{position:sticky;bottom:16px;float:left;margin-top:10px;background:linear-gradient(135deg,var(--navy),var(--pl));color:#fff;border:none;border-radius:30px;padding:12px 20px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(7,43,73,.32);z-index:50;transition:transform .15s,box-shadow .2s}',
+    '.dpfab:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(7,43,73,.4)}',
+    '.dpwrap{overflow-x:auto}',
+    /* كروت الجوال */
+    '@media(max-width:760px){',
+    '  .dptable thead{display:none}',
+    '  .dptable,.dptable tbody,.dptable tr,.dptable td{display:block;width:100%}',
+    '  .dptable tr.dailyRow{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);margin-bottom:12px;padding:12px 14px}',
+    '  .dptable tr.dailyRow:hover td{background:transparent}',
+    '  .dptable td{border:none!important;padding:7px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}',
+    '  .dptable td::before{content:attr(data-label);font-size:11px;font-weight:700;color:var(--ts);flex-shrink:0;padding-top:4px}',
+    '  .dptable td[data-label="#"]{display:none}',
+    '  .mini-wrap{justify-content:flex-end;min-width:0}',
+    '  .dpfab{position:fixed;bottom:18px;left:18px;float:none}',
+    '}'
+  ].join('');
   document.head.appendChild(st);
 })();
 
