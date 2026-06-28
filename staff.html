@@ -11,24 +11,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --p:#1a3c5e;--pl:#2563a8;--acc:#c8a84b;--bg:#f4f2ec;--bg2:#fff;
-  --tm:#1a1a2e;--ts:#5a6a7a;--bd:#ddd5c0;--ok:#1e7e4a;--er:#c0392b;--wa:#d4890a;
-  --r:14px;--sh:0 4px 24px rgba(26,60,94,.10);--shl:0 12px 40px rgba(26,60,94,.16);
+  /* النظام اللوني الجديد — جامع النصار */
+  --navy:#072b49;--navy-deep:#04203a;--sky:#9edae5;--copper:#dca26f;--cream:#f6f1e8;
+  /* المتغيّرات التشغيلية (محافظة على الأسماء القديمة لعدم كسر الوحدات) */
+  --p:#072b49;--pl:#0e4a7a;--acc:#dca26f;--bg:#f6f1e8;--bg2:#fff;
+  --tm:#0a2236;--ts:#5d7180;--bd:#e7ded0;--ok:#1e7e4a;--er:#c0392b;--wa:#d4890a;
+  --r:16px;
+  --sh:0 2px 10px rgba(7,43,73,.06);
+  --shl:0 10px 28px rgba(7,43,73,.12);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tm);direction:rtl;}
 
 /* ══ شاشة الدخول ══ */
-#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1a3c5e,#2563a8);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
-.lcard{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.25);text-align:center;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275);}
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy),var(--navy-deep));display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.lcard{background:#fff;border-radius:22px;padding:40px 36px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.28);text-align:center;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275);}
 @keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.llogo{width:72px;height:72px;background:linear-gradient(135deg,#c8a84b,#f0d080);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
-.llogo i{font-size:32px;color:var(--p);}
+.llogo{width:96px;height:96px;border-radius:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;background:var(--cream);padding:10px;}
+.llogo img{max-width:100%;max-height:100%;object-fit:contain;}
 .lcard h2{font-size:22px;font-weight:800;color:var(--p);margin-bottom:6px;}
 .lcard p{font-size:13px;color:var(--ts);margin-bottom:28px;}
-.linput{width:100%;border:2px solid var(--bd);border-radius:12px;padding:14px 18px;font-family:'Tajawal',sans-serif;font-size:18px;text-align:center;letter-spacing:6px;color:var(--p);font-weight:700;margin-bottom:16px;transition:border-color .2s;}
+.linput{width:100%;border:2px solid var(--bd);border-radius:12px;padding:13px 16px;font-family:'Tajawal',sans-serif;font-size:15px;text-align:left;direction:ltr;color:var(--navy);font-weight:600;margin-bottom:14px;transition:border-color .2s;}
 .linput:focus{outline:none;border-color:var(--pl);}
-.linput-text{text-align:right;letter-spacing:normal;font-size:15px;font-weight:500;}
 .lbtn{width:100%;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:12px;padding:14px;font-family:'Tajawal',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
 .lbtn:disabled{opacity:.7;cursor:not-allowed;}
 .lerr{color:var(--er);font-size:13px;margin-top:8px;display:none;}
@@ -37,8 +41,8 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 /* ══ هيدر ══ */
 .site-header{background:var(--p);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.18);}
 .hinner{display:flex;align-items:center;gap:12px;padding:10px 20px;}
-.hlogo{width:40px;height:40px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.hlogo i{font-size:17px;color:var(--p);}
+.hlogo{width:42px;height:42px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:4px;}
+.hlogo img{max-width:100%;max-height:100%;object-fit:contain;}
 .htitle h1{font-size:16px;font-weight:800;color:#fff;margin:0;line-height:1.2;}
 .htitle p{font-size:11px;color:rgba(255,255,255,.55);margin:0;}
 .hright{margin-right:auto;display:flex;align-items:center;gap:9px;}
@@ -55,31 +59,38 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 /* ══ سيدبار ══ */
 .slabel{font-size:10px;font-weight:700;color:var(--ts);letter-spacing:.5px;padding:12px 16px 4px;text-transform:uppercase;}
 .nitem{display:flex;align-items:center;gap:9px;padding:9px 14px;border-radius:9px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--ts);position:relative;margin:1px 8px;}
-.nitem:hover{background:var(--bg);color:var(--p);}
-.nitem.active{background:linear-gradient(135deg,rgba(26,60,94,.1),rgba(37,99,168,.07));color:var(--p);}
-.nitem.active::before{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:3px;height:55%;background:var(--p);border-radius:2px;}
+.nitem:hover{background:var(--cream);color:var(--navy);}
+.nitem.active{background:linear-gradient(135deg,rgba(158,218,229,.28),rgba(7,43,73,.05));color:var(--navy);}
+.nitem.active::before{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:3px;height:55%;background:var(--copper);border-radius:2px;}
 .nitem i{width:16px;text-align:center;}
 .nbadge{margin-right:auto;background:var(--er);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:700;}
 /* ══ KPI ══ */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-bottom:22px;}
-.kpi-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
-.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shl);}
-.bgico{position:absolute;left:-8px;bottom:-10px;font-size:60px;opacity:.06;color:var(--p);pointer-events:none;transition:transform .35s;}
-.kpi-card:hover .bgico{transform:scale(1.18) rotate(8deg);}
-.klabel{font-size:11.5px;font-weight:600;color:var(--ts);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
-.kval{font-size:30px;font-weight:800;color:var(--p);line-height:1;}
-.kpi-ok .kval{color:var(--ok);}.kpi-er .kval{color:var(--er);}.kpi-wa .kval{color:var(--wa);}.kpi-ac .kval{color:#8b5e0a;}
+.kpi-card{background:var(--bg2);border:1px solid rgba(231,222,208,.7);border-radius:var(--r);padding:18px 18px 16px;position:relative;overflow:hidden;box-shadow:var(--sh);transition:transform .25s ease,box-shadow .25s ease;}
+.kpi-card:hover{transform:translateY(-4px);box-shadow:var(--shl);}
+.kpi-card::before{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:var(--copper);opacity:.0;transition:opacity .25s;}
+.kpi-card:hover::before{opacity:.65;}
+.bgico{position:absolute;left:14px;top:14px;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;background:rgba(158,218,229,.22);color:var(--navy);pointer-events:none;transition:transform .35s,background .25s;}
+.kpi-card:hover .bgico{transform:scale(1.06);}
+.kpi-ok .bgico{background:rgba(30,126,74,.13);color:var(--ok);}
+.kpi-er .bgico{background:rgba(192,57,43,.12);color:var(--er);}
+.kpi-wa .bgico{background:rgba(212,137,10,.14);color:var(--wa);}
+.kpi-ac .bgico{background:rgba(220,162,111,.20);color:#a9692f;}
+.klabel{font-size:11.5px;font-weight:600;color:var(--ts);margin-bottom:8px;display:flex;align-items:center;gap:5px;padding-left:46px;min-height:38px;}
+.kval{font-size:30px;font-weight:800;color:var(--navy);line-height:1;}
+.kpi-ok .kval{color:var(--ok);}.kpi-er .kval{color:var(--er);}.kpi-wa .kval{color:var(--wa);}.kpi-ac .kval{color:#a9692f;}
 /* ══ بطاقات ══ */
-.cc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
-.chdr{padding:12px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;background:#fafaf8;flex-wrap:wrap;}
-.chdr h3{font-size:14px;font-weight:700;color:var(--p);margin:0;}
+.cc{background:var(--bg2);border:1px solid rgba(231,222,208,.7);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh);transition:box-shadow .25s ease;}
+.cc:hover{box-shadow:var(--shl);}
+.chdr{padding:14px 20px;border-bottom:1px solid rgba(231,222,208,.6);display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#fbf8f2,#fff);flex-wrap:wrap;}
+.chdr h3{font-size:14px;font-weight:700;color:var(--navy);margin:0;}
 .cacts{margin-right:auto;display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
 .cbody{padding:18px 20px;}
 /* ══ جدول ══ */
 .dt{width:100%;border-collapse:collapse;font-size:13px;}
-.dt th{background:#f4f2ec;color:var(--ts);font-weight:700;font-size:11px;padding:9px 12px;text-align:right;border-bottom:2px solid var(--bd);white-space:nowrap;}
-.dt td{padding:9px 12px;border-bottom:1px solid #f0ece0;vertical-align:middle;}
-.dt tr:hover td{background:#fafaf8;}
+.dt th{background:#f3ede2;color:var(--navy);font-weight:700;font-size:11px;padding:10px 12px;text-align:right;border-bottom:2px solid var(--bd);white-space:nowrap;}
+.dt td{padding:10px 12px;border-bottom:1px solid #f3eee3;vertical-align:middle;}
+.dt tr:hover td{background:#fbf8f2;}
 .dt tr:last-child td{border-bottom:none;}
 /* ══ شارات ══ */
 .bp{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700;}
@@ -98,12 +109,12 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 .spanel.active{display:block;animation:fadeIn .2s ease;}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 /* ══ أزرار ══ */
-.pb{background:linear-gradient(135deg,var(--p),var(--pl));color:#fff;border:none;border-radius:8px;padding:8px 17px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
-.pb:hover{filter:brightness(1.1);}
-.pb:disabled{opacity:.6;cursor:not-allowed;}
-.ob{background:transparent;color:var(--p);border:1.5px solid var(--p);border-radius:8px;padding:6px 13px;font-family:'Tajawal',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
-.ob:hover{background:var(--p);color:#fff;}
-.sm{padding:4px 10px;font-size:11.5px;border-radius:6px;}
+.pb{background:linear-gradient(135deg,var(--navy),var(--pl));color:#fff;border:none;border-radius:10px;padding:8px 17px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(7,43,73,.18);transition:transform .15s,box-shadow .2s,filter .2s;}
+.pb:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 4px 14px rgba(7,43,73,.24);}
+.pb:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.ob{background:#fff;color:var(--navy);border:1.5px solid var(--bd);border-radius:10px;padding:6px 13px;font-family:'Tajawal',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+.ob:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.sm{padding:5px 11px;font-size:11.5px;border-radius:8px;}
 .okb{background:var(--ok);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-family:'Tajawal',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
 .okb:disabled{opacity:.5;cursor:not-allowed;}
 .erb{background:var(--er);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-family:'Tajawal',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
@@ -171,11 +182,11 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 <!-- ══ شاشة الدخول ══ -->
 <div id="loginScreen">
   <div class="lcard">
-    <div class="llogo"><i class="fas fa-book-open-reader"></i></div>
-    <h2>بوابة العاملين</h2>
-    <p>مجمع حلق جامع النصار<br>سجّل الدخول بالبريد وكلمة المرور</p>
-    <input class="linput linput-text" type="email" id="loginEmail" placeholder="البريد الإلكتروني" autocomplete="username" maxlength="120" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
-    <input class="linput linput-text" type="password" id="loginPassword" placeholder="كلمة المرور" autocomplete="current-password" maxlength="120" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="llogo"><img src="https://e.top4top.io/p_3825j6z0v1.png" alt="شعار مجمع النصار"></div>
+    <h2>تسجيل دخول العاملين</h2>
+    <p>مجمع حلق جامع النصار<br>أدخل البريد وكلمة المرور</p>
+    <input class="linput" type="email" id="loginEmail" placeholder="البريد الإلكتروني" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+    <input class="linput" type="password" id="loginPassword" placeholder="كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="lbtn" id="loginBtn" onclick="doLogin()"><i class="fas fa-right-to-bracket"></i> دخول</button>
     <div class="lerr" id="loginErr"><i class="fas fa-circle-xmark me-1"></i>بيانات الدخول غير صحيحة</div>
     <div class="llinks">
@@ -189,7 +200,7 @@ html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);colo
 <header class="site-header" id="appHeader" style="display:none">
   <div class="hinner">
     <button class="hambtn" id="hambBtn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-    <div class="hlogo"><i class="fas fa-book-open-reader"></i></div>
+    <div class="hlogo"><img src="https://e.top4top.io/p_3825j6z0v1.png" alt="شعار مجمع النصار"></div>
     <div class="htitle"><h1>مجمع حلق جامع النصار</h1><p>تابع لجمعية تحفيظ بريدة</p></div>
     <div class="hright">
       <div class="uchip"><i class="fas fa-user-circle fa-sm"></i><span id="hName">—</span><span class="rbadge" id="hRole">—</span></div>
@@ -229,34 +240,47 @@ function _uniqueScripts(list){
   list.forEach(function(x){if(x&&!seen[x]){seen[x]=true;out.push(x);}});
   return out;
 }
-// ══════════════════════════════════════════════════════
-// تحميل وحدات الواجهة — الحاكم هو الصلاحيات لا الوظيفة
-// ──────────────────────────────────────────────────────
-// قائمة الصفحات والصلاحيات والوحدات معرّفة في مصدر واحد:
-// PAGE_ITEMS قرب نهاية الملف، الذي يعرّف window.scriptsForUser.
-// هنا فقط نحمّل الملفات الناتجة. لإضافة صفحة/صلاحية جديدة عدّل
-// PAGE_ITEMS فقط.
-// ══════════════════════════════════════════════════════
-var MODULE_BASE = {
-  'staff-teacher.js':'pgTeacherSt',
-  'staff-edu.js':'pgEduKpi',
-  'staff-admin.js':'pgAdminKpi',
-  'staff-director.js':'pgDirectorKpi'
-};
-
-function loadRoleScript(_ignoredRole, callback){
-  var scripts = (typeof window.scriptsForUser === 'function') ? window.scriptsForUser() : [];
-  if(!scripts.length){ if(callback) callback(); return; }
+function scriptsForUser(role){
+  var map={
+    'معلم':'staff-teacher.js',
+    'مسمع_تعليمي':'staff-teacher.js',
+    'مساعد_معلم':'staff-teacher.js',
+    'مساعد_خارجي':'staff-teacher.js',
+    'مشرف_تعليمي':'staff-edu.js',
+    'مشرف_اداري':'staff-admin.js',
+    'مدير':'staff-director.js'
+  };
+  var list=[map[role]];
+  // هذه الصفحات قد تعطى لأي مستخدم من الصلاحيات، لذلك نحمل ملفاتها حسب الصفحة لا حسب الدور.
+  if(hasPerm('teacher_reports')||hasPerm('rabt_assessments')||hasPerm('student_tests')||hasPerm('hizb_presentations')||hasPerm('teacher_preparation')||hasPerm('teacher_attendance')||hasPerm('weekly_prep_report')||hasPerm('student_period_report')||hasPerm('student_paths')){
+    list.push('staff-teacher.js');
+  }
+  if(hasPerm('edu_assessment_reports')||hasPerm('edu_weekly_rabt_report')||hasPerm('edu_week_details')){
+    list.push('staff-edu.js');
+  }
+  if(hasPerm('administrative_reports')||hasPerm('educational_assessment_settings')||hasPerm('users')||hasPerm('settings')||hasPerm('students')||hasPerm('registration_requests')||hasPerm('edit_requests')||hasPerm('educational_warnings')||hasPerm('administrative_warnings')||hasPerm('learning_terms')||hasPerm('thresholds')||hasPerm('templates')){
+    list.push('staff-admin.js');
+  }
+  return _uniqueScripts(list);
+}
+function loadRoleScript(role, callback){
+  var scripts=scriptsForUser(role);
+  if(!scripts.length){ if(callback)callback(); return; }
   Promise.all(scripts.map(_loadOneRoleScript)).then(function(){
-    // تحقّق أن كل وحدة محمّلة صدّرت دالتها الأساسية
-    scripts.forEach(function(mod){
-      var base = MODULE_BASE[mod];
-      if(base && typeof window[base] !== 'function'){
-        console.warn('Module base function missing:', base, 'module:', mod);
-      }
-    });
-    if(callback) callback();
-  }).catch(function(e){ alert(e.message||'تعذر تحميل ملفات الصفحة'); });
+    var expected={
+      'معلم':'pgTeacherSt',
+      'مسمع_تعليمي':'pgTeacherSt',
+      'مساعد_معلم':'pgTeacherSt',
+      'مساعد_خارجي':'pgTeacherSt',
+      'مشرف_تعليمي':'pgEduKpi',
+      'مشرف_اداري':'pgAdminKpi',
+      'مدير':'pgDirectorKpi'
+    }[role];
+    if(expected && typeof window[expected] !== 'function'){
+      console.warn('Role base function missing:',expected,'role:',role,'scripts:',scripts);
+    }
+    if(callback)callback();
+  }).catch(function(e){alert(e.message||'تعذر تحميل ملفات الصفحة');});
 }
 // ══════════════════════════════════════════════════════
 // الثوابت والحالة
@@ -293,7 +317,7 @@ function qj(o){return encodeURIComponent(JSON.stringify(o));}
 function fmtDate(d){if(!d)return'—';try{return new Date(d).toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'});}catch(e){return String(d).split('T')[0];}}
 function roleLabel(r){return{مشرف_النظام:'مشرف النظام',مشرف_اداري:'مشرف إداري',مشرف_تعليمي:'مشرف تعليمي',معلم:'معلم',مسمع_تعليمي:'مسمع تعليمي',مساعد_معلم:'مساعد معلم',مساعد_خارجي:'مساعد خارجي',مدير:'مدير',مسجل:'مسجل',مشاهد:'مشاهد'}[r]||r||'—';}
 function sBadge(s){var m={منتظم:'bp-ok','غير منتظم':'bp-wa',موقوف:'bp-er','في الانتظار':'bp-in',منسحب:'bp-gr'};return '<span class="bp '+(m[s]||'bp-gr')+'">'+(s||'—')+'</span>';}
-function kpiCard(label,val,icon,cls){return '<div class="kpi-card '+(cls||'')+'"><div class="klabel"><i class="fas '+icon+' fa-xs"></i> '+label+'</div><div class="kval">'+val+'</div><i class="fas '+icon+' bgico"></i></div>';}
+function kpiCard(label,val,icon,cls){return '<div class="kpi-card '+(cls||'')+'"><div class="bgico"><i class="fas '+icon+'"></i></div><div class="klabel">'+label+'</div><div class="kval">'+val+'</div></div>';}
 function sField(label,id,val2,type,disabled){return '<div><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">'+label+(disabled?' <span style="font-size:10px;color:#aaa">(ثابت)</span>':'')+'</label><input id="'+id+'" type="'+(type||'text')+'" class="swal2-input" value="'+(val2||'')+'" '+(disabled?'disabled':'')+' style="font-family:Tajawal;width:100%;margin:0;'+(disabled?'background:#f5f5f5;color:#aaa':'')+'"></div>';}
 function whatsapp(phone,msg){var p=String(phone||'').replace(/\D/g,'');var i=p.startsWith('0')?'966'+p.slice(1):p;window.open('https://wa.me/'+i+(msg?'?text='+encodeURIComponent(msg):''),'_blank');}
 function buildMsg(tpl,vars){var t=tpl||'';Object.keys(vars).forEach(function(k){t=t.split('#'+k).join(vars[k]||'');});return t;}
@@ -346,9 +370,7 @@ function toggleSidebar(){document.getElementById('sidebarNav').classList.toggle(
 function closeSidebar(){document.getElementById('sidebarNav').classList.remove('open');document.getElementById('sOverlay').classList.remove('show');}
 
 // ══════════════════════════════════════════════════════
-// PREFETCH — [مهجور / DEPRECATED] غير مستدعى.
-// المسار الحالي يستخدم 'جلب_بيانات_التهيئة' أعلاه (محكوم بالصلاحيات).
-// أُبقي عليه للمرجع فقط؛ منطقه محكوم بالوظيفة (قديم) — لا تعتمد عليه.
+// PREFETCH — طلب واحد لكل شيء
 // ══════════════════════════════════════════════════════
 async function prefetch(){
   var role=D.role, حلقة=D.user['الحلقة']||'';
@@ -434,24 +456,10 @@ async function prefetch(){
 }
 
 // ══════════════════════════════════════════════════════
-// LOGIN — [مهجور] الدخول الفعلي يتولاه supabase-adapter.js عبر
-// signInWithPassword ثم completeStaffLogin (بريد + كلمة مرور).
-// هذه نسخة احتياطية: إن نُفّذت (مثلاً لم يُحمّل الـ adapter) تُنبّه فقط
-// ولا تعتمد على حقول النظام القديم المحذوفة (loginCode/رمز_الدخول).
+// LOGIN — يُدار بالكامل من supabase-adapter.js عبر Supabase Auth
+// (البريد + كلمة المرور). النظام القديم بالرمز محذوف.
+// window.doLogin و window.doLogout و completeStaffLogin مُعرّفة في الـ adapter.
 // ══════════════════════════════════════════════════════
-async function doLogin(){
-  var err = document.getElementById('loginErr');
-  if(err){
-    err.textContent = 'تعذّر تحميل نظام الدخول. حدّث الصفحة وحاول مجدداً.';
-    err.style.display = 'block';
-  }
-  console.error('Supabase adapter not loaded: doLogin fallback invoked.');
-}
-function doLogout(){
-  try { localStorage.removeItem('alnsar_staff_token'); } catch(e) {}
-  D.sessionToken = '';
-  window.location.href='index.html';
-}
 // ── جلب بيانات المشرف الإداري في الخلفية ──
 function _fetchAdminBackground(){
   // كل البيانات الثانوية دفعة واحدة موازية
@@ -505,13 +513,63 @@ function _fetchAdminBackground(){
 }
 
 
-// ══════════════════════════════════════════════════════
-// التنقّل وبناء السايدبار وحارس الصلاحيات:
-// كلها معرّفة في طبقة PAGE_ITEMS الموحّدة قرب نهاية الملف
-// (window.buildSidebar / window.navFirst / window.scriptsForUser
-//  + حارس nav). هي مصدر الحقيقة الوحيد المحكوم بالصلاحيات.
-// لا تُعرّف نسخاً موازية هنا.
-// ══════════════════════════════════════════════════════
+// ══ بناء الشريط الجانبي ══
+function buildSidebar(){
+  var role=D.role,h='';
+  if(isTeacherLike(role)){
+    h='<div class="slabel">القائمة</div>';
+    if(hasPerm('teacher_students')||role==='معلم') h+=`<div class="nitem" onclick="nav('tSt')"><i class="fas fa-users"></i> طلاب الحلقة</div>`;
+    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) h+=`<div class="nitem" onclick="nav('tPreparation')"><i class="fas fa-clipboard-check"></i> التحضير اليومي</div>`;
+    if(hasPerm('weekly_prep_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tWeeklyReport')"><i class="fas fa-table"></i> تقرير الطلاب الأسبوعي</div>`;
+    if(hasPerm('student_period_report')||hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tStudentReport')"><i class="fas fa-chart-column"></i> تقرير الطلاب</div>`;
+    if(hasPerm('student_paths')) h+=`<div class="nitem" onclick="nav('tPaths')"><i class="fas fa-route"></i> مسارات الطلاب</div>`;
+    if(hasPerm('rabt_assessments')) h+=`<div class="nitem" onclick="nav('tRabt')"><i class="fas fa-link"></i> عرض الربط</div>`;
+    if(hasPerm('student_tests')) h+=`<div class="nitem" onclick="nav('tTests')"><i class="fas fa-clipboard-list"></i> الاختبارات</div>`;
+    if(hasPerm('hizb_presentations')) h+=`<div class="nitem" onclick="nav('tHizb')"><i class="fas fa-book-quran"></i> عرض الحزب</div>`;
+    if(hasPerm('reports')||role==='معلم') h+=`<div class="nitem" onclick="nav('tKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`;
+  } else if(role==='مشرف_تعليمي'){
+    h='<div class="slabel">القائمة</div>'
+     +`<div class="nitem" onclick="nav('eKpi')"><i class="fas fa-chart-pie"></i> التقارير</div>`
+     +`<div class="nitem" onclick="nav('eSupervision')"><i class="fas fa-user-graduate"></i> الإشراف التعليمي</div>`
+     +`<div class="nitem" onclick="nav('eW')"><i class="fas fa-triangle-exclamation"></i> الإنذارات <span class="nbadge" id="nbEdu"></span></div>`
+     +`<div class="nitem" onclick="nav('eSt')"><i class="fas fa-users"></i> الحلق والطلاب</div>`;
+    if(hasPerm('edu_assessment_reports')||D.role==='مشرف_تعليمي') h+=`<div class="nitem" onclick="nav('eAssessmentReport')"><i class="fas fa-chart-line"></i> تقرير التقييم التعليمي</div>`;
+    if(hasPerm('edu_weekly_rabt_report')||D.role==='مشرف_تعليمي') h+=`<div class="nitem" onclick="nav('eRabtWeekReport')"><i class="fas fa-table-list"></i> تقرير الربط الأسبوعي</div>`;
+    if(hasPerm('edu_week_details')||D.role==='مشرف_تعليمي') h+=`<div class="nitem" onclick="nav('eWeekDetails')"><i class="fas fa-magnifying-glass-chart"></i> تفاصيل أسابيع الربط</div>`;
+  } else if(role==='مشرف_اداري'){
+    var cnt=arr(D.reqNew).length+arr(D.reqEdits).length;
+    h='<div class="slabel">الإدارة</div>'
+     +`<div class="nitem" onclick="nav('aKpi')"><i class="fas fa-chart-pie"></i> لوحة التقارير</div>`
+     +`<div class="nitem" onclick="nav('aSt')"><i class="fas fa-users"></i> إدارة الطلاب</div>`
+     +`<div class="nitem" onclick="nav('aReq')"><i class="fas fa-inbox"></i> الطلبات <span class="nbadge" id="nbReq">${cnt||''}</span></div>`
+     +'<div class="slabel">الإنذارات</div>'
+     +`<div class="nitem" onclick="nav('aEduW')"><i class="fas fa-book-open"></i> الإنذارات التعليمية</div>`
+     +`<div class="nitem" onclick="nav('aAdmW')"><i class="fas fa-user-clock"></i> الإنذارات الإدارية</div>`
+     +`<div class="nitem" onclick="nav('aAllW')"><i class="fas fa-list-check"></i> جميع الإنذارات</div>`
+     +'<div class="slabel">الإعدادات</div>'
+     +`<div class="nitem" onclick="nav('aTerms')"><i class="fas fa-calendar-days"></i> الفصول والبرامج</div>`
+     +`<div class="nitem" onclick="nav('settings')"><i class="fas fa-gear"></i> الإعدادات</div>`;
+  } else if(role==='مدير'){
+    h='<div class="slabel">الاطلاع</div>'
+     +`<div class="nitem" onclick="nav('dirKpi')"><i class="fas fa-chart-pie"></i> لوحة الإحصاءات</div>`;
+  }
+  document.getElementById('sidebarNav').innerHTML=h||'<div class="slabel">لا توجد صفحات متاحة</div>';
+}
+function navFirst(){
+  if(isTeacherLike(D.role)){
+    if(hasPerm('teacher_students')||D.role==='معلم') return nav('tSt');
+    if(hasPerm('teacher_preparation')||hasPerm('teacher_attendance')) return nav('tPreparation');
+    if(hasPerm('weekly_prep_report')||hasPerm('reports')||D.role==='معلم') return nav('tWeeklyReport');
+    if(hasPerm('student_period_report')||hasPerm('reports')||D.role==='معلم') return nav('tStudentReport');
+    if(hasPerm('student_paths')) return nav('tPaths');
+    if(hasPerm('rabt_assessments')) return nav('tRabt');
+    if(hasPerm('student_tests')) return nav('tTests');
+    if(hasPerm('hizb_presentations')) return nav('tHizb');
+    if(hasPerm('reports')||D.role==='معلم') return nav('tKpi');
+  }
+  var m={مشرف_تعليمي:'eKpi',مشرف_اداري:'aKpi',مدير:'dirKpi'};
+  nav(m[D.role]||'aKpi');
+}
   
 function nav(page){
   closeSidebar();
